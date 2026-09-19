@@ -54,50 +54,53 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 my-8">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl max-w-2xl w-full p-6 shadow-xl border border-slate-200 space-y-5 my-8 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-start justify-between border-b pb-3.5">
+        <div className="flex items-start justify-between border-b border-slate-100 pb-3.5">
           <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-xl md:text-2xl font-black text-gray-950">Merchant Action Review &amp; Approval</h2>
-            </div>
-            <p className="text-sm text-gray-600 mt-1 font-medium">
-              Review and approve proposed autonomous business campaign before execution
+            <h2 className="text-lg font-semibold text-slate-900">
+              Review Action Proposal
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Merchant sign-off gate before dispatching automated customer outreach
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl p-1 font-bold">
-            &times;
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center font-bold text-sm"
+          >
+            ✕
           </button>
         </div>
 
         {/* Approval & Execution Status Pill */}
-        <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3.5 border text-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="font-bold text-gray-600">Approval Gate:</span>
+        <div className="flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-200/80 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-slate-500">Approval State:</span>
             <span
-              className={`badge font-bold px-2.5 py-1 rounded-md text-xs md:text-sm ${
+              className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                 action.approvalStatus === "APPROVED"
-                  ? "bg-green-100 text-green-800"
+                  ? "badge-emerald"
                   : action.approvalStatus === "REJECTED"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-amber-100 text-amber-800"
+                  ? "badge-rose"
+                  : "badge-amber"
               }`}
             >
               {action.approvalStatus}
             </span>
           </div>
-          <div className="flex items-center gap-2.5">
-            <span className="font-bold text-gray-600">Execution:</span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-slate-500">Execution:</span>
             <span
-              className={`badge font-bold px-2.5 py-1 rounded-md text-xs md:text-sm ${
+              className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                 action.executionStatus === "SUCCESS"
-                  ? "bg-emerald-100 text-emerald-800"
+                  ? "badge-emerald"
                   : action.executionStatus === "RUNNING"
-                  ? "bg-blue-100 text-blue-800"
+                  ? "bg-blue-50 text-blue-700 border border-blue-200"
                   : action.executionStatus === "FAILED"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-gray-100 text-gray-700"
+                  ? "badge-rose"
+                  : "badge-slate"
               }`}
             >
               {action.executionStatus}
@@ -105,197 +108,195 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
           </div>
         </div>
 
-        {/* 1. WHY (Grounded Trigger) */}
-        <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-4 sm:p-5 space-y-1.5">
+        {/* 1. Observation Context */}
+        <div className="bg-amber-50/40 border border-amber-200/70 rounded-lg p-4 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase px-2.5 py-1 rounded bg-amber-200/80 text-amber-950">
-              1. Why GrowKaro Flagged This
+            <span className="text-[11px] font-semibold text-amber-900 uppercase tracking-wider">
+              Trigger Rationale
             </span>
             {insight?.category && (
-              <span className="text-xs font-bold text-amber-900">
+              <span className="badge-slate font-mono text-[10px]">
                 Priority: {insight.severity || "HIGH"}
               </span>
             )}
           </div>
-          <h3 className="text-base md:text-lg font-black text-gray-950 mt-1.5 leading-snug">
+          <h3 className="text-sm font-semibold text-slate-900 leading-snug">
             {insight?.title || action.title}
           </h3>
-          <p className="text-sm md:text-base text-gray-800 leading-relaxed font-normal">
+          <p className="text-xs text-slate-700 leading-relaxed">
             {insight?.explanation || action.description}
           </p>
         </div>
 
-        {/* 2. EVIDENCE (Deterministic Observations) */}
+        {/* 2. Grounded Evidence */}
         {insight?.evidence && insight.evidence.length > 0 && (
-          <div className="bg-gray-50/90 border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-2">
-            <span className="text-xs font-black uppercase px-2.5 py-1 rounded bg-gray-200 text-gray-900">
-              2. Verified Business Evidence
+          <div className="bg-slate-50 rounded-lg p-4 space-y-2 border border-slate-100">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+              Observed Data Points
             </span>
-            <ul className="space-y-1.5 pl-1 pt-1 text-sm md:text-base text-gray-800 font-medium">
+            <ul className="space-y-1 text-xs text-slate-700">
               {insight.evidence.map((item, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold shrink-0">•</span>
+                  <span className="text-slate-400 font-bold">•</span>
                   <span>{item}</span>
                 </li>
               ))}
               {insight.externalContext?.summary && (
-                <li className="flex items-start gap-2 text-blue-950 font-semibold">
-                  <span className="text-blue-600 font-bold shrink-0">•</span>
-                  <span>External Context: {insight.externalContext.summary}</span>
+                <li className="flex items-start gap-2 text-slate-900 font-medium">
+                  <span className="text-slate-400 font-bold">•</span>
+                  <span>Context: {insight.externalContext.summary}</span>
                 </li>
               )}
             </ul>
           </div>
         )}
 
-        {/* 3. RECOMMENDATION */}
-        <div className="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 sm:p-5 space-y-2">
-          <span className="text-xs font-black uppercase px-2.5 py-1 rounded bg-blue-200/80 text-blue-950">
-            3. AI Strategic Recommendation
+        {/* 3. Strategic Proposal */}
+        <div className="bg-brand-50/40 border border-brand-200/60 rounded-lg p-4 space-y-1.5">
+          <span className="text-[11px] font-semibold text-brand-900 uppercase tracking-wider block">
+            Recommended Action
           </span>
-          <p className="text-base md:text-lg font-black text-blue-950">
-            {insight?.recommendation?.action || "Launch Afternoon Specialty Combo"}
+          <p className="text-sm font-semibold text-slate-900">
+            {insight?.recommendation?.action || "Launch Afternoon Promotion"}
           </p>
-          <p className="text-sm md:text-base text-blue-900 leading-relaxed">
-            <strong>Goal:</strong> {insight?.recommendation?.goal || "Recover quiet mid-day footfall and lift afternoon revenue towards baseline."}
+          <p className="text-xs text-slate-600 leading-relaxed">
+            <strong className="text-slate-800">Objective:</strong> {insight?.recommendation?.goal || "Recover quiet hours footfall and stabilize mid-day revenue."}
           </p>
         </div>
 
-        {/* 4. ACTION (Configuration & Message Copy) */}
-        <div className="space-y-3.5 bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-2xs">
+        {/* 4. Action Configuration & Copy */}
+        <div className="space-y-3 bg-white rounded-lg border border-slate-200 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase px-2.5 py-1 rounded bg-emerald-100 text-emerald-950">
-              4. Campaign Dispatch Action
+            <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-wider">
+              Outreach Configuration
             </span>
             {isPending && (
               <button
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
-                className="text-sm font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1 hover:underline"
+                className="text-xs font-semibold text-brand-700 hover:text-brand-800 hover:underline"
               >
-                {isEditing ? "Done Editing" : "Edit Copy & Offer"}
+                {isEditing ? "Done Editing" : "Edit Message"}
               </button>
             )}
           </div>
 
           {/* Configuration Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             <div>
-              <label className="text-xs md:text-sm font-bold text-gray-600 block mb-1">Channel</label>
+              <label className="text-[11px] font-medium text-slate-500 block mb-1">Channel</label>
               {isEditing ? (
                 <select
                   value={channel}
                   onChange={(e) => setChannel(e.target.value)}
-                  className="w-full p-2.5 border rounded-xl bg-white text-sm font-medium"
+                  className="input-text text-xs py-1.5 w-full bg-white"
                 >
                   <option value="WHATSAPP">WhatsApp Business</option>
                   <option value="SMS">SMS Broadcast</option>
                   <option value="NOTIFICATION">Push Notification</option>
-                  <option value="IN_STORE_DISPLAY">In-Store Standee</option>
+                  <option value="IN_STORE_DISPLAY">In-Store Display</option>
                 </select>
               ) : (
-                <div className="p-2.5 bg-gray-50 border rounded-xl font-bold text-gray-800 text-sm">
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs font-medium text-slate-800">
                   {channel === "WHATSAPP" ? "WhatsApp Business" : channel}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="text-xs md:text-sm font-bold text-gray-600 block mb-1">Target Audience</label>
+              <label className="text-[11px] font-medium text-slate-500 block mb-1">Audience</label>
               {isEditing ? (
                 <input
                   type="text"
                   value={targetAudience}
                   onChange={(e) => setTargetAudience(e.target.value)}
-                  className="w-full p-2.5 border rounded-xl text-sm font-medium"
+                  className="input-text text-xs py-1.5 w-full"
                 />
               ) : (
-                <div className="p-2.5 bg-gray-50 border rounded-xl font-bold text-gray-800 text-sm truncate">
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs font-medium text-slate-800 truncate">
                   {targetAudience}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="text-xs md:text-sm font-bold text-gray-600 block mb-1">Timing Window</label>
+              <label className="text-[11px] font-medium text-slate-500 block mb-1">Timing Window</label>
               {isEditing ? (
                 <input
                   type="text"
                   value={timing}
                   onChange={(e) => setTiming(e.target.value)}
-                  className="w-full p-2.5 border rounded-xl text-sm font-medium"
+                  className="input-text text-xs py-1.5 w-full"
                 />
               ) : (
-                <div className="p-2.5 bg-gray-50 border rounded-xl font-bold text-gray-800 text-sm">
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs font-medium text-slate-800">
                   {timing}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Editable Copy or WhatsApp Mockup */}
+          {/* Editable Copy or Channel Mockup */}
           {isEditing ? (
-            <div className="space-y-3 pt-2 border-t border-gray-100">
+            <div className="space-y-3 pt-2 border-t border-slate-100">
               <div>
-                <label className="text-xs md:text-sm font-bold text-gray-700 block mb-1">Headline</label>
+                <label className="text-[11px] font-medium text-slate-700 block mb-1">Headline</label>
                 <input
                   type="text"
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
-                  className="w-full p-2.5 border rounded-xl font-bold text-sm md:text-base"
+                  className="input-text text-xs py-1.5 w-full font-semibold"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs md:text-sm font-bold text-gray-700 block mb-1">Offer Tag</label>
+                  <label className="text-[11px] font-medium text-slate-700 block mb-1">Offer Tag</label>
                   <input
                     type="text"
                     value={offer}
                     onChange={(e) => setOffer(e.target.value)}
-                    className="w-full p-2.5 border rounded-xl text-sm font-medium"
+                    className="input-text text-xs py-1.5 w-full font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-xs md:text-sm font-bold text-gray-700 block mb-1">Call to Action</label>
+                  <label className="text-[11px] font-medium text-slate-700 block mb-1">Call to Action</label>
                   <input
                     type="text"
                     value={cta}
                     onChange={(e) => setCta(e.target.value)}
-                    className="w-full p-2.5 border rounded-xl text-sm font-medium"
+                    className="input-text text-xs py-1.5 w-full"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-xs md:text-sm font-bold text-gray-700 block mb-1">Message Body</label>
+                <label className="text-[11px] font-medium text-slate-700 block mb-1">Message Body</label>
                 <textarea
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   rows={3}
-                  className="w-full p-2.5 border rounded-xl text-sm md:text-base leading-relaxed"
+                  className="input-text text-xs py-1.5 w-full leading-relaxed"
                 />
               </div>
             </div>
           ) : (
             <div className="pt-2">
-              <label className="text-xs md:text-sm font-bold text-gray-600 block mb-1.5">
-                Channel Broadcast Preview ({channel})
+              <label className="text-[11px] font-medium text-slate-500 block mb-1">
+                Notification Preview ({channel})
               </label>
-              <div className="bg-[#e5ddd5]/35 border border-[#25d366]/40 rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-2xs">
-                <div className="flex items-center justify-between text-xs md:text-sm text-gray-600 border-b border-gray-200/60 pb-2">
-                  <span className="font-bold text-emerald-800 flex items-center gap-1.5">
-                    <span>WhatsApp Broadcast</span>
-                  </span>
-                  <span className="font-semibold text-gray-500">{timing}</span>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200/60 pb-1.5">
+                  <span className="font-semibold text-slate-800">Direct Broadcast</span>
+                  <span className="font-mono text-[11px]">{timing}</span>
                 </div>
-                <p className="font-black text-gray-950 text-base md:text-lg leading-snug">
+                <p className="font-semibold text-slate-900 text-sm">
                   {headline || action.title}
                 </p>
-                <p className="text-sm md:text-base text-gray-800 leading-relaxed whitespace-pre-wrap font-normal">{body}</p>
-                <div className="flex items-center justify-between pt-2.5 border-t border-gray-200/60">
-                  <span className="badge bg-emerald-100 text-emerald-950 border border-emerald-300 text-xs md:text-sm font-bold px-3 py-1 rounded-lg">
-                    {offer || "Special Offer"}
+                <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">{body}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 text-xs">
+                  <span className="badge-slate font-mono text-[10px]">
+                    {offer || "Special Incentive"}
                   </span>
-                  <span className="text-sm font-extrabold text-blue-700">{cta}</span>
+                  <span className="font-medium text-brand-700">{cta}</span>
                 </div>
               </div>
             </div>
@@ -304,82 +305,70 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
 
         {/* Clean Execution Result (if already completed) */}
         {isExecuted && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 text-emerald-950 space-y-2">
+          <div className="bg-emerald-50/60 border border-emerald-200 rounded-lg p-4 text-xs space-y-1.5">
             <div className="flex items-center justify-between">
-              <p className="font-black text-base flex items-center gap-2 text-emerald-950">
-                <span>Campaign Dispatched via n8n Automation</span>
+              <p className="font-semibold text-slate-900">
+                Campaign Executed via n8n
               </p>
-              <span className="text-xs font-bold px-2.5 py-1 rounded bg-emerald-200/80 text-emerald-900">
-                SUCCESS
+              <span className="badge-emerald font-mono text-[10px]">
+                CONFIRMED
               </span>
             </div>
-            <p className="text-sm md:text-base text-emerald-900">
-              Targeted <strong>{action.executionResult?.deliveryStats?.estimatedAudience || 25} customers</strong> via {action.channel}. Delivery confirmed.
+            <p className="text-slate-600">
+              Delivered to <strong>{action.executionResult?.deliveryStats?.estimatedAudience || 25} customers</strong> via {action.channel}.
             </p>
-
-            {/* Collapsible Technical Details for Judges/Devs */}
-            <details className="pt-1 text-xs text-emerald-800">
-              <summary className="cursor-pointer hover:underline font-bold">
-                Technical Details
-              </summary>
-              <div className="mt-2 p-3 bg-emerald-100/60 rounded-xl font-mono text-xs text-emerald-950 space-y-1 border border-emerald-200">
-                <div>Execution Status: SUCCESS</div>
-                <div>Delivered Count: {action.executionResult?.deliveryStats?.deliveredCount || 24}</div>
-                <div>Automated Callback: Confirmed to GrowKaro backend</div>
-              </div>
-            </details>
           </div>
         )}
 
         {/* Rejection input drawer */}
         {showRejectInput && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2.5 text-sm">
-            <label className="font-bold text-red-950 block">Why are you rejecting this recommendation?</label>
+          <div className="bg-rose-50 border border-rose-200 rounded-lg p-3.5 space-y-2 text-xs">
+            <label className="font-semibold text-rose-900 block">Reason for declining this recommendation:</label>
             <input
               type="text"
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder="e.g. Prefer not to discount this week, stock is low, etc."
-              className="w-full p-2.5 border rounded-xl bg-white text-sm"
+              placeholder="e.g. Stock low, promotion not aligned with strategy..."
+              className="input-text text-xs py-1.5 w-full bg-white"
             />
-            <div className="flex justify-end gap-2.5">
+            <div className="flex justify-end gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setShowRejectInput(false)}
-                className="px-3 py-1.5 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                className="btn-secondary text-xs px-3 py-1"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmReject}
-                className="px-4 py-1.5 bg-red-600 text-white rounded-xl text-sm font-bold"
+                className="btn-danger text-xs px-3 py-1"
               >
-                Confirm Rejection
+                Confirm Decline
               </button>
             </div>
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-3.5 border-t">
+        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
           <div>
             {isPending && !showRejectInput && (
               <button
                 type="button"
                 onClick={() => setShowRejectInput(true)}
                 disabled={loading}
-                className="text-sm font-bold text-red-600 hover:text-red-800 px-2 py-1.5 transition-colors"
+                className="btn-ghost text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2 py-1.5"
               >
-                Reject Proposal
+                Decline
               </button>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary text-sm font-bold px-4 py-2"
+              className="btn-secondary text-xs px-3.5 py-1.5"
             >
               {isExecuted ? "Close" : "Cancel"}
             </button>
@@ -388,16 +377,19 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
                 type="button"
                 onClick={handleApprove}
                 disabled={loading}
-                className="btn-primary text-base font-extrabold px-6 py-2.5 flex items-center gap-2 shadow-sm"
+                className="btn-primary text-xs font-semibold px-4 py-2 flex items-center gap-1.5 shadow-sm"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Executing via n8n...</span>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Executing...</span>
                   </>
                 ) : (
                   <>
                     <span>Approve &amp; Launch</span>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </>
                 )}
               </button>

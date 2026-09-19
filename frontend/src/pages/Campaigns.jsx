@@ -8,7 +8,7 @@ import { formatDate } from "../utils/formatters";
 
 const TABS = [
   { id: "APPROVAL_QUEUE", label: "Approval Queue" },
-  { id: "CAMPAIGNS", label: "Active & Completed Campaigns" },
+  { id: "CAMPAIGNS", label: "Active & Completed Outreach" },
   { id: "AUDIT_LOG", label: "Execution Audit Log" },
 ];
 
@@ -31,7 +31,6 @@ export default function Campaigns() {
   const [selectedAction, setSelectedAction] = useState(null);
 
   const pendingActions = actions.filter((a) => a.approvalStatus === "PENDING");
-  const executedActions = actions.filter((a) => a.approvalStatus !== "PENDING");
 
   const handleApproveAction = async (actionId, finalPayload) => {
     try {
@@ -52,77 +51,102 @@ export default function Campaigns() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl md:text-3xl font-black text-gray-900">Campaigns &amp; Action Center</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+              Operations &amp; Campaigns
+            </h1>
+            <span className="badge-slate font-mono text-xs font-semibold">
+              {stats.total} total
+            </span>
           </div>
-          <p className="text-gray-600 text-sm md:text-base mt-1">
-            Merchant-governed autonomous execution pipeline powered by n8n automation
+          <p className="text-sm text-slate-500">
+            Merchant-governed automated actions, customer outreach, and execution audit history.
           </p>
         </div>
+
         <button
           onClick={refetch}
           disabled={loading}
-          className="btn-secondary text-sm font-bold px-4 py-2 self-start sm:self-auto"
+          className="btn-secondary inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 self-start sm:self-auto"
         >
-          ↻ Refresh Status
+          <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Refresh Status</span>
         </button>
       </div>
 
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card p-5 border-l-4 border-l-amber-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Awaiting Approval</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-3xl font-black text-amber-600">{stats.pending}</span>
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            Awaiting Approval
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-semibold font-mono text-amber-600">
+              {stats.pending}
+            </span>
+            <span className="text-xs text-slate-400">Requires sign-off</span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Requires merchant sign-off</p>
         </div>
 
-        <div className="card p-5 border-l-4 border-l-blue-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Running / Queued</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-3xl font-black text-blue-600">{stats.running}</span>
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            In Flight
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-semibold font-mono text-blue-600">
+              {stats.running}
+            </span>
+            <span className="text-xs text-slate-400">Processing queue</span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">In workflow execution</p>
         </div>
 
-        <div className="card p-5 border-l-4 border-l-emerald-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Executed Campaigns</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-3xl font-black text-emerald-600">{stats.completed}</span>
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            Executed Campaigns
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-semibold font-mono text-emerald-600">
+              {stats.completed}
+            </span>
+            <span className="text-xs text-slate-400">Delivered to patrons</span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Successfully dispatched</p>
         </div>
 
-        <div className="card p-5 border-l-4 border-l-purple-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Total Actions Logged</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-3xl font-black text-purple-600">{stats.total}</span>
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            Audit Events
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-semibold font-mono text-slate-900">
+              {stats.total}
+            </span>
+            <span className="text-xs text-slate-400">Traceable logs</span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Full audit trail preserved</p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
+      {/* Segmented Tabs */}
+      <div className="border-b border-slate-200">
         <nav className="flex gap-6">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`pb-3.5 text-base md:text-lg font-bold transition-colors relative ${
+              className={`pb-3 text-sm font-semibold transition-all relative flex items-center gap-2 ${
                 activeTab === tab.id
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-800"
+                  ? "text-slate-900 border-b-2 border-brand-600"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
               {tab.id === "APPROVAL_QUEUE" && stats.pending > 0 && (
-                <span className="ml-2.5 px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800 font-black">
+                <span className="px-1.5 py-0.5 rounded-full text-[11px] bg-amber-100 text-amber-800 font-mono font-bold">
                   {stats.pending}
                 </span>
               )}
@@ -132,7 +156,11 @@ export default function Campaigns() {
       </div>
 
       {/* Error state */}
-      {error && <ErrorState message={error} onRetry={refetch} />}
+      {error && (
+        <div className="p-8 max-w-7xl mx-auto">
+          <ErrorState message={error} onRetry={refetch} />
+        </div>
+      )}
 
       {/* Loading state */}
       {loading && (
@@ -145,10 +173,15 @@ export default function Campaigns() {
       {!loading && !error && activeTab === "APPROVAL_QUEUE" && (
         <div className="space-y-4">
           {pendingActions.length === 0 ? (
-            <div className="card p-12 text-center text-gray-400 space-y-3">
-              <p className="font-bold text-lg text-gray-800">Approval Queue is Clear</p>
-              <p className="text-sm md:text-base text-gray-500">
-                No proposed actions are awaiting decision. Proactive recommendations will appear here when growth opportunities or risks are detected.
+            <div className="card p-12 text-center space-y-3 border-dashed">
+              <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="font-semibold text-sm text-slate-900">Approval Queue is Clear</p>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                No proposed actions are awaiting decision. Automated recommendations will appear here when growth opportunities or churn risks are detected.
               </p>
             </div>
           ) : (
@@ -156,37 +189,43 @@ export default function Campaigns() {
               {pendingActions.map((item) => (
                 <div
                   key={item._id}
-                  className="card p-6 border-2 border-amber-300 bg-amber-50/30 space-y-3.5 hover:shadow-md transition-shadow"
+                  className="card p-5 border-amber-200/90 bg-amber-50/20 space-y-3.5 hover:shadow-card transition-all"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="badge bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg">
-                      Awaiting Decision
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="badge-amber text-[11px] font-medium inline-flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      Requires Merchant Sign-off
                     </span>
-                    <span className="text-xs md:text-sm text-gray-500 font-semibold">
+                    <span className="text-xs text-slate-400 font-mono">
                       {formatDate(item.createdAt)}
                     </span>
                   </div>
 
-                  <h3 className="text-base md:text-lg font-black text-gray-950 leading-snug">{item.title}</h3>
-                  <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-white p-3.5 rounded-xl border border-amber-200/80">
-                    {item.payload?.body || item.description}
-                  </p>
+                  <h3 className="text-sm font-semibold text-slate-900 leading-snug">
+                    {item.title}
+                  </h3>
 
-                  <div className="flex items-center justify-between text-xs md:text-sm text-gray-600 font-medium">
-                    <span>Target: <strong className="text-gray-900">{item.targetAudience}</strong></span>
-                    <span>Channel: <strong className="text-gray-900">{item.channel}</strong></span>
+                  <div className="text-xs text-slate-700 leading-relaxed bg-white p-3 rounded-md border border-slate-200/70">
+                    {item.payload?.body || item.description}
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-amber-200">
-                    <span className="text-sm font-bold text-blue-800">
-                      {item.payload?.offer || "Special Promotion"}
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span>Target: <strong className="text-slate-900 font-medium">{item.targetAudience}</strong></span>
+                    <span>Channel: <strong className="text-slate-900 font-medium capitalize">{item.channel}</strong></span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-amber-200/60">
+                    <span className="badge-slate font-mono text-xs">
+                      {item.payload?.offer || "Targeted Incentive"}
                     </span>
                     <button
                       onClick={() => setSelectedAction(item)}
-                      className="btn-primary text-sm font-bold py-2 px-4 flex items-center gap-1.5 shadow-sm"
+                      className="btn-primary text-xs font-semibold py-1.5 px-3.5 flex items-center gap-1.5 shadow-sm"
                     >
                       <span>Review &amp; Approve</span>
-                      <span className="text-base font-bold">→</span>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -200,73 +239,65 @@ export default function Campaigns() {
       {!loading && !error && activeTab === "CAMPAIGNS" && (
         <div className="space-y-4">
           {campaigns.length === 0 ? (
-            <div className="card p-12 text-center text-gray-400 space-y-3">
-              <p className="font-bold text-lg text-gray-800">No campaigns on record yet</p>
-              <p className="text-sm md:text-base text-gray-500">
-                Approve an action from the Approval Queue to deploy your first campaign.
+            <div className="card p-12 text-center space-y-3 border-dashed">
+              <p className="font-semibold text-sm text-slate-900">No campaigns on record yet</p>
+              <p className="text-xs text-slate-500">
+                Approve an action from the Approval Queue to deploy your first targeted customer campaign.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {campaigns.map((camp) => (
-                <div key={camp._id} className="card p-6 space-y-3.5">
+                <div key={camp._id} className="card p-5 space-y-3.5">
                   <div className="flex items-center justify-between">
                     <span
-                      className={`badge text-xs font-bold px-2.5 py-1 rounded-lg ${
+                      className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                         camp.status === "COMPLETED"
-                          ? "bg-emerald-100 text-emerald-800"
+                          ? "badge-emerald"
                           : camp.status === "RUNNING"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-blue-50 text-blue-700 border border-blue-200"
                           : camp.status === "FAILED"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-amber-100 text-amber-800"
+                          ? "badge-rose"
+                          : "badge-amber"
                       }`}
                     >
                       {camp.status}
                     </span>
-                    <span className="text-xs md:text-sm text-gray-500 font-semibold">{camp.channel}</span>
+                    <span className="text-xs text-slate-500 font-medium capitalize">{camp.channel}</span>
                   </div>
 
-                  <h3 className="text-base md:text-lg font-black text-gray-950 leading-snug">{camp.name}</h3>
-                  <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed">{camp.message}</p>
+                  <h3 className="text-sm font-semibold text-slate-900 leading-snug">{camp.name}</h3>
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{camp.message}</p>
 
-                  <div className="bg-gray-50 p-3.5 rounded-xl text-xs md:text-sm space-y-1.5 border border-gray-100">
-                    <div className="flex justify-between text-gray-600">
-                      <span className="font-medium">Estimated Audience:</span>
-                      <strong className="text-gray-900">{camp.deliveryStats?.estimatedAudience || 28}</strong>
+                  <div className="bg-slate-50 p-3 rounded-md text-xs space-y-1.5 border border-slate-100">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Target Audience:</span>
+                      <strong className="text-slate-900 font-mono">
+                        {camp.deliveryStats?.estimatedAudience || 28} patrons
+                      </strong>
                     </div>
-                    <div className="flex justify-between text-gray-600">
-                      <span className="font-medium">Delivered Count:</span>
-                      <strong className="text-emerald-700">{camp.deliveryStats?.deliveredCount || 27}</strong>
+                    <div className="flex justify-between text-slate-600">
+                      <span>Delivered:</span>
+                      <strong className="text-emerald-700 font-mono">
+                        {camp.deliveryStats?.deliveredCount || 27}
+                      </strong>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs md:text-sm pt-2 border-t border-gray-100">
-                    <span className="px-2.5 py-1 rounded-md font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      Automated via n8n
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                    <span className="badge-slate text-[11px] font-mono">
+                      n8n Automated
                     </span>
                     {camp.status === "COMPLETED" && (
                       <Link
                         to="/performance"
-                        className="text-sm text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 hover:underline"
+                        className="text-brand-700 hover:text-brand-800 font-medium flex items-center gap-1 hover:underline"
                       >
                         <span>View Outcome</span>
-                        <span className="text-base font-bold">→</span>
+                        <span>→</span>
                       </Link>
                     )}
                   </div>
-
-                  {/* Collapsible Technical Details (Hidden from merchant view) */}
-                  <details className="text-xs text-gray-500 pt-1">
-                    <summary className="cursor-pointer hover:text-gray-800 select-none font-semibold">
-                      Technical Details
-                    </summary>
-                    <div className="mt-1.5 p-3 bg-gray-50 rounded-xl border border-gray-200/80 font-mono text-xs text-gray-700 space-y-1">
-                      <div>Channel: {camp.channel}</div>
-                      <div>Campaign ID: {camp._id}</div>
-                      <div>Audience Reached: {camp.deliveryStats?.deliveredCount || 25} patrons</div>
-                    </div>
-                  </details>
                 </div>
               ))}
             </div>
@@ -277,79 +308,84 @@ export default function Campaigns() {
       {/* TAB 3: EXECUTION AUDIT LOG */}
       {!loading && !error && activeTab === "AUDIT_LOG" && (
         <div className="card overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="font-bold text-gray-900 text-sm">Action Execution Audit Trail</h3>
-            <span className="text-xs text-gray-400">Total {actions.length} action events recorded</span>
+          <div className="p-4 border-b border-slate-200/80 bg-slate-50/50 flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-slate-900 text-xs uppercase tracking-wider">
+                Action Execution Audit Trail
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">Immutable record of merchant decisions and workflow triggers</p>
+            </div>
+            <span className="badge-slate font-mono text-xs">{actions.length} records</span>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50 text-gray-500 font-semibold border-b">
+            <table className="table-base text-xs">
+              <thead>
                 <tr>
-                  <th className="p-3">Action Title</th>
-                  <th className="p-3">Type / Channel</th>
-                  <th className="p-3">Approval Gate</th>
-                  <th className="p-3">Execution Status</th>
-                  <th className="p-3">Date</th>
-                  <th className="p-3 text-right">Actions</th>
+                  <th className="text-left">Action Title</th>
+                  <th className="text-left">Channel</th>
+                  <th className="text-center">Approval Gate</th>
+                  <th className="text-center">Execution Status</th>
+                  <th className="text-right">Timestamp</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {actions.map((act) => (
-                  <tr key={act._id} className="hover:bg-gray-50/50">
-                    <td className="p-3 font-semibold text-gray-900">
-                      {act.title}
+                  <tr key={act._id}>
+                    <td>
+                      <div className="font-medium text-slate-900">{act.title}</div>
                       {act.failureReason && (
-                        <p className="text-[10px] text-red-600 mt-0.5">{act.failureReason}</p>
+                        <p className="text-[11px] text-rose-600 mt-0.5">{act.failureReason}</p>
                       )}
                     </td>
-                    <td className="p-3 text-gray-600">
-                      {act.type} · {act.channel}
+                    <td className="capitalize text-slate-600 font-mono text-xs">
+                      {act.channel || "direct"}
                     </td>
-                    <td className="p-3">
+                    <td className="text-center">
                       <span
-                        className={`badge text-[10px] font-bold ${
+                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                           act.approvalStatus === "APPROVED"
-                            ? "bg-green-100 text-green-800"
+                            ? "badge-emerald"
                             : act.approvalStatus === "REJECTED"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-amber-100 text-amber-800"
+                            ? "badge-rose"
+                            : "badge-amber"
                         }`}
                       >
                         {act.approvalStatus}
                       </span>
                     </td>
-                    <td className="p-3">
+                    <td className="text-center">
                       <span
-                        className={`badge text-[10px] font-bold ${
+                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                           act.executionStatus === "SUCCESS"
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "badge-emerald"
                             : act.executionStatus === "RUNNING"
-                            ? "bg-blue-100 text-blue-800"
+                            ? "bg-blue-50 text-blue-700 border border-blue-200"
                             : act.executionStatus === "FAILED"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-700"
+                            ? "badge-rose"
+                            : "badge-slate"
                         }`}
                       >
                         {act.executionStatus}
                       </span>
                     </td>
-                    <td className="p-3 text-gray-400 whitespace-nowrap">
+                    <td className="text-right text-slate-400 font-mono whitespace-nowrap">
                       {formatDate(act.createdAt)}
                     </td>
-                    <td className="p-3 text-right whitespace-nowrap space-x-2">
+                    <td className="text-right whitespace-nowrap space-x-2">
                       <button
                         onClick={() => setSelectedAction(act)}
-                        className="text-blue-600 hover:text-blue-800 font-semibold"
+                        className="text-xs font-semibold text-brand-700 hover:text-brand-800"
                       >
-                        View Details
+                        Details
                       </button>
                       {act.executionStatus === "FAILED" && (
                         <button
                           onClick={() => retry(act._id)}
-                          className="text-xs bg-red-50 text-red-700 px-2 py-1 rounded hover:bg-red-100 font-bold"
+                          className="text-xs bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded hover:bg-rose-100 font-semibold"
                         >
-                          Retry ↺
+                          Retry
                         </button>
                       )}
                     </td>

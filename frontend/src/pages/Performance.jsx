@@ -7,7 +7,7 @@ import { formatDate } from "../utils/formatters";
 
 const TABS = [
   { id: "OUTCOMES", label: "Measured Outcomes & Attribution" },
-  { id: "LEARNED", label: "What GrowKaro Has Learned (Memory)" },
+  { id: "LEARNED", label: "Store Memory & Learned Insights" },
 ];
 
 export default function Performance() {
@@ -58,7 +58,7 @@ export default function Performance() {
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="p-8 max-w-7xl mx-auto">
         <ErrorState message={error} onRetry={refetch} />
       </div>
     );
@@ -74,113 +74,136 @@ export default function Performance() {
   const totalMeasured = outcomes.length;
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl md:text-3xl font-black text-gray-900">Performance &amp; Outcome Learning</h1>
-            <span className="badge bg-purple-100 text-purple-800 text-xs md:text-sm font-bold px-2.5 py-0.5">Phase 4 Loop</span>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+              Performance &amp; Outcome Learning
+            </h1>
+            <span className="badge-slate font-mono text-xs font-semibold">
+              {totalMeasured} evaluated
+            </span>
           </div>
-          <p className="text-gray-600 text-sm md:text-base mt-1">
-            Deterministic before/after attribution and persistent merchant intelligence
+          <p className="text-sm text-slate-500">
+            Deterministic before/after attribution and persistent merchant memory.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* n8n Status Pill */}
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border bg-white text-sm font-medium shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium">
             <span
-              className={`w-2.5 h-2.5 rounded-full ${
+              className={`w-2 h-2 rounded-full ${
                 n8nStatus?.mode === "real" ? "bg-emerald-500 animate-pulse" : "bg-blue-500"
               }`}
             />
-            <span className="font-bold text-gray-800">
-              {n8nStatus?.mode === "real" ? "n8n Live Automation" : "n8n Simulation Sandbox"}
+            <span className="text-slate-700">
+              {n8nStatus?.mode === "real" ? "n8n Connected" : "n8n Sandbox"}
             </span>
           </div>
 
           <button
             onClick={refetch}
-            className="btn-secondary text-sm font-bold px-4 py-2"
+            className="btn-secondary text-xs font-semibold px-3 py-1.5 inline-flex items-center gap-1.5"
           >
-            ↻ Refresh Metrics
+            <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh</span>
           </button>
         </div>
       </div>
 
       {/* High-Level Impact Stats Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card p-5 border-l-4 border-l-emerald-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Campaigns Measured</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-3xl font-black text-emerald-600">{totalMeasured}</span>
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            Campaigns Measured
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-semibold font-mono text-emerald-600">
+              {totalMeasured}
+            </span>
+            <span className="text-xs text-slate-400">Attribution checks</span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Deterministic before/after evaluation</p>
         </div>
 
-        <div className="card p-5 border-l-4 border-l-blue-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Avg Observed Lift</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-3xl font-black text-blue-600">+{avgLift}%</span>
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            Average Observed Lift
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-semibold font-mono text-emerald-700">
+              +{avgLift}%
+            </span>
+            <span className="text-xs text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">
+              Post-action delta
+            </span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Observed post-action change</p>
         </div>
 
-        <div className="card p-5 border-l-4 border-l-purple-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Learned Memory Facts</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-3xl font-black text-purple-600">
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            Store Memory Points
+          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-semibold font-mono text-slate-900">
               {memoryMatrix.provenTactics.length +
                 memoryMatrix.merchantPreferences.length +
                 memoryMatrix.trafficPatterns.length}
             </span>
+            <span className="text-xs text-slate-400">Persisted facts</span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Active in Cognee / MongoDB</p>
         </div>
 
-        <div className="card p-5 border-l-4 border-l-amber-500">
-          <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Learning Loop</p>
-          <div className="flex items-center justify-between mt-1.5">
-            <span className="text-sm md:text-base font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200">
+        <div className="card p-5 space-y-1">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+            Feedback Engine
+          </span>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="badge-emerald text-xs font-medium">
               Active &amp; Adapting
             </span>
           </div>
-          <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Grounded in Groq reasoning</p>
+          <p className="text-[11px] text-slate-400 mt-1">Closed-loop optimization</p>
         </div>
       </div>
 
       {/* Pending Actions Ready for Outcome Measurement */}
       {unmeasuredActions.length > 0 && (
-        <div className="card p-6 border-2 border-dashed border-blue-300 bg-blue-50/40 space-y-3.5">
+        <div className="card p-5 border border-brand-200 bg-brand-50/20 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <h3 className="font-bold text-base md:text-lg text-blue-950">
-                Executed Campaigns Awaiting Measurement ({unmeasuredActions.length})
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-brand-600" />
+              <h3 className="font-semibold text-xs text-slate-900 uppercase tracking-wider">
+                Executed Campaigns Ready for Evaluation ({unmeasuredActions.length})
               </h3>
             </div>
-            <span className="text-xs font-bold text-blue-800 bg-blue-100 px-2.5 py-1 rounded-lg">
-              Ready for evaluation
+            <span className="badge-slate font-mono text-[11px]">
+              Requires Measurement
             </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {unmeasuredActions.map((act) => (
               <div
                 key={act._id}
-                className="bg-white p-4 rounded-xl border border-blue-200 flex items-center justify-between gap-3 shadow-2xs"
+                className="bg-white p-3.5 rounded-lg border border-slate-200 flex items-center justify-between gap-3 shadow-2xs"
               >
                 <div>
-                  <p className="font-bold text-sm md:text-base text-gray-900">{act.title}</p>
-                  <p className="text-xs md:text-sm text-gray-600 mt-0.5 font-medium">
-                    Executed: {formatDate(act.completedAt || act.createdAt)} · {act.channel}
+                  <p className="font-semibold text-xs text-slate-900">{act.title}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5 font-mono">
+                    Completed: {formatDate(act.completedAt || act.createdAt)} · {act.channel}
                   </p>
                 </div>
                 <button
                   onClick={() => handleMeasureAction(act._id)}
                   disabled={measuring || measuringId === act._id}
-                  className="btn-primary text-sm py-2 px-4 whitespace-nowrap shadow-sm font-bold"
+                  className="btn-primary text-xs py-1.5 px-3 whitespace-nowrap shadow-sm font-semibold"
                 >
-                  {measuringId === act._id ? "Calculating..." : "Measure Outcome"}
+                  {measuringId === act._id ? "Evaluating..." : "Measure Outcome"}
                 </button>
               </div>
             ))}
@@ -189,21 +212,21 @@ export default function Performance() {
       )}
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-slate-200">
         <nav className="flex gap-6">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`pb-3.5 text-base md:text-lg font-bold transition-colors relative ${
+              className={`pb-3 text-sm font-semibold transition-all relative flex items-center gap-2 ${
                 activeTab === tab.id
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-800"
+                  ? "text-slate-900 border-b-2 border-brand-600"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
               {tab.id === "OUTCOMES" && (
-                <span className="ml-2.5 px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-800 font-extrabold">
+                <span className="px-1.5 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700 font-mono font-bold">
                   {totalMeasured}
                 </span>
               )}
@@ -216,10 +239,10 @@ export default function Performance() {
       {activeTab === "OUTCOMES" && (
         <div className="space-y-4">
           {outcomes.length === 0 ? (
-            <div className="card p-12 text-center text-gray-400 space-y-3">
-              <p className="font-bold text-lg text-gray-800">No measured outcomes yet</p>
-              <p className="text-sm md:text-base text-gray-500">
-                Run an approved action and click "Measure Outcome" to see before/after impact.
+            <div className="card p-12 text-center space-y-3 border-dashed">
+              <p className="font-semibold text-sm text-slate-900">No measured outcomes yet</p>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Approve and execute an action from the Operations inbox, then click "Measure Outcome" to verify deterministic before/after results.
               </p>
             </div>
           ) : (
@@ -241,60 +264,60 @@ export default function Performance() {
                 return (
                   <div
                     key={item._id}
-                    className="card p-6 space-y-4 border border-gray-200 hover:shadow-md transition-shadow"
+                    className="card p-5 space-y-4 hover:shadow-card transition-all"
                   >
                     {/* Card Top */}
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <span className="badge bg-blue-50 text-blue-800 border border-blue-200 text-xs font-bold px-2.5 py-1">
+                        <span className="badge-slate font-mono text-[11px]">
                           {item.metric}
                         </span>
-                        <h3 className="text-base md:text-lg font-black text-gray-950 mt-1.5 leading-snug">
-                          {item.actionId?.title || "Business Action Campaign"}
+                        <h3 className="text-sm font-semibold text-slate-900 mt-1 leading-snug">
+                          {item.actionId?.title || "Targeted Merchant Action"}
                         </h3>
                       </div>
                       <div className="text-right">
                         <span
-                          className={`badge text-sm font-extrabold px-3 py-1 rounded-lg ${
+                          className={`text-xs font-mono font-semibold px-2.5 py-1 rounded-md ${
                             isPositive
-                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                              : "bg-red-100 text-red-800"
+                              ? "badge-emerald"
+                              : "badge-rose"
                           }`}
                         >
                           {sign}
                           {item.changePercentage}% Observed
                         </span>
-                        <p className="text-xs text-gray-500 mt-1 font-medium">
+                        <p className="text-[11px] text-slate-400 font-mono mt-1">
                           {formatDate(item.measuredAt)}
                         </p>
                       </div>
                     </div>
 
                     {/* Before vs After Metric Strip */}
-                    <div className="bg-gray-50 rounded-xl p-4 grid grid-cols-3 divide-x divide-gray-200 text-center">
+                    <div className="bg-slate-50 rounded-lg p-3 grid grid-cols-3 divide-x divide-slate-200 text-center border border-slate-100">
                       <div>
-                        <span className="text-xs md:text-sm text-gray-500 block font-semibold">
-                          Pre-Campaign Baseline
+                        <span className="text-[11px] text-slate-500 block font-medium">
+                          Baseline
                         </span>
-                        <span className="font-black text-gray-800 text-base md:text-lg mt-1 block">
+                        <span className="font-mono font-semibold text-slate-700 text-sm mt-0.5 block">
                           {formatVal(item.baselineValue)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-xs md:text-sm text-gray-500 block font-semibold">
-                          Post-Campaign Observed
+                        <span className="text-[11px] text-slate-500 block font-medium">
+                          Observed
                         </span>
-                        <span className="font-black text-gray-950 text-base md:text-lg mt-1 block">
+                        <span className="font-mono font-semibold text-slate-900 text-sm mt-0.5 block">
                           {formatVal(item.postActionValue)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-xs md:text-sm text-gray-500 block font-semibold">
-                          Observed Difference
+                        <span className="text-[11px] text-slate-500 block font-medium">
+                          Difference
                         </span>
                         <span
-                          className={`font-black text-base md:text-lg mt-1 block ${
-                            isPositive ? "text-emerald-700" : "text-red-600"
+                          className={`font-mono font-semibold text-sm mt-0.5 block ${
+                            isPositive ? "text-emerald-700" : "text-rose-600"
                           }`}
                         >
                           {sign}
@@ -304,28 +327,25 @@ export default function Performance() {
                     </div>
 
                     {/* Interpretation & Non-causal Attribution */}
-                    <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 text-sm md:text-base space-y-2">
-                      <p className="text-emerald-950 font-medium leading-relaxed">
+                    <div className="bg-emerald-50/50 border border-emerald-200/60 rounded-lg p-3 text-xs space-y-2">
+                      <p className="text-slate-800 leading-relaxed font-medium">
                         {item.interpretation}
                       </p>
-                      <div className="flex flex-wrap items-center gap-1.5 text-xs md:text-sm text-emerald-900 font-semibold pt-2 border-t border-emerald-200/80">
-                        <span>Non-Causal Attribution Standard:</span>
-                        <span className="font-normal text-emerald-800">
-                          Calculated directly from merchant transaction delta over {item.measurementWindow}.
-                        </span>
+                      <div className="text-[11px] text-slate-500 pt-1.5 border-t border-emerald-200/50">
+                        <span className="font-medium text-slate-700">Attribution Method:</span> Transaction settlement delta across {item.measurementWindow}.
                       </div>
                     </div>
 
                     {/* Evidence Points */}
                     {item.evidence && item.evidence.length > 0 && (
-                      <div className="space-y-1.5">
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                           Measurement Evidence
                         </span>
-                        <ul className="text-sm text-gray-700 space-y-1">
+                        <ul className="text-xs text-slate-600 space-y-1">
                           {item.evidence.map((ev, i) => (
-                            <li key={i} className="flex items-start gap-2">
-                              <span className="text-blue-500 font-bold">•</span>
+                            <li key={i} className="flex items-start gap-1.5">
+                              <span className="text-slate-400">•</span>
                               <span>{ev}</span>
                             </li>
                           ))}
@@ -334,10 +354,10 @@ export default function Performance() {
                     )}
 
                     {/* Footer / Status */}
-                    <div className="flex items-center justify-between pt-3 border-t text-xs md:text-sm text-gray-500 font-medium">
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
                       <span>Window: {item.measurementWindow}</span>
-                      <span className="text-purple-700 font-bold flex items-center gap-1.5">
-                        <span>Stored in Business Memory</span>
+                      <span className="badge-slate font-mono text-[10px]">
+                        Saved in Memory
                       </span>
                     </div>
                   </div>
@@ -352,30 +372,30 @@ export default function Performance() {
       {activeTab === "LEARNED" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Proven Tactics */}
-          <div className="card p-6 space-y-4">
-            <div className="flex items-center gap-2.5 border-b pb-3">
-              <h3 className="font-black text-base md:text-lg text-gray-900">Proven Tactics</h3>
+          <div className="card p-5 space-y-3">
+            <div className="border-b border-slate-100 pb-2">
+              <h3 className="font-semibold text-sm text-slate-900">Proven Tactics</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Actions verified to produce measurable sales volume lift
+              </p>
             </div>
-            <p className="text-sm text-gray-600 font-medium leading-relaxed">
-              Actions and campaign patterns verified to have positive observed volume lift.
-            </p>
-            <div className="space-y-3 pt-1">
+            <div className="space-y-2.5 pt-1">
               {memoryMatrix.provenTactics.length === 0 ? (
-                <p className="text-sm text-gray-400 italic">No tactics verified yet.</p>
+                <p className="text-xs text-slate-400 italic">No tactics verified yet.</p>
               ) : (
                 memoryMatrix.provenTactics.map((tac) => (
                   <div
                     key={tac.id}
-                    className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2 shadow-2xs"
+                    className="p-3 bg-emerald-50/50 border border-emerald-200/60 rounded-lg space-y-1.5"
                   >
-                    <p className="text-sm md:text-base font-bold text-emerald-950 leading-relaxed">
+                    <p className="text-xs font-medium text-slate-900 leading-relaxed">
                       {tac.content}
                     </p>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
+                    <div className="flex flex-wrap gap-1">
                       {tac.tags?.map((t) => (
                         <span
                           key={t}
-                          className="badge bg-emerald-100 text-emerald-800 text-xs font-semibold px-2 py-0.5"
+                          className="badge-slate text-[10px] font-mono"
                         >
                           #{t}
                         </span>
@@ -388,30 +408,30 @@ export default function Performance() {
           </div>
 
           {/* Merchant Preferences & Policies */}
-          <div className="card p-6 space-y-4">
-            <div className="flex items-center gap-2.5 border-b pb-3">
-              <h3 className="font-black text-base md:text-lg text-gray-900">Merchant Preferences</h3>
+          <div className="card p-5 space-y-3">
+            <div className="border-b border-slate-100 pb-2">
+              <h3 className="font-semibold text-sm text-slate-900">Merchant Preferences</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Learned rules derived from merchant approvals, edits, and rejections
+              </p>
             </div>
-            <p className="text-sm text-gray-600 font-medium leading-relaxed">
-              Rules and feedback extracted from your approvals, edits, and rejections.
-            </p>
-            <div className="space-y-3 pt-1">
+            <div className="space-y-2.5 pt-1">
               {memoryMatrix.merchantPreferences.length === 0 ? (
-                <p className="text-sm text-gray-400 italic">No preferences recorded yet.</p>
+                <p className="text-xs text-slate-400 italic">No preferences recorded yet.</p>
               ) : (
                 memoryMatrix.merchantPreferences.map((pref) => (
                   <div
                     key={pref.id}
-                    className="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-2 shadow-2xs"
+                    className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5"
                   >
-                    <p className="text-sm md:text-base font-bold text-blue-950 leading-relaxed">
+                    <p className="text-xs font-medium text-slate-900 leading-relaxed">
                       {pref.content}
                     </p>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
+                    <div className="flex flex-wrap gap-1">
                       {pref.tags?.map((t) => (
                         <span
                           key={t}
-                          className="badge bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5"
+                          className="badge-slate text-[10px] font-mono"
                         >
                           #{t}
                         </span>
@@ -424,30 +444,30 @@ export default function Performance() {
           </div>
 
           {/* Business & Traffic Patterns */}
-          <div className="card p-6 space-y-4">
-            <div className="flex items-center gap-2.5 border-b pb-3">
-              <h3 className="font-black text-base md:text-lg text-gray-900">Operational Patterns</h3>
+          <div className="card p-5 space-y-3">
+            <div className="border-b border-slate-100 pb-2">
+              <h3 className="font-semibold text-sm text-slate-900">Operational Patterns</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Observed customer rhythm, quiet windows, and store peak cycles
+              </p>
             </div>
-            <p className="text-sm text-gray-600 font-medium leading-relaxed">
-              Recurring transaction densities, quiet windows, and seasonal demand traits.
-            </p>
-            <div className="space-y-3 pt-1">
+            <div className="space-y-2.5 pt-1">
               {memoryMatrix.trafficPatterns.length === 0 ? (
-                <p className="text-sm text-gray-400 italic">No patterns detected yet.</p>
+                <p className="text-xs text-slate-400 italic">No patterns detected yet.</p>
               ) : (
                 memoryMatrix.trafficPatterns.map((pat) => (
                   <div
                     key={pat.id}
-                    className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl space-y-2 shadow-2xs"
+                    className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5"
                   >
-                    <p className="text-sm md:text-base font-bold text-purple-950 leading-relaxed">
+                    <p className="text-xs font-medium text-slate-900 leading-relaxed">
                       {pat.content}
                     </p>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
+                    <div className="flex flex-wrap gap-1">
                       {pat.tags?.map((t) => (
                         <span
                           key={t}
-                          className="badge bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-0.5"
+                          className="badge-slate text-[10px] font-mono"
                         >
                           #{t}
                         </span>

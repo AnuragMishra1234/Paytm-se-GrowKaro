@@ -40,7 +40,7 @@ export default function CustomerOpportunities({ merchantId, merchantName = "Cafe
     setSelectedOffer(updated);
   };
 
-  // If no opportunities and not loading, render null or gentle placeholder
+  // If no opportunities and not loading, render null
   if (!loading && opportunities.length === 0) {
     return null;
   }
@@ -49,16 +49,16 @@ export default function CustomerOpportunities({ merchantId, merchantName = "Cafe
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-          <h2 className="font-extrabold text-base md:text-lg text-gray-950">
-            Customer Opportunities
+          <span className="w-2 h-2 rounded-full bg-amber-500" />
+          <h2 className="font-semibold text-sm md:text-base text-slate-900">
+            Personalized Customer Opportunities
           </h2>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200">
+          <span className="badge-amber font-mono text-xs font-semibold">
             {opportunities.length} Actionable
           </span>
         </div>
-        <span className="text-xs text-gray-400 font-medium">
-          Personalized 1-to-1 Win-Back
+        <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+          1-to-1 Win-Back
         </span>
       </div>
 
@@ -72,27 +72,27 @@ export default function CustomerOpportunities({ merchantId, merchantName = "Cafe
           return (
             <div
               key={opp.offerId}
-              className="card p-6 bg-white border border-gray-200 hover:border-gray-300 rounded-3xl shadow-xs transition-all space-y-4 flex flex-col justify-between"
+              className="card p-5 space-y-4 flex flex-col justify-between hover:shadow-card transition-all"
             >
               <div className="space-y-3.5">
                 {/* Header Tag & Customer Name */}
-                <div className="flex items-start justify-between gap-2 border-b border-gray-100 pb-3">
+                <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-3">
                   <div>
-                    <span className="block text-[11px] font-extrabold text-amber-800 uppercase tracking-wider">
-                      Customer Win-Back Opportunity
+                    <span className="block text-[11px] font-semibold text-amber-800 uppercase tracking-wider">
+                      Win-Back Candidate
                     </span>
-                    <h3 className="text-lg font-black text-gray-900 mt-0.5">
+                    <h3 className="text-base font-semibold text-slate-900 mt-0.5">
                       {opp.customerName}
                     </h3>
                   </div>
 
                   <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                       isRedeemed
-                        ? "bg-purple-100 text-purple-800"
+                        ? "bg-purple-50 text-purple-800 border border-purple-200"
                         : isSent
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-blue-100 text-[#002970]"
+                        ? "badge-emerald"
+                        : "badge-amber"
                     }`}
                   >
                     {isPending ? "Pending Review" : opp.status}
@@ -100,36 +100,36 @@ export default function CustomerOpportunities({ merchantId, merchantName = "Cafe
                 </div>
 
                 {/* Visit Interval & Spend Summary */}
-                <div className="grid grid-cols-2 gap-2 text-xs bg-gray-50/80 p-3 rounded-2xl border border-gray-100">
+                <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
                   <div>
-                    <span className="block text-[10px] text-gray-400 font-medium uppercase">
+                    <span className="block text-[10px] text-slate-400 font-medium uppercase">
                       Last visit
                     </span>
-                    <span className="font-extrabold text-red-600 text-[13px]">
+                    <span className="font-mono font-semibold text-rose-600 text-xs">
                       {trigger.daysSinceLastPurchase || 17} days ago
                     </span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-gray-400 font-medium uppercase">
-                      Normal frequency
+                    <span className="block text-[10px] text-slate-400 font-medium uppercase">
+                      Normal gap
                     </span>
-                    <span className="font-bold text-gray-800 text-[13px]">
+                    <span className="font-mono font-semibold text-slate-700 text-xs">
                       every {trigger.averageVisitGapDays || 5} days
                     </span>
                   </div>
-                  <div className="pt-1.5 border-t border-gray-200/60">
-                    <span className="block text-[10px] text-gray-400 font-medium uppercase">
+                  <div className="pt-1.5 border-t border-slate-200/60">
+                    <span className="block text-[10px] text-slate-400 font-medium uppercase">
                       Total visits
                     </span>
-                    <span className="font-bold text-gray-800">
+                    <span className="font-mono font-semibold text-slate-700">
                       {trigger.totalVisits || 14}
                     </span>
                   </div>
-                  <div className="pt-1.5 border-t border-gray-200/60">
-                    <span className="block text-[10px] text-gray-400 font-medium uppercase">
+                  <div className="pt-1.5 border-t border-slate-200/60">
+                    <span className="block text-[10px] text-slate-400 font-medium uppercase">
                       Total spent
                     </span>
-                    <span className="font-bold text-[#002970]">
+                    <span className="font-mono font-semibold text-slate-900">
                       ₹{(trigger.totalSpent || 3240).toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -137,38 +137,37 @@ export default function CustomerOpportunities({ merchantId, merchantName = "Cafe
 
                 {/* Why GrowKaro Noticed */}
                 <div className="space-y-1">
-                  <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide">
-                    Why GrowKaro noticed:
+                  <span className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    Observation:
                   </span>
-                  <p className="text-xs text-gray-700 leading-relaxed">
+                  <p className="text-xs text-slate-700 leading-relaxed">
                     Customer normally visits every {trigger.averageVisitGapDays || 5} days, but has not visited for {trigger.daysSinceLastPurchase || 17} days.
                   </p>
                 </div>
 
                 {/* Recommended Comeback Treat */}
                 <div className="space-y-1 pt-1">
-                  <span className="block text-[11px] font-bold text-emerald-800 uppercase tracking-wide">
-                    Recommended:
+                  <span className="block text-[11px] font-semibold text-brand-800 uppercase tracking-wider">
+                    Recommended Incentive:
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-extrabold text-emerald-700">
-                      ₹{opp.discountAmount} comeback offer
+                    <span className="text-xs font-semibold text-emerald-700 font-mono bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      ₹{opp.discountAmount} targeted offer
                     </span>
                   </div>
-                  <p className="text-[11px] text-gray-500 italic">
-                    Reason: High-value repeat customer with unusually long inactivity.
-                  </p>
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="pt-3 border-t border-gray-100">
+              <div className="pt-3 border-t border-slate-100">
                 <button
                   onClick={() => setSelectedOffer(opp)}
-                  className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-full text-xs font-bold text-white bg-[#002970] hover:bg-[#001f54] transition-all shadow-sm hover:shadow"
+                  className="w-full btn-primary text-xs font-semibold py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm"
                 >
-                  <span>{isPending ? "Review Offer" : "Inspect Offer Details"}</span>
-                  <span>›</span>
+                  <span>{isPending ? "Review & Dispatch" : "Inspect Offer Details"}</span>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
             </div>

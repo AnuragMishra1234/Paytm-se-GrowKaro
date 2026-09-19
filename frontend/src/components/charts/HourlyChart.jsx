@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from "recharts";
@@ -7,44 +7,50 @@ import { formatINR } from "../../utils/formatters";
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-sm">
-      <p className="font-medium text-gray-900 mb-1">{label}</p>
-      <p className="text-blue-600">{formatINR(payload[0]?.value)} revenue</p>
-      <p className="text-gray-500">{payload[1]?.value || 0} transactions</p>
+    <div className="bg-white border border-slate-200 rounded-lg shadow-card p-2.5 text-xs">
+      <p className="font-semibold text-slate-900 mb-1">{label}</p>
+      <p className="text-emerald-700 font-mono font-medium">{formatINR(payload[0]?.value)}</p>
+      <p className="text-slate-500 font-mono">{payload[1]?.value || 0} transactions</p>
     </div>
   );
 };
 
 export function HourlyChart({ data = [], loading = false }) {
-  if (loading) return <div className="h-52 bg-gray-100 rounded-lg animate-pulse" />;
-  if (!data.length) return <div className="h-52 flex items-center justify-center text-gray-400">No hourly data</div>;
+  if (loading) return <div className="h-52 bg-slate-100/70 rounded-lg animate-pulse" />;
+  if (!data.length) return <div className="h-52 flex items-center justify-center text-xs text-slate-400">No hourly data</div>;
 
   const maxRevenue = Math.max(...data.map((d) => d.revenue));
 
   return (
     <ResponsiveContainer width="100%" height={210}>
-      <BarChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+      <BarChart data={data} margin={{ top: 8, right: 5, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 10, fill: "#9ca3af" }}
+          tick={{ fontSize: 10, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
           interval={2}
         />
         <YAxis
           tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-          tick={{ fontSize: 10, fill: "#9ca3af" }}
+          tick={{ fontSize: 10, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
-          width={40}
+          width={38}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f3f4f6" }} />
-        <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f8fafc" }} />
+        <Bar dataKey="revenue" radius={[3, 3, 0, 0]}>
           {data.map((entry, i) => (
             <Cell
               key={i}
-              fill={entry.revenue > maxRevenue * 0.7 ? "#3b82f6" : entry.revenue > maxRevenue * 0.3 ? "#93c5fd" : "#dbeafe"}
+              fill={
+                entry.revenue > maxRevenue * 0.7
+                  ? "#10b981"
+                  : entry.revenue > maxRevenue * 0.3
+                  ? "#6ee7b7"
+                  : "#e2e8f0"
+              }
             />
           ))}
         </Bar>

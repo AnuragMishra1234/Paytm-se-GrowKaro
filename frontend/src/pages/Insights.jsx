@@ -7,7 +7,7 @@ import { ActionReviewModal } from "../components/ActionReviewModal";
 
 const FILTERS = [
   { id: "ALL", label: "All Insights" },
-  { id: "ACT_NOW", label: "Act Now" },
+  { id: "ACT_NOW", label: "Needs Immediate Action" },
   { id: "OPPORTUNITY", label: "Opportunities" },
   { id: "WARNING", label: "Warnings" },
   { id: "POSITIVE_TREND", label: "Positive Trends" },
@@ -15,24 +15,28 @@ const FILTERS = [
 
 const categoryMeta = {
   ACT_NOW: {
-    label: "ACT NOW",
-    badge: "bg-red-100 text-red-800 border-red-200",
-    border: "border-red-300 bg-red-50/30",
+    label: "Act Now",
+    badge: "badge-rose",
+    indicator: "bg-rose-500",
+    border: "border-rose-200/80 hover:border-rose-300",
   },
   OPPORTUNITY: {
-    label: "OPPORTUNITY",
-    badge: "bg-amber-100 text-amber-800 border-amber-200",
-    border: "border-amber-300 bg-amber-50/30",
+    label: "Opportunity",
+    badge: "badge-amber",
+    indicator: "bg-amber-500",
+    border: "border-amber-200/80 hover:border-amber-300",
   },
   WARNING: {
-    label: "WARNING",
-    badge: "bg-orange-100 text-orange-800 border-orange-200",
-    border: "border-orange-300 bg-orange-50/30",
+    label: "Attention",
+    badge: "badge-amber",
+    indicator: "bg-amber-500",
+    border: "border-amber-200/80 hover:border-amber-300",
   },
   POSITIVE_TREND: {
-    label: "POSITIVE TREND",
-    badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    border: "border-emerald-300 bg-emerald-50/30",
+    label: "Positive Trend",
+    badge: "badge-emerald",
+    indicator: "bg-emerald-500",
+    border: "border-emerald-200/80 hover:border-emerald-300",
   },
 };
 
@@ -105,68 +109,93 @@ export default function Insights() {
   });
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl md:text-3xl font-black text-gray-900">Proactive Insights Feed</h1>
-            <span className="badge bg-blue-100 text-blue-800 text-xs md:text-sm font-bold px-2.5 py-0.5">Phase 3 Action Engine</span>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+              Intelligence &amp; Daily Insights
+            </h1>
+            <span className="badge-slate font-mono text-xs font-semibold">
+              {filtered.length} active
+            </span>
           </div>
-          <p className="text-gray-600 text-sm md:text-base mt-1">
-            Real-time business anomalies, growth windows, and actionable agentic proposals
+          <p className="text-sm text-slate-500">
+            Automated operational diagnosis, detected patterns, and merchant growth actions.
           </p>
         </div>
+
         <button
           onClick={runAnalysis}
           disabled={analyzing}
-          className="btn-primary flex items-center gap-2 self-start sm:self-auto text-sm font-bold py-2.5 px-5 shadow-sm"
+          className="btn-primary inline-flex items-center gap-2 self-start sm:self-auto text-xs font-semibold py-2 px-4 shadow-sm"
         >
           {analyzing ? (
             <>
               <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Diagnosing Business...</span>
+              <span>Diagnosing Store...</span>
             </>
           ) : (
             <>
-              <span>Run Diagnosis</span>
+              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Run Store Diagnosis</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Filters & Search */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3.5">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+      {/* Filter Tabs & Search Row */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {FILTERS.map((f) => (
             <button
               key={f.id}
               onClick={() => setActiveFilter(f.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
                 activeFilter === f.id
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
               {f.label}
             </button>
           ))}
         </div>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter insights..."
-          className="w-full sm:w-72 px-3.5 py-2 text-sm bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-blue-500"
-        />
+
+        <div className="relative min-w-[240px]">
+          <svg
+            className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search insights & actions..."
+            className="input-text text-xs pl-9 pr-3 py-1.5 w-full bg-white"
+          />
+        </div>
       </div>
 
       {/* Error state */}
-      {error && filtered.length === 0 && <ErrorState message={error} onRetry={refetch} />}
+      {error && filtered.length === 0 && (
+        <div className="p-8">
+          <ErrorState message={error} onRetry={refetch} />
+        </div>
+      )}
       {error && filtered.length > 0 && (
-        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs md:text-sm font-medium flex items-center justify-between">
-          <span>{error}. Displaying latest recorded proactive insights.</span>
-          <button onClick={refetch} className="font-bold underline text-amber-900 hover:text-amber-950">Refresh</button>
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs flex items-center justify-between">
+          <span>{error}. Displaying latest recorded insights.</span>
+          <button onClick={refetch} className="font-semibold underline text-amber-900 hover:text-amber-950">
+            Refresh
+          </button>
         </div>
       )}
 
@@ -174,23 +203,24 @@ export default function Insights() {
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="card p-6 animate-pulse space-y-3.5">
-              <div className="h-5 bg-gray-200 rounded w-28" />
-              <div className="h-7 bg-gray-200 rounded w-64" />
-              <div className="h-20 bg-gray-100 rounded-xl" />
-            </div>
+            <div key={i} className="card p-6 animate-pulse space-y-3 bg-slate-100/60 h-48" />
           ))}
         </div>
       )}
 
       {/* Empty State */}
       {!loading && !error && filtered.length === 0 && (
-        <div className="card p-12 text-center text-gray-500 space-y-3">
-          <p className="font-bold text-lg text-gray-800">No matching insights found</p>
-          <p className="text-sm md:text-base text-gray-400">
+        <div className="card p-12 text-center space-y-3 border-dashed">
+          <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="font-semibold text-sm text-slate-900">No active insights in this category</p>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
             {activeFilter !== "ALL"
-              ? "No events found in this category. Try switching filters or click Run Diagnosis."
-              : "Your business metrics are operating steadily within normal baseline."}
+              ? "No alerts found under this filter. Try selecting 'All Insights' or trigger a fresh store diagnosis."
+              : "All store metrics are operating stably within normal expected baselines."}
           </p>
         </div>
       )}
@@ -203,15 +233,17 @@ export default function Insights() {
             return (
               <div
                 key={item._id}
-                className={`card p-6 border-2 space-y-3.5 transition-all hover:shadow-md ${meta.border}`}
+                className={`card p-5 space-y-4 transition-all duration-200 ${meta.border}`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`badge border text-xs font-bold py-0.5 px-2.5 rounded-md ${meta.badge}`}>
+                {/* Header: Category Badge + Priority + Dismiss */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`${meta.badge} text-[11px] font-medium inline-flex items-center gap-1.5`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${meta.indicator}`} />
                       {meta.label}
                     </span>
                     {item.priorityScore && (
-                      <span className="text-xs font-extrabold text-gray-500 bg-white/80 px-2 py-0.5 rounded border border-gray-200/60">
+                      <span className="badge-slate font-mono text-[11px]">
                         Priority: {item.priorityScore}
                       </span>
                     )}
@@ -219,47 +251,54 @@ export default function Insights() {
                   <button
                     onClick={() => dismiss(item._id)}
                     title="Dismiss"
-                    className="text-gray-400 hover:text-gray-600 text-sm px-2 py-0.5 rounded font-bold"
+                    className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100 transition-colors"
                   >
-                    &times;
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
 
-                <h3 className="text-base md:text-lg font-black text-gray-950 leading-snug">{item.title}</h3>
+                {/* Insight Title */}
+                <h3 className="text-sm font-semibold text-slate-900 leading-snug">
+                  {item.title}
+                </h3>
 
-                {/* Evidence snippet */}
+                {/* Grounded Evidence Box */}
                 {item.evidence?.[0] && (
-                  <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-white/80 p-3 rounded-xl border border-gray-200/60">
+                  <div className="bg-slate-50 border border-slate-100 rounded-md p-3 text-xs text-slate-700 leading-relaxed">
+                    <span className="font-semibold text-slate-900 block mb-1">Observed Evidence:</span>
                     {item.evidence[0]}
-                  </p>
+                  </div>
                 )}
 
-                {/* AI Recommendation */}
+                {/* Recommended Action */}
                 {item.recommendation?.action && (
-                  <div className="bg-blue-50/90 border border-blue-200/80 rounded-xl p-3.5 text-sm space-y-1.5">
-                    <p className="text-blue-900 font-bold flex items-center gap-1.5">
-                      <span>Recommended Action</span>
-                    </p>
-                    <p className="text-blue-950 font-medium leading-relaxed">
+                  <div className="bg-brand-50/50 border border-brand-200/60 rounded-md p-3 text-xs space-y-1">
+                    <span className="font-semibold text-brand-900 block">Proposed Next Step:</span>
+                    <p className="text-slate-700 leading-relaxed">
                       {item.recommendation.action}
                     </p>
                   </div>
                 )}
 
-                {/* Footer with Take Action CTA */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200/60 text-sm">
+                {/* Card Actions Footer */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                   <button
                     onClick={() => setSelectedInsight(item)}
-                    className="text-sm text-gray-600 hover:text-gray-950 font-bold"
+                    className="font-medium text-slate-600 hover:text-slate-900"
                   >
-                    Deep Dive
+                    View Details
                   </button>
                   <button
                     onClick={() => handleTakeAction(item)}
                     disabled={actionLoading}
-                    className="btn-primary text-sm font-bold py-2 px-4 flex items-center gap-1.5 shadow-sm"
+                    className="btn-primary text-xs font-semibold py-1.5 px-3.5 flex items-center gap-1.5 shadow-sm"
                   >
                     <span>Take Action</span>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -270,38 +309,46 @@ export default function Insights() {
 
       {/* Deep-Dive Modal */}
       {selectedInsight && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-start justify-between border-b pb-3">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto border border-slate-200">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className={`badge text-[10px] font-semibold ${categoryMeta[selectedInsight.category]?.badge}`}>
-                  {selectedInsight.category}
+                <span className={`${categoryMeta[selectedInsight.category]?.badge} text-[11px] font-medium`}>
+                  {categoryMeta[selectedInsight.category]?.label || selectedInsight.category}
                 </span>
-                <h3 className="text-base font-bold text-gray-900 mt-1">{selectedInsight.title}</h3>
+                <h3 className="text-base font-semibold text-slate-900 mt-1">
+                  {selectedInsight.title}
+                </h3>
               </div>
               <button
                 onClick={() => setSelectedInsight(null)}
-                className="text-gray-400 hover:text-gray-600 text-lg p-1"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100"
               >
-                &times;
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             {/* Observed Evidence */}
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Grounded Evidence</h4>
-              <ul className="list-disc pl-4 text-xs text-gray-700 space-y-1">
+              <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Grounded Evidence
+              </h4>
+              <ul className="list-disc pl-4 text-xs text-slate-700 space-y-1.5">
                 {selectedInsight.evidence?.map((ev, i) => (
                   <li key={i}>{ev}</li>
                 ))}
               </ul>
             </div>
 
-            {/* AI Explanation */}
+            {/* Explanation */}
             {selectedInsight.explanation && (
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Why It Matters (AI Reasoning)</h4>
-                <p className="text-xs text-gray-700 leading-relaxed bg-gray-50 p-3 rounded-lg border">
+                <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  Why It Matters
+                </h4>
+                <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-md border border-slate-200/80">
                   {selectedInsight.explanation}
                 </p>
               </div>
@@ -309,31 +356,35 @@ export default function Insights() {
 
             {/* Action */}
             {selectedInsight.recommendation && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 space-y-2">
-                <h4 className="text-xs font-bold text-blue-900 uppercase">Recommended Next Action</h4>
-                <p className="text-xs text-blue-950 font-medium leading-relaxed">
+              <div className="bg-brand-50/50 border border-brand-200 rounded-md p-3.5 space-y-2">
+                <h4 className="text-xs font-semibold text-brand-900 uppercase tracking-wider">
+                  Recommended Action
+                </h4>
+                <p className="text-xs text-slate-800 leading-relaxed font-medium">
                   {selectedInsight.recommendation.action}
                 </p>
                 {selectedInsight.recommendation.goal && (
-                  <p className="text-[11px] text-blue-700">
-                    <span className="font-semibold">Business Goal:</span> {selectedInsight.recommendation.goal}
+                  <p className="text-[11px] text-brand-700">
+                    <span className="font-semibold">Goal:</span> {selectedInsight.recommendation.goal}
                   </p>
                 )}
               </div>
             )}
 
-            {/* Phase 3 Action Trigger */}
-            <div className="border border-blue-200 rounded-xl p-3.5 bg-blue-50/50 flex items-center justify-between">
+            {/* Action Proposal Trigger */}
+            <div className="border border-slate-200 rounded-lg p-3.5 bg-slate-50/70 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-bold text-gray-900">
-                  {selectedInsight.recommendation?.suggestedAction?.title || "Draft Promotional Offer"}
+                <p className="text-xs font-semibold text-slate-900">
+                  {selectedInsight.recommendation?.suggestedAction?.title || "Draft Targeted Offer"}
                 </p>
-                <p className="text-[11px] text-gray-500">Prepares action draft for merchant review &amp; execution</p>
+                <p className="text-[11px] text-slate-500">
+                  Prepares action draft for merchant approval &amp; execution
+                </p>
               </div>
               <button
                 onClick={() => handleTakeAction(selectedInsight)}
                 disabled={actionLoading}
-                className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm"
+                className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1 shadow-sm whitespace-nowrap"
               >
                 <span>Take Action</span>
               </button>

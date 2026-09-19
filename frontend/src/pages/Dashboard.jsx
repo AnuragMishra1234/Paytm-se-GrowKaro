@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useMerchantContext } from "../context/MerchantContext";
 import { useDashboard } from "../hooks/useDashboard";
+import { useOutcomes } from "../hooks/useOutcomes";
 import { KPICard } from "../components/KPICard";
 import { RevenueChart } from "../components/charts/RevenueChart";
-import { HourlyChart } from "../components/charts/HourlyChart";
-import { WeekdayChart } from "../components/charts/WeekdayChart";
 import { AIPriorityFeed } from "../components/AIPriorityFeed";
-import { ErrorState } from "../components/LoadingSpinner";
-import { getBusinessTypeInfo, formatDate } from "../utils/formatters";
-import { fetchDailyBrief, triggerAnalysis } from "../services/api";
-import { useOutcomes } from "../hooks/useOutcomes";
-import { Link } from "react-router-dom";
 import CustomerOpportunities from "../components/CustomerOpportunities";
+import { ErrorState } from "../components/LoadingSpinner";
+import { fetchDailyBrief, triggerAnalysis } from "../services/api";
+import { getBusinessTypeInfo, formatINR } from "../utils/formatters";
 
 const PERIOD_OPTIONS = [
   { label: "7 days", value: 7 },
@@ -26,7 +24,7 @@ export default function Dashboard() {
   const { outcomes, learnedSummary } = useOutcomes(merchant?._id);
   const [dailyBrief, setDailyBrief] = useState(null);
 
-  const { label, logo } = getBusinessTypeInfo(merchant?.businessType, merchant?.businessName);
+  const { label } = getBusinessTypeInfo(merchant?.businessType, merchant?.businessName);
 
   useEffect(() => {
     if (merchant?._id) {
@@ -59,32 +57,39 @@ export default function Dashboard() {
   const kpis = data?.kpis;
   const insights = data?.insights || [];
 
+  // Compute Greeting based on local time
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
+
+  // Business Pulse sentence derived from dailyBrief or KPI changes
+  const pulseSentence =
+    dailyBrief?.summary ||
+    (kpis?.changes?.revenue >= 0
+      ? "Sales are stronger than yesterday, with solid customer participation across peak hours."
+      : "Afternoon activity was slightly quieter than yesterday. Consider promotional combos to boost mid-day volume.");
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200 p-1.5 flex items-center justify-center shadow-xs overflow-hidden shrink-0">
-            <img
-              src={logo}
-              alt={merchant?.businessName}
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-              {merchant?.businessName}
-            </h1>
-            <p className="text-gray-500 text-sm mt-0.5">{label} · AI Business Partner Overview</p>
-          </div>
+      {/* ─── 1. Header & Quick Time Period Selector ──────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            Good {greeting}, {merchant?.businessName}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Here's how your {label.toLowerCase()} is performing today.
+          </p>
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg self-start sm:self-auto border border-slate-200/60">
           {PERIOD_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setDays(opt.value)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                days === opt.value ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                days === opt.value
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
               {opt.label}
@@ -93,7 +98,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* ─── 2. Key Metrics Row ───────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Today's Revenue"
@@ -103,7 +108,7 @@ export default function Dashboard() {
           loading={loading}
         />
         <KPICard
-          title="Transactions"
+          title="Orders"
           value={kpis?.today?.transactions}
           change={kpis?.changes?.transactions}
           format="number"
@@ -112,6 +117,7 @@ export default function Dashboard() {
         <KPICard
           title="Avg Order Value"
           value={kpis?.today?.aov}
+          change={kpis?.changes?.aov}
           format="currency"
           loading={loading}
         />
@@ -124,16 +130,55 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* AI Priority Feed (Prominent Phase 2 Placement) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">Revenue Trend</h2>
-            <span className="text-xs text-gray-400">Last {days} days</span>
+      {/* ─── 3. Business Pulse Banner ─────────────────────────────────────── */}
+      <div className="card p-4 sm:p-5 bg-gradient-to-r from-emerald-50/40 via-white to-slate-50 border-emerald-100/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-100/70 border border-emerald-200 flex items-center justify-center text-emerald-800 font-bold shrink-0 mt-0.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-600" />
+          </div>
+          <div>
+            <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider block">
+              Business Pulse
+            </span>
+            <p className="text-sm font-medium text-slate-800 mt-0.5 leading-relaxed">
+              "{pulseSentence}"
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleRefreshAnalysis}
+          className="self-start sm:self-auto text-xs font-semibold text-emerald-700 hover:text-emerald-900 hover:underline px-2 py-1 shrink-0"
+        >
+          Diagnose Live Patterns →
+        </button>
+      </div>
+
+      {/* ─── 4. Performance Trend & What Needs Attention ─────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Performance Trend Chart */}
+        <div className="lg:col-span-8 card p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Revenue Trend
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Daily transaction volume over the last {days} days
+              </p>
+            </div>
+            <Link
+              to="/analytics"
+              className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+            >
+              View Analytics →
+            </Link>
           </div>
           <RevenueChart data={data?.revenueTrend} loading={loading} />
         </div>
-        <div>
+
+        {/* What Needs Attention (Insights Feed) */}
+        <div className="lg:col-span-4">
           <AIPriorityFeed
             insights={insights}
             loading={loading}
@@ -143,72 +188,65 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Personalized Customer Win-Back Opportunities */}
+      {/* ─── 5. Customer Win-Back Opportunities ───────────────────────────── */}
       <CustomerOpportunities
         merchantId={merchant?._id}
         merchantName={merchant?.businessName}
       />
 
-      {/* Phase 4: Recent Action Results & What GrowKaro Has Learned */}
+      {/* ─── 6. Recent Action Results & Learned Intelligence ──────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Action Results Card */}
-        <div className="card p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
-            <div className="flex items-center gap-2">
-              <h2 className="font-black text-base md:text-lg text-gray-950">Recent Action Results</h2>
+        {/* Measured Lift */}
+        <div className="card p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Recent Action Results
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Verified lift from executed merchant actions
+              </p>
             </div>
             <Link
               to="/performance"
-              className="text-xs md:text-sm text-blue-700 hover:text-blue-900 font-bold"
+              className="text-xs font-semibold text-emerald-700 hover:text-emerald-900"
             >
               View All Outcomes →
             </Link>
           </div>
 
           {outcomes.length === 0 ? (
-            <p className="text-sm text-gray-400 italic py-4 text-center">
-              No executed campaigns measured yet. Approved campaigns will report observed lift here.
+            <p className="text-xs text-slate-400 italic py-6 text-center">
+              No executed campaigns measured yet. Approved actions report observed revenue lift here.
             </p>
           ) : (
-            <div className="space-y-3.5">
+            <div className="space-y-3">
               {outcomes.slice(0, 2).map((item) => {
                 const isPos = item.changePercentage >= 0;
                 const sign = isPos ? "+" : "";
-                const isCurr = item.metric === "REVENUE" || item.metric === "AOV";
-                const formatVal = (v) =>
-                  isCurr
-                    ? new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                        maximumFractionDigits: 0,
-                      }).format(v || 0)
-                    : `${v || 0} units`;
-
                 return (
                   <div
                     key={item._id}
-                    className="p-4 bg-gray-50 rounded-2xl border border-gray-200/90 space-y-2.5"
+                    className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-2"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <span className="font-black text-sm md:text-base text-gray-950 truncate">
+                      <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
                         {item.actionId?.title || "Campaign Action"}
                       </span>
                       <span
-                        className={`badge font-bold px-2.5 py-0.5 rounded-md text-xs ${
-                          isPos ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+                        className={`badge font-semibold text-[11px] px-2 py-0.5 rounded ${
+                          isPos ? "badge-emerald" : "badge-rose"
                         }`}
                       >
                         {sign}{item.changePercentage}% Observed
                       </span>
                     </div>
-
-                    <p className="text-gray-700 text-xs md:text-sm leading-relaxed font-normal">
+                    <p className="text-xs text-slate-600 leading-relaxed">
                       {item.interpretation}
                     </p>
-
-                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-200">
-                      <span>Baseline: <strong>{formatVal(item.baselineValue)}</strong> → Post: <strong>{formatVal(item.postActionValue)}</strong></span>
-                      <span className="text-purple-700 font-bold">Stored in Memory</span>
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/50">
+                      <span>Baseline: <strong>{formatINR(item.baselineValue)}</strong> → Post: <strong>{formatINR(item.postActionValue)}</strong></span>
+                      <span className="text-slate-500 font-medium">Memory Saved</span>
                     </div>
                   </div>
                 );
@@ -217,104 +255,61 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* What GrowKaro Has Learned Card */}
-        <div className="card p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
-            <div className="flex items-center gap-2">
-              <h2 className="font-black text-base md:text-lg text-gray-950">What GrowKaro Has Learned</h2>
+        {/* Learned Knowledge */}
+        <div className="card p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                What GrowKaro Has Learned
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Persistent patterns stored in business memory
+              </p>
             </div>
             <Link
               to="/performance"
-              className="text-xs md:text-sm text-blue-700 hover:text-blue-900 font-bold"
+              className="text-xs font-semibold text-emerald-700 hover:text-emerald-900"
             >
-              Explore Memory Matrix →
+              Explore Memory →
             </Link>
           </div>
 
           <div className="space-y-3">
             {learnedSummary?.memoryMatrix?.provenTactics?.length > 0 ? (
-              <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-1.5 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-emerald-800 font-bold uppercase">
-                  <span>Verified Tactic</span>
-                  <span>High Confidence</span>
+              <div className="p-3.5 bg-emerald-50/50 border border-emerald-200/80 rounded-xl space-y-1">
+                <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                  Verified Tactic
                 </div>
-                <p className="text-sm md:text-base font-bold text-emerald-950 leading-relaxed">
+                <p className="text-xs font-semibold text-emerald-950 leading-relaxed">
                   {learnedSummary.memoryMatrix.provenTactics[0].content}
                 </p>
               </div>
             ) : null}
 
             {learnedSummary?.memoryMatrix?.merchantPreferences?.length > 0 ? (
-              <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-1.5 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-blue-800 font-bold uppercase">
-                  <span>Merchant Rule</span>
-                  <span>Active Preference</span>
+              <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Merchant Rule
                 </div>
-                <p className="text-sm md:text-base font-bold text-blue-950 leading-relaxed">
+                <p className="text-xs font-medium text-slate-800 leading-relaxed">
                   {learnedSummary.memoryMatrix.merchantPreferences[0].content}
                 </p>
               </div>
             ) : null}
 
             {learnedSummary?.memoryMatrix?.trafficPatterns?.length > 0 ? (
-              <div className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl space-y-1.5 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-purple-800 font-bold uppercase">
-                  <span>Operational Trend</span>
-                  <span>Detected Pattern</span>
+              <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Traffic Pattern
                 </div>
-                <p className="text-sm md:text-base font-bold text-purple-950 leading-relaxed">
+                <p className="text-xs font-medium text-slate-800 leading-relaxed">
                   {learnedSummary.memoryMatrix.trafficPatterns[0].content}
                 </p>
               </div>
             ) : null}
-
-            {!learnedSummary && (
-              <p className="text-sm text-gray-400 italic py-4 text-center">
-                Accumulating business memory...
-              </p>
-            )}
           </div>
         </div>
       </div>
-
-      {/* Hourly + Weekday Analysis */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Sales by Hour</h2>
-          <HourlyChart data={data?.hourlySales} loading={loading} />
-          <p className="text-xs text-gray-400 text-center mt-2">Hover to see revenue and transaction count</p>
-        </div>
-        <div className="card p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Sales by Day of Week</h2>
-          <WeekdayChart data={data?.weekdaySales} loading={loading} />
-          <p className="text-xs text-gray-400 text-center mt-2">Based on last 8 weeks of data</p>
-        </div>
-      </div>
-
-      {/* Summary stats */}
-      {kpis && !loading && (
-        <div className="card p-5">
-          <h3 className="font-semibold text-gray-800 mb-3">Period Summary</h3>
-          <div className="grid grid-cols-3 divide-x divide-gray-100">
-            <div className="px-4 text-center first:pl-0">
-              <p className="text-xs text-gray-400 mb-1">Yesterday Revenue</p>
-              <p className="font-bold text-gray-900">
-                {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(kpis.yesterday?.revenue || 0)}
-              </p>
-            </div>
-            <div className="px-4 text-center">
-              <p className="text-xs text-gray-400 mb-1">Yesterday Transactions</p>
-              <p className="font-bold text-gray-900">{kpis.yesterday?.transactions || 0}</p>
-            </div>
-            <div className="px-4 text-center last:pr-0">
-              <p className="text-xs text-gray-400 mb-1">Yesterday AOV</p>
-              <p className="font-bold text-gray-900">
-                {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(kpis.yesterday?.aov || 0)}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
