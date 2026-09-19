@@ -16,6 +16,18 @@ const notificationSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    recipientMemberId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TeamMember',
+      default: null,
+      index: true,
+    },
+    role: {
+      type: String,
+      enum: ['ALL', 'OWNER', 'MANAGER', 'MARKETING', 'STAFF'],
+      default: 'ALL',
+      index: true,
+    },
     type: {
       type: String,
       enum: [
@@ -27,10 +39,13 @@ const notificationSchema = new mongoose.Schema(
         'ACTION_COMPLETED',
         'ACTION_FAILED',
         'OUTCOME_MEASURED',
+        'OUTCOME_AVAILABLE',
         'DAILY_BRIEF',
         'WARNING',
         'OPPORTUNITY',
         'POSITIVE_TREND',
+        'TASK_ASSIGNED',
+        'TASK_COMPLETED',
       ],
       required: true,
       index: true,
@@ -46,13 +61,13 @@ const notificationSchema = new mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+      enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL', 'URGENT'],
       default: 'MEDIUM',
       index: true,
     },
     category: {
       type: String,
-      enum: ['ANOMALY', 'RECOMMENDATION', 'EXECUTION', 'OUTCOME', 'BRIEF', 'SYSTEM'],
+      enum: ['ANOMALY', 'RECOMMENDATION', 'EXECUTION', 'OUTCOME', 'BRIEF', 'SYSTEM', 'TASK'],
       default: 'RECOMMENDATION',
     },
     relatedInsightId: {
@@ -69,6 +84,12 @@ const notificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Campaign',
       default: null,
+    },
+    relatedTaskId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Task',
+      default: null,
+      index: true,
     },
     read: {
       type: Boolean,

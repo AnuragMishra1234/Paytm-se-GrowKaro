@@ -18,7 +18,8 @@ const actionSchema = new mongoose.Schema(
     insightId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Insight',
-      required: true,
+      required: false,
+      default: null,
       index: true,
     },
     type: {
@@ -63,6 +64,23 @@ const actionSchema = new mongoose.Schema(
       discountDetails: { type: String, default: '' },
       products: [{ type: String }],
     },
+    teamImpact: [
+      {
+        role: {
+          type: String,
+          enum: ['OWNER', 'MANAGER', 'MARKETING', 'STAFF'],
+          required: true,
+        },
+        taskTitle: { type: String, required: true },
+        taskDescription: { type: String, required: true },
+        assignedTo: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'TeamMember',
+          default: null,
+        },
+        assignedToName: { type: String, default: '' },
+      },
+    ],
     approvalStatus: {
       type: String,
       enum: ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'],

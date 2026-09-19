@@ -304,6 +304,77 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
           )}
         </div>
 
+        {/* Section 5: Team Workflow Impact & Automated Task Dispatch */}
+        <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-base">👥</span>
+              <h3 className="font-black text-sm md:text-base text-gray-950">Team Workflow Impact</h3>
+            </div>
+            <span className="text-xs font-black uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-[#002970] border border-blue-200">
+              Auto-Dispatched
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
+            Approving this recommendation automatically creates preparatory checklists and notifies the designated employees:
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            {action.teamImpact && action.teamImpact.length > 0 ? (
+              action.teamImpact.map((impact, idx) => (
+                <div key={idx} className="p-3.5 bg-white rounded-xl border border-gray-200/80 shadow-2xs space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200 uppercase">
+                      {impact.role}
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-900 truncate">
+                      {impact.assignedToName || "Assigned Team"}
+                    </span>
+                  </div>
+                  <div className="text-sm font-bold text-gray-900 leading-tight">
+                    {impact.taskTitle}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                    {impact.taskDescription}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="p-3.5 bg-white rounded-xl border border-gray-200/80 shadow-2xs space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 uppercase">
+                      MARKETING
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-900">Rahul Verma</span>
+                  </div>
+                  <div className="text-sm font-bold text-gray-900 leading-tight">
+                    Campaign Creative &amp; Copy Prep
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                    Verify WhatsApp copy and confirm targeted audience segment ({action.targetAudience}).
+                  </div>
+                </div>
+
+                <div className="p-3.5 bg-white rounded-xl border border-gray-200/80 shadow-2xs space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase">
+                      STAFF
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-900">Ananya Das</span>
+                  </div>
+                  <div className="text-sm font-bold text-gray-900 leading-tight">
+                    Counter &amp; Inventory Readiness
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                    Ensure cold brew batches, fresh pastries, and counter briefings are ready before launch.
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Clean Execution Result (if already completed) */}
         {isExecuted && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 text-emerald-950 space-y-2">

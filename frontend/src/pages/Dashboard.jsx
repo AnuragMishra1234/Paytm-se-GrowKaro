@@ -10,6 +10,7 @@ import { ErrorState } from "../components/LoadingSpinner";
 import { getBusinessTypeInfo, formatDate } from "../utils/formatters";
 import { fetchDailyBrief, triggerAnalysis } from "../services/api";
 import { useOutcomes } from "../hooks/useOutcomes";
+import { useTeam } from "../context/TeamContext";
 import { Link } from "react-router-dom";
 
 const PERIOD_OPTIONS = [
@@ -20,6 +21,7 @@ const PERIOD_OPTIONS = [
 
 export default function Dashboard() {
   const { merchant } = useMerchantContext();
+  const { isStaff, activePersona } = useTeam();
   const [days, setDays] = useState(30);
   const { data, loading, error, refetch } = useDashboard(merchant?._id, days);
   const { outcomes, learnedSummary } = useOutcomes(merchant?._id);
@@ -92,40 +94,96 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
-          title="Today's Revenue"
-          value={kpis?.today?.revenue}
-          change={kpis?.changes?.revenue}
-          icon="💰"
-          format="currency"
-          loading={loading}
-        />
-        <KPICard
-          title="Transactions"
-          value={kpis?.today?.transactions}
-          change={kpis?.changes?.transactions}
-          icon="🧾"
-          format="number"
-          loading={loading}
-        />
-        <KPICard
-          title="Avg Order Value"
-          value={kpis?.today?.aov}
-          icon="🎯"
-          format="currency"
-          loading={loading}
-        />
-        <KPICard
-          title="Repeat Customers"
-          value={kpis?.repeatCustomerPct}
-          icon="🔄"
-          format="percent"
-          changeLabel="last 30 days"
-          loading={loading}
-        />
-      </div>
+      {/* Role-Specific Scoped View: For STAFF, show Floor Operations instead of sensitive store margins */}
+      {isStaff ? (
+        <div className="space-y-4">
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-black shrink-0">
+                ☕
+              </span>
+              <div>
+                <h3 className="text-sm md:text-base font-black text-gray-900">
+                  Floor Operations &amp; Shift Hub
+                </h3>
+                <p className="text-xs text-gray-600">
+                  Active role: <strong>{activePersona?.name}</strong> ({activePersona?.title}). Store financial margins are protected.
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/tasks"
+              className="px-3.5 py-1.5 bg-[#002970] text-white rounded-xl text-xs font-bold shadow-2xs hover:bg-[#001f56] transition-all whitespace-nowrap self-start sm:self-auto"
+            >
+              View My Checklist ›
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-2xs space-y-1">
+              <div className="text-xs sm:text-sm font-bold text-gray-500">Store Readiness</div>
+              <div className="text-lg font-black text-emerald-700 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Active Shift
+              </div>
+              <div className="text-xs text-gray-500 font-medium">Counter &amp; Barista Station</div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-2xs space-y-1">
+              <div className="text-xs sm:text-sm font-bold text-gray-500">Task Checklist</div>
+              <div className="text-lg font-black text-blue-700">Action Prep</div>
+              <div className="text-xs text-gray-500 font-medium">Inventory items assigned</div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-2xs space-y-1">
+              <div className="text-xs sm:text-sm font-bold text-gray-500">Active Combo</div>
+              <div className="text-lg font-black text-gray-900">₹199 Cold Brew</div>
+              <div className="text-xs text-gray-500 font-medium">Butter Croissant Pairing</div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-2xs space-y-1">
+              <div className="text-xs sm:text-sm font-bold text-gray-500">Prep Window</div>
+              <div className="text-lg font-black text-rose-700">URGENT</div>
+              <div className="text-xs text-gray-500 font-medium">2:00 PM Lull Target</div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Standard Financial KPI Cards for Owner & Manager */
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <KPICard
+            title="Today's Revenue"
+            value={kpis?.today?.revenue}
+            change={kpis?.changes?.revenue}
+            icon="💰"
+            format="currency"
+            loading={loading}
+          />
+          <KPICard
+            title="Transactions"
+            value={kpis?.today?.transactions}
+            change={kpis?.changes?.transactions}
+            icon="🧾"
+            format="number"
+            loading={loading}
+          />
+          <KPICard
+            title="Avg Order Value"
+            value={kpis?.today?.aov}
+            icon="🎯"
+            format="currency"
+            loading={loading}
+          />
+          <KPICard
+            title="Repeat Customers"
+            value={kpis?.repeatCustomerPct}
+            icon="🔄"
+            format="percent"
+            changeLabel="last 30 days"
+            loading={loading}
+          />
+        </div>
+      )}
 
       {/* AI Priority Feed (Prominent Phase 2 Placement) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

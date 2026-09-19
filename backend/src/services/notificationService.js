@@ -15,6 +15,8 @@ const Notification = require('../models/Notification');
  */
 const createNotification = async ({
   merchantId,
+  recipientMemberId = null,
+  role = 'ALL',
   type,
   title,
   message,
@@ -23,6 +25,7 @@ const createNotification = async ({
   relatedInsightId = null,
   relatedActionId = null,
   relatedCampaignId = null,
+  relatedTaskId = null,
   requiresApproval = false,
   approvalStatus = 'NONE',
   actionUrl = null,
@@ -44,6 +47,8 @@ const createNotification = async ({
 
   const notification = new Notification({
     merchantId,
+    recipientMemberId,
+    role,
     type,
     title,
     message,
@@ -52,6 +57,7 @@ const createNotification = async ({
     relatedInsightId,
     relatedActionId,
     relatedCampaignId,
+    relatedTaskId,
     requiresApproval,
     approvalStatus,
     actionUrl,
@@ -82,6 +88,19 @@ const getMerchantNotifications = async (merchantId, options = {}) => {
     query.category = options.category;
   }
 
+  if (options.role && options.role !== 'ALL') {
+    query.$or = [
+      { role: 'ALL' },
+      { role: options.role.toUpperCase() },
+      ...(options.recipientMemberId ? [{ recipientMemberId: options.recipientMemberId }] : []),
+    ];
+  } else if (options.recipientMemberId) {
+    query.$or = [
+      { recipientMemberId: options.recipientMemberId },
+      { role: 'ALL' },
+    ];
+  }
+
   if (options.requiresApproval === true || options.requiresApproval === 'true') {
     query.requiresApproval = true;
   }
@@ -94,9 +113,10 @@ const getMerchantNotifications = async (merchantId, options = {}) => {
       .limit(limit)
       .populate('relatedActionId', 'title payload approvalStatus executionStatus')
       .populate('relatedCampaignId', 'name status deliveryStats')
+      .populate('relatedTaskId', 'title status priority type assignedToRole')
       .lean(),
-    Notification.countDocuments({ merchantId, read: false }),
-    Notification.countDocuments({ merchantId }),
+    Notification.countDocuments({ ...query, read: false }),
+    Notification.countDocuments(query),
   ]);
 
   return {
@@ -250,10 +270,80 @@ const notifyDailyBrief = async (brief, merchant) => {
     category: 'BRIEF',
     actionUrl: '/dashboard',
     idempotencyKey: `daily_brief_${merchant._id.toString()}_${brief.briefDate}`,
+  });
+};
+
+/**
+ * Convenience Helper: Trigger Task Assigned Notification to specific role/member
+ */
+const notifyTaskAssigned = async (task, merchant) => {
+  return createNotification({
+    merchantId: merchant._id,
+    recipientMemberId: task.assignedTo,
+    role: task.assignedToRole,
+    type: 'TASK_ASSIGNED',
+    title: `New Task: ${task.title}`,
+    message: task.description,
+    priority: task.priority || 'HIGH',
+    category: 'TASK',
+    relatedActionId: task.relatedActionId,
+    relatedTaskId: task._id,
+    actionUrl: '/tasks',
+    idempotencyKey: `task_assign_${task._id.toString()}`,
     metadata: {
-      briefDate: brief.briefDate,
+      taskId: task._id,
+      assignedToRole: task.assignedToRole,
+      priority: task.priority,
     },
   });
+};
+
+/**
+ * Convenience Helper: Trigger Task Completed Notification to Managers and Owners
+ */
+const notifyTaskCompleted = async (task, completedByName, merchant) => {
+  return createNotification({
+    merchantId: merchant._id,
+    role: 'MANAGER',
+    type: 'TASK_COMPLETED',
+    title: `Task Completed: ${task.title}`,
+    message: `${completedByName || 'Team member'} has completed "${task.title}". ${task.completionNote ? `Note: ${task.completionNote}` : ''}`,
+    priority: 'MEDIUM',
+    category: 'TASK',
+    relatedActionId: task.relatedActionId,
+    relatedTaskId: task._id,
+    actionUrl: '/tasks',
+    idempotencyKey: `task_comp_${task._id.toString()}`,
+    metadata: {
+      taskId: task._id,
+      completedBy: completedByName,
+    },
+  });
+};
+
+/**
+ * Convenience Helper: Trigger Outcome Notification routed to Team (Owner, Manager, Marketing)
+ */
+const notifyOutcomeToTeam = async (outcome, action, merchant) => {
+  const sign = outcome.changePercentage >= 0 ? '+' : '';
+  const percentText = `${sign}${outcome.changePercentage.toFixed(1)}%`;
+
+  // Notify Marketing
+  await createNotification({
+    merchantId: merchant._id,
+    role: 'MARKETING',
+    type: 'OUTCOME_AVAILABLE',
+    title: `Campaign Result Ready: ${action.title}`,
+    message: `Observed ${percentText} change in revenue after dispatching "${action.title}". Great team execution!`,
+    priority: 'HIGH',
+    category: 'OUTCOME',
+    relatedActionId: action._id,
+    actionUrl: '/performance',
+    idempotencyKey: `outcome_mktg_${outcome._id.toString()}`,
+  }).catch(() => {});
+
+  // Notify Manager and Owner
+  return notifyOutcomeReady(outcome, action, merchant);
 };
 
 module.exports = {
@@ -264,5 +354,8 @@ module.exports = {
   notifyActionRequired,
   notifyActionStatus,
   notifyOutcomeReady,
+  notifyOutcomeToTeam,
+  notifyTaskAssigned,
+  notifyTaskCompleted,
   notifyDailyBrief,
 };

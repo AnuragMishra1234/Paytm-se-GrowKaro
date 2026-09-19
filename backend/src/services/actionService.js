@@ -182,6 +182,26 @@ const createActionDraft = async (merchantId, insightId, overrides = {}) => {
       products: products.slice(0, 3).map((p) => p.name),
       ...overrides.payload,
     },
+    teamImpact: [
+      {
+        role: 'MARKETING',
+        taskTitle: `Campaign Creative: ${overrides.title || copy.headline || insight.title}`,
+        taskDescription: `Review promotional copy ("${copy.headline}"), prepare WhatsApp creative assets, and verify targeted segment (${overrides.targetAudience || copy.audience}).`,
+        assignedToName: 'Rahul Verma',
+      },
+      {
+        role: 'STAFF',
+        taskTitle: `Inventory & Counter Prep: ${overrides.title || copy.headline || insight.title}`,
+        taskDescription: `Prepare required ingredients and counter display for the promotional window (${overrides.timing || copy.timing}). Verify active offer: "${copy.offer}".`,
+        assignedToName: 'Ananya Das',
+      },
+      {
+        role: 'MANAGER',
+        taskTitle: `Execution Supervision & Shift Briefing`,
+        taskDescription: `Brief floor staff on promotional pricing and monitor afternoon footfall velocity.`,
+        assignedToName: 'Priya Sharma',
+      },
+    ],
     approvalStatus: 'PENDING',
     executionStatus: 'NOT_STARTED',
     auditLog: [
@@ -314,6 +334,14 @@ const approveAndExecuteAction = async (merchantId, actionId, approvedPayload = {
       approvedBy: merchant.ownerName || 'Merchant',
     }
   );
+
+  // Automatically coordinate merchant team: create role-specific tasks
+  try {
+    const taskService = require('./taskService');
+    await taskService.createTasksForAction(action, merchant);
+  } catch (taskErr) {
+    console.warn('[Task Coordination Notice]:', taskErr.message);
+  }
 
   // Transition to RUNNING
   action.executionStatus = 'RUNNING';
@@ -460,6 +488,45 @@ const getMerchantCampaigns = async (merchantId) => {
   return await Campaign.find({ merchantId }).sort({ createdAt: -1 }).lean();
 };
 
+/**
+ * 9. Trigger Action Execution after all prep tasks are completed
+ */
+const triggerExecutionAfterTasks = async (actionId, merchant) => {
+  const action = await Action.findById(actionId);
+  if (!action || action.executionStatus === 'SUCCESS') return action;
+
+  try {
+    const execResult = await n8nService.executeActionWorkflow(action, merchant);
+    action.executionStatus = 'SUCCESS';
+    action.completedAt = new Date();
+    action.n8nExecutionId = execResult.executionId;
+    action.executionResult = execResult;
+    action.auditLog.push({
+      status: 'SUCCESS',
+      note: 'Workflow executed after team members completed preparatory tasks.',
+      actor: 'n8n',
+    });
+    await action.save();
+
+    await Campaign.findOneAndUpdate(
+      { actionId: action._id },
+      {
+        status: 'COMPLETED',
+        n8nExecutionId: execResult.executionId,
+        deliveryStats: execResult.deliveryStats,
+      }
+    );
+
+    await notificationService.notifyActionStatus(action, 'SUCCESS', merchant, execResult.deliveryStats).catch(() => {});
+    return action;
+  } catch (err) {
+    action.executionStatus = 'FAILED';
+    action.failureReason = err.message;
+    await action.save();
+    return action;
+  }
+};
+
 module.exports = {
   createActionDraft,
   editActionDraft,
@@ -469,4 +536,5 @@ module.exports = {
   getMerchantActions,
   getActionById,
   getMerchantCampaigns,
+  triggerExecutionAfterTasks,
 };

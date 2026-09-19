@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, NavLink, useNavigate, Navigate, Link } from "react-router-dom";
 import { useMerchantContext } from "../context/MerchantContext";
+import { useTeam } from "../context/TeamContext";
 import { getBusinessTypeInfo } from "../utils/formatters";
 import NotificationCenter from "../components/NotificationCenter";
 import { fetchN8nStatus } from "../services/api";
@@ -105,33 +106,112 @@ const UsersIcon = () => (
   </svg>
 );
 
-// ─── Navigation Categorized Sections (YouTube-Style Template) ─────────────────
-const navSections = [
-  {
-    title: null,
-    items: [
-      { to: "/dashboard", icon: HomeIcon, label: "Dashboard" },
-      { to: "/ai-copilot", icon: SparklesIcon, label: "AI Copilot", badge: "AI" },
-    ],
-  },
-  {
-    title: "Agentic Intelligence",
-    items: [
-      { to: "/insights", icon: LightbulbIcon, label: "Insights", badge: "Live" },
-      { to: "/campaigns", icon: MegaphoneIcon, label: "Actions & Campaigns", badge: "Action" },
-      { to: "/performance", icon: TargetIcon, label: "Performance & Outcomes", badge: "ROI" },
-      { to: "/activity", icon: ClockIcon, label: "Activity Timeline", badge: "Log" },
-    ],
-  },
-  {
-    title: "Merchant Operations",
-    items: [
-      { to: "/analytics", icon: ChartBarIcon, label: "Business Analytics" },
-      { to: "/products", icon: PackageIcon, label: "Products" },
-      { to: "/customers", icon: UsersIcon, label: "Customers" },
-    ],
-  },
-];
+const ClipboardCheckIcon = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.9"
+      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+    />
+  </svg>
+);
+
+const UserGroupIcon = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.9"
+      d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a3 3 0 116 0 3 3 0 01-6 0zm12-3a3 3 0 100-6 3 3 0 000 6zm-12-3a3 3 0 100-6 3 3 0 000 6z"
+    />
+  </svg>
+);
+
+// ─── Role-Adaptive Navigation Categorized Sections ───────────────────────────
+const getNavSections = (role) => {
+  if (role === "MARKETING") {
+    return [
+      {
+        title: "Employee Console (Rahul)",
+        items: [
+          { to: "/employee", icon: SparklesIcon, label: "Employee Dashboard", badge: "Marketing" },
+          { to: "/tasks", icon: ClipboardCheckIcon, label: "My Tasks", badge: "Tasks" },
+          { to: "/campaigns", icon: MegaphoneIcon, label: "Campaigns Assigned", badge: "Active" },
+        ],
+      },
+      {
+        title: "Intelligence & Results",
+        items: [
+          { to: "/performance", icon: TargetIcon, label: "Campaign Results", badge: "ROI" },
+          { to: "/ai-copilot", icon: SparklesIcon, label: "Marketing Copilot", badge: "AI" },
+          { to: "/activity", icon: ClockIcon, label: "Activity Timeline" },
+        ],
+      },
+      {
+        title: "Testing & Validation",
+        items: [
+          { to: "/test-real-data", icon: ChartBarIcon, label: "Test With Real Data", badge: "New" },
+        ],
+      },
+    ];
+  }
+
+  if (role === "STAFF") {
+    return [
+      {
+        title: "Employee Console (Ananya)",
+        items: [
+          { to: "/employee", icon: SparklesIcon, label: "Employee Dashboard", badge: "Staff" },
+          { to: "/tasks", icon: ClipboardCheckIcon, label: "Floor Tasks", badge: "Tasks" },
+          { to: "/activity", icon: ClockIcon, label: "Store Activity" },
+        ],
+      },
+      {
+        title: "Testing & Validation",
+        items: [
+          { to: "/test-real-data", icon: ChartBarIcon, label: "Test With Real Data", badge: "New" },
+        ],
+      },
+    ];
+  }
+
+  // Manager: Full strategic, executive & store operations visibility (No employee console link)
+  return [
+    {
+      title: null,
+      items: [
+        { to: "/dashboard", icon: HomeIcon, label: "Dashboard" },
+        { to: "/ai-copilot", icon: SparklesIcon, label: "AI Copilot", badge: "AI" },
+      ],
+    },
+    {
+      title: "Agentic Intelligence",
+      items: [
+        { to: "/insights", icon: LightbulbIcon, label: "Insights", badge: "Live" },
+        { to: "/campaigns", icon: MegaphoneIcon, label: "Actions & Campaigns", badge: "Action" },
+        { to: "/performance", icon: TargetIcon, label: "Performance & Outcomes", badge: "ROI" },
+        { to: "/activity", icon: ClockIcon, label: "Activity Timeline", badge: "Log" },
+      ],
+    },
+    {
+      title: "Store Operations & Team",
+      items: [
+        { to: "/tasks", icon: ClipboardCheckIcon, label: "Team Tasks", badge: "Tasks" },
+        { to: "/team", icon: UserGroupIcon, label: "Merchant Team", badge: "Team" },
+        { to: "/analytics", icon: ChartBarIcon, label: "Business Analytics" },
+        { to: "/products", icon: PackageIcon, label: "Products" },
+        { to: "/customers", icon: UsersIcon, label: "Customers" },
+      ],
+    },
+    {
+      title: "Testing & Validation",
+      items: [
+        { to: "/test-real-data", icon: ChartBarIcon, label: "Test With Real Data", badge: "Dataset" },
+      ],
+    },
+  ];
+};
 
 function NavItem({ to, icon: Icon, label, badge }) {
   return (
@@ -188,6 +268,7 @@ const SidebarToggleIcon = ({ className = "w-5 h-5" }) => (
 
 export default function AppLayout() {
   const { merchant, clearMerchant } = useMerchantContext();
+  const { currentRole, switchRole, personas } = useTeam();
   const navigate = useNavigate();
   const [n8nStatus, setN8nStatus] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -287,7 +368,7 @@ export default function AppLayout() {
 
         {/* Nav Sections with YouTube-Style Headers & Dividers */}
         <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-3">
-          {navSections.map((section, sIdx) => (
+          {getNavSections(currentRole).map((section, sIdx, allSections) => (
             <div key={sIdx} className="space-y-1">
               {section.title && (
                 <div className="px-3.5 pt-2 pb-1 flex items-center justify-between text-xs font-black text-gray-400 uppercase tracking-wider select-none">
@@ -300,7 +381,7 @@ export default function AppLayout() {
                   <NavItem key={item.to} {...item} />
                 ))}
               </div>
-              {sIdx < navSections.length - 1 && (
+              {sIdx < allSections.length - 1 && (
                 <div className="pt-2 border-b border-gray-100" />
               )}
             </div>
@@ -361,8 +442,90 @@ export default function AppLayout() {
             )}
           </div>
 
-          {/* Right: Notification Center Bell */}
-          <div className="flex items-center gap-3">
+          {/* Right: Mode Switcher (MANAGER DASHBOARD vs EMPLOYEE DASHBOARD) & Notification Center */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Direct Quick Link to Test With Real Data */}
+            <Link
+              to="/test-real-data"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-[#002970] bg-blue-50/80 border border-blue-200/80 hover:bg-blue-100 hover:border-blue-300 transition-all shadow-2xs shrink-0"
+              title="Upload CSV dataset to test GrowKaro analytics and AI loyalty"
+            >
+              <span className="text-sm">📊</span>
+              <span className="hidden sm:inline">Test With Real Data</span>
+            </Link>
+
+            {/* Primary Product / Workspace Switcher: MANAGER DASHBOARD vs EMPLOYEE DASHBOARD */}
+            <div className="flex items-center bg-gray-100 p-1 rounded-xl border border-gray-200/90 shadow-2xs">
+              {/* Manager Dashboard Button */}
+              <button
+                onClick={() => {
+                  switchRole("MANAGER");
+                  navigate("/dashboard");
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                  currentRole === "MANAGER"
+                    ? "bg-[#002970] text-white shadow-xs"
+                    : "text-gray-700 hover:text-gray-950 hover:bg-white/80"
+                }`}
+                title="Full Manager Dashboard: Business Pulse, Copilot, Insights, Actions & Analytics"
+              >
+                <span>👔</span>
+                <span>MANAGER DASHBOARD</span>
+              </button>
+
+              {/* Employee Dashboard Button */}
+              <button
+                onClick={() => {
+                  if (currentRole === "MANAGER") {
+                    switchRole("MARKETING");
+                  }
+                  navigate("/employee");
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                  currentRole === "MARKETING" || currentRole === "STAFF"
+                    ? "bg-[#002970] text-white shadow-xs"
+                    : "text-gray-700 hover:text-gray-950 hover:bg-white/80"
+                }`}
+                title="Employee Prototype: Rahul Verma (Marketing) & Ananya Das (Staff)"
+              >
+                <span>👥</span>
+                <span>EMPLOYEE DASHBOARD</span>
+                <span className={`text-xs font-semibold ${currentRole === "MARKETING" || currentRole === "STAFF" ? "text-blue-200" : "text-gray-500"}`}>
+                  (Rahul &amp; Ananya)
+                </span>
+              </button>
+            </div>
+
+            {/* When in Employee mode, show sub-employee toggle right here in header */}
+            {(currentRole === "MARKETING" || currentRole === "STAFF") && (
+              <div className="hidden lg:flex items-center bg-white p-0.5 rounded-xl border border-gray-200 shadow-2xs text-xs">
+                <button
+                  onClick={() => switchRole("MARKETING")}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
+                    currentRole === "MARKETING"
+                      ? "bg-[#002970] text-white shadow-2xs"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                  title="Switch view to Rahul Verma (Marketing Lead)"
+                >
+                  <span>📣</span>
+                  <span>Rahul (Marketing)</span>
+                </button>
+                <button
+                  onClick={() => switchRole("STAFF")}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
+                    currentRole === "STAFF"
+                      ? "bg-[#002970] text-white shadow-2xs"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                  title="Switch view to Ananya Das (Floor Operations & Barista)"
+                >
+                  <span>☕</span>
+                  <span>Ananya (Staff)</span>
+                </button>
+              </div>
+            )}
+
             <NotificationCenter />
           </div>
         </header>

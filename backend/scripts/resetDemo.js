@@ -10,6 +10,11 @@ const Outcome = require('../src/models/Outcome');
 const Notification = require('../src/models/Notification');
 const Memory = require('../src/models/Memory');
 const DailyBrief = require('../src/models/DailyBrief');
+const Task = require('../src/models/Task');
+const TeamMember = require('../src/models/TeamMember');
+const Customer = require('../src/models/Customer');
+const Transaction = require('../src/models/Transaction');
+const teamService = require('../src/services/teamService');
 const telemetrySyncService = require('../src/services/telemetrySyncService');
 
 /**
@@ -59,6 +64,8 @@ async function resetDemoData() {
     const delNotifs = await Notification.deleteMany({ merchantId: cafe._id });
     const delInsights = await Insight.deleteMany({ merchantId: cafe._id });
     const delBriefs = await DailyBrief.deleteMany({ merchantId: cafe._id });
+    const delTasks = await Task.deleteMany({ merchantId: cafe._id });
+    const delTeam = await TeamMember.deleteMany({ merchantId: cafe._id });
     await Memory.deleteMany({
       merchantId: cafe._id,
       type: { $in: ['past_outcome', 'preference'] },
@@ -69,6 +76,75 @@ async function resetDemoData() {
     console.log(`   Removed ${delOutcomes.deletedCount} old outcomes`);
     console.log(`   Removed ${delNotifs.deletedCount} old notifications`);
     console.log(`   Removed ${delInsights.deletedCount} old insights`);
+    console.log(`   Removed ${delTasks.deletedCount} old tasks`);
+    console.log(`   Removed ${delTeam.deletedCount} old team members`);
+
+    // Ensure 4 canonical team members exist for Cafe Aroma
+    const teamMembers = await teamService.ensureDefaultTeam(cafe._id, cafe.businessName);
+    console.log(`   Verified ${teamMembers.length} team members (Owner, Manager, Marketing, Staff)`);
+
+    // Ensure canonical customer "Ananya Das" exists with exact 12 visits, ₹8,450 spend, 10 days inactive
+    let ananyaCustomer = await Customer.findOne({ merchantId: cafe._id, displayName: 'Ananya Das' });
+    if (!ananyaCustomer) {
+      ananyaCustomer = await Customer.create({
+        merchantId: cafe._id,
+        displayName: 'Ananya Das',
+        phone: '+91 98451 12345',
+        totalTransactions: 12,
+        totalSpend: 8450,
+        averageOrderValue: 704.17,
+        customerSegment: 'vip',
+        daysSinceLastVisit: 10,
+        favoriteProduct: 'Cold Brew Coffee',
+        favoriteCategory: 'Beverages',
+        visitFrequency: 'WEEKLY',
+        segmentTags: ['LOYAL CUSTOMER', 'REPEAT CUSTOMER', 'HIGH VALUE', 'AT RISK', 'COLD BREW CUSTOMER'],
+        firstTransactionAt: dateAt(45, 14, 0),
+        lastTransactionAt: dateAt(10, 16, 30),
+      });
+    } else {
+      ananyaCustomer.totalTransactions = 12;
+      ananyaCustomer.totalSpend = 8450;
+      ananyaCustomer.averageOrderValue = 704.17;
+      ananyaCustomer.lastTransactionAt = dateAt(10, 16, 30);
+      ananyaCustomer.customerSegment = 'vip';
+      ananyaCustomer.favoriteProduct = 'Cold Brew Coffee';
+      ananyaCustomer.favoriteCategory = 'Beverages';
+      ananyaCustomer.daysSinceLastVisit = 10;
+      ananyaCustomer.segmentTags = ['LOYAL CUSTOMER', 'REPEAT CUSTOMER', 'HIGH VALUE', 'AT RISK', 'COLD BREW CUSTOMER'];
+      await ananyaCustomer.save();
+    }
+
+    // Ensure 12 real transactions for Ananya in the Transaction collection
+    await Transaction.deleteMany({ merchantId: cafe._id, customerId: ananyaCustomer._id });
+    const ananyaTxData = [
+      { daysAgo: 45, hour: 14, amount: 820, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Paneer Tikka Sandwich', category: 'Food', quantity: 1, unitPrice: 250, totalPrice: 250 }, { name: 'Blueberry Cheesecake', category: 'Desserts', quantity: 1, unitPrice: 350, totalPrice: 350 }] },
+      { daysAgo: 41, hour: 15, amount: 590, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Blueberry Muffin', category: 'Bakery', quantity: 1, unitPrice: 180, totalPrice: 180 }, { name: 'Cappuccino', category: 'Beverages', quantity: 1, unitPrice: 190, totalPrice: 190 }] },
+      { daysAgo: 38, hour: 16, amount: 620, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 2, unitPrice: 220, totalPrice: 440 }, { name: 'Butter Croissant', category: 'Bakery', quantity: 1, unitPrice: 180, totalPrice: 180 }] },
+      { daysAgo: 34, hour: 14, amount: 550, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Chocolate Croissant', category: 'Bakery', quantity: 1, unitPrice: 210, totalPrice: 210 }, { name: 'Choco Chip Cookie', category: 'Bakery', quantity: 1, unitPrice: 120, totalPrice: 120 }] },
+      { daysAgo: 30, hour: 15, amount: 720, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Grilled Veg Sandwich', category: 'Food', quantity: 1, unitPrice: 280, totalPrice: 280 }, { name: 'Iced Vanilla Latte', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }] },
+      { daysAgo: 26, hour: 14, amount: 640, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Butter Croissant', category: 'Bakery', quantity: 1, unitPrice: 180, totalPrice: 180 }, { name: 'Fudge Brownie', category: 'Desserts', quantity: 1, unitPrice: 240, totalPrice: 240 }] },
+      { daysAgo: 22, hour: 16, amount: 760, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Pasta Arrabiata', category: 'Food', quantity: 1, unitPrice: 380, totalPrice: 380 }, { name: 'Mint Mojito', category: 'Beverages', quantity: 1, unitPrice: 160, totalPrice: 160 }] },
+      { daysAgo: 19, hour: 15, amount: 800, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 2, unitPrice: 220, totalPrice: 440 }, { name: 'Classic Tiramisu', category: 'Desserts', quantity: 1, unitPrice: 360, totalPrice: 360 }] },
+      { daysAgo: 16, hour: 14, amount: 610, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Butter Croissant', category: 'Bakery', quantity: 1, unitPrice: 180, totalPrice: 180 }, { name: 'Caffe Latte', category: 'Beverages', quantity: 1, unitPrice: 210, totalPrice: 210 }] },
+      { daysAgo: 14, hour: 16, amount: 760, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Veg Club Sandwich', category: 'Food', quantity: 1, unitPrice: 290, totalPrice: 290 }, { name: 'Cafe Mocha', category: 'Beverages', quantity: 1, unitPrice: 250, totalPrice: 250 }] },
+      { daysAgo: 12, hour: 15, amount: 540, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 1, unitPrice: 220, totalPrice: 220 }, { name: 'Butter Croissant', category: 'Bakery', quantity: 1, unitPrice: 180, totalPrice: 180 }, { name: 'Almond Biscotti', category: 'Bakery', quantity: 1, unitPrice: 140, totalPrice: 140 }] },
+      { daysAgo: 10, hour: 16, amount: 1040, items: [{ name: 'Cold Brew Coffee', category: 'Beverages', quantity: 2, unitPrice: 220, totalPrice: 440 }, { name: 'Butter Croissant', category: 'Bakery', quantity: 2, unitPrice: 180, totalPrice: 360 }, { name: 'Fudge Brownie', category: 'Desserts', quantity: 1, unitPrice: 240, totalPrice: 240 }] },
+    ];
+
+    for (const t of ananyaTxData) {
+      await Transaction.create({
+        merchantId: cafe._id,
+        customerId: ananyaCustomer._id,
+        amount: t.amount,
+        timestamp: dateAt(t.daysAgo, t.hour, 30),
+        paymentStatus: 'completed',
+        paymentMethod: 'upi',
+        category: 'Beverages',
+        items: t.items,
+      });
+    }
+    console.log('   ✓ Seeded benchmark customer "Ananya Das" (12 txs, ₹8,450 spend, Cold Brew favorite, 10 days inactive)');
 
     // 2. Create the ONE historical completed campaign with measured outcome
     console.log('\n--- Seeding 1 clean historical completed campaign ---');
@@ -285,6 +361,22 @@ async function resetDemoData() {
         discountDetails: 'Save ₹60 on standard combo price',
         products: ['Cold Brew Coffee', 'Croissant'],
       },
+      teamImpact: [
+        {
+          role: 'MARKETING',
+          taskTitle: 'Campaign Creative & Copy Prep',
+          taskDescription: 'Review WhatsApp copy, target audience (25 Repeat Customers), and promo banner before dispatch.',
+          assignedTo: teamMembers.find(m => m.role === 'MARKETING')?._id || null,
+          assignedToName: teamMembers.find(m => m.role === 'MARKETING')?.name || 'Rahul Verma',
+        },
+        {
+          role: 'STAFF',
+          taskTitle: 'Cold Brew & Croissant Inventory Prep',
+          taskDescription: 'Ensure fresh cold brew batches and butter croissants are stocked at the counter for 2:00 PM rush.',
+          assignedTo: teamMembers.find(m => m.role === 'STAFF')?._id || null,
+          assignedToName: teamMembers.find(m => m.role === 'STAFF')?.name || 'Ananya Das',
+        },
+      ],
       approvalStatus: 'PENDING',
       executionStatus: 'NOT_STARTED',
       auditLog: [

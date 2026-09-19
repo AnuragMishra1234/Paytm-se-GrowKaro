@@ -15,6 +15,13 @@ const client = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Request interceptor: attach active demo role header
+client.interceptors.request.use((config) => {
+  const currentRole = localStorage.getItem("growkaro_demo_role") || "MANAGER";
+  config.headers["x-demo-role"] = currentRole;
+  return config;
+});
+
 // Response interceptor: normalize errors
 client.interceptors.response.use(
   (res) => res.data,
@@ -152,3 +159,84 @@ export const resetDemoEnvironment = () =>
 
 export const fetchDemoStatus = () =>
   client.get("/api/demo/status");
+
+// ─── Phase 6 Team & Task Workflows APIs ───────────────────────────────────
+
+export const fetchMerchantTeam = (merchantId) =>
+  client.get(`/api/merchants/${merchantId}/team`);
+
+export const inviteTeamMember = (merchantId, payload) =>
+  client.post(`/api/merchants/${merchantId}/team/invite`, payload);
+
+export const updateTeamMember = (memberId, payload) =>
+  client.patch(`/api/team/${memberId}`, payload);
+
+export const removeTeamMember = (memberId) =>
+  client.delete(`/api/team/${memberId}`);
+
+export const fetchMerchantTasks = (merchantId, params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  return client.get(`/api/merchants/${merchantId}/tasks?${query}`);
+};
+
+export const fetchTaskDetail = (taskId) =>
+  client.get(`/api/tasks/${taskId}`);
+
+export const createManualTask = (merchantId, payload) =>
+  client.post(`/api/merchants/${merchantId}/tasks`, payload);
+
+export const startTask = (taskId, payload = {}) =>
+  client.post(`/api/tasks/${taskId}/start`, payload);
+
+export const completeTask = (taskId, payload = {}) =>
+  client.post(`/api/tasks/${taskId}/complete`, payload);
+
+export const updateTask = (taskId, payload) =>
+  client.patch(`/api/tasks/${taskId}`, payload);
+
+export const deleteTask = (taskId) =>
+  client.delete(`/api/tasks/${taskId}`);
+
+// ─── Employee Workspace APIs (Rahul Verma & Ananya Das) ─────────────────
+export const fetchEmployeeDashboard = (merchantId, role) =>
+  client.get(`/api/merchants/${merchantId}/employee/dashboard${role ? `?role=${role}` : ""}`);
+
+export const startEmployeeTask = (merchantId, taskId) =>
+  client.post(`/api/merchants/${merchantId}/employee/tasks/${taskId}/start`);
+
+export const completeEmployeeTask = (merchantId, taskId, completionNote) =>
+  client.post(`/api/merchants/${merchantId}/employee/tasks/${taskId}/complete`, { completionNote });
+
+// ─── AI Customer Loyalty & Personalized Offers APIs ─────────────────────
+
+export const fetchLoyaltyCustomers = (merchantId) =>
+  client.get(`/api/merchants/${merchantId}/loyalty/customers`);
+
+export const fetchCustomerLoyaltyDetail = (merchantId, customerId) =>
+  client.get(`/api/merchants/${merchantId}/loyalty/customers/${customerId}`);
+
+export const fetchLoyaltyOpportunities = (merchantId) =>
+  client.get(`/api/merchants/${merchantId}/loyalty/opportunities`);
+
+export const submitPersonalizedOffer = (merchantId, payload) =>
+  client.post(`/api/merchants/${merchantId}/loyalty/offers/create`, payload);
+
+export const recordOfferOutcome = (merchantId, actionId, payload) =>
+  client.post(`/api/merchants/${merchantId}/loyalty/offers/${actionId}/outcome`, payload);
+
+// ─── Test With Real Data APIs ───────────────────────────────────────────
+
+export const previewDataset = (payload) =>
+  client.post("/api/datasets/preview", payload);
+
+export const analyzeDataset = (payload) =>
+  client.post("/api/datasets/analyze", payload);
+
+export const fetchDatasetSession = (sessionId) =>
+  client.get(`/api/datasets/${sessionId}`);
+
+export const queryDatasetCopilot = (sessionId, query) =>
+  client.post(`/api/datasets/${sessionId}/copilot`, { query });
+
+export const deleteDatasetSession = (sessionId) =>
+  client.delete(`/api/datasets/${sessionId}`);

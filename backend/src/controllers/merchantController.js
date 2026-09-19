@@ -6,6 +6,7 @@ const Action = require('../models/Action');
 const Outcome = require('../models/Outcome');
 const Memory = require('../models/Memory');
 const Notification = require('../models/Notification');
+const Task = require('../models/Task');
 const analyticsService = require('../services/analyticsService');
 const recommendationService = require('../services/recommendationService');
 const memoryService = require('../services/memoryService');
@@ -344,7 +345,7 @@ const getMerchantActivity = async (req, res, next) => {
     const merchantId = new mongoose.Types.ObjectId(req.params.id);
     const limit = Math.min(parseInt(req.query.limit) || 30, 100);
 
-    const [insights, actions, outcomes, memories] = await Promise.all([
+    const [insights, actions, outcomes, memories, tasks] = await Promise.all([
       Insight.find({ merchantId }).sort({ createdAt: -1 }).limit(limit).lean(),
       Action.find({ merchantId }).sort({ createdAt: -1 }).limit(limit).lean(),
       Outcome.find({ merchantId }).sort({ measuredAt: -1 }).limit(limit).lean(),
@@ -355,6 +356,7 @@ const getMerchantActivity = async (req, res, next) => {
         .sort({ createdAt: -1 })
         .limit(limit)
         .lean(),
+      Task.find({ merchantId }).sort({ createdAt: -1 }).limit(limit).lean(),
     ]);
 
     const events = [];
@@ -489,6 +491,45 @@ const getMerchantActivity = async (req, res, next) => {
         },
         link: '/performance',
       });
+    });
+
+    // Map Tasks (Employee & Team Workflow)
+    tasks.forEach((tsk) => {
+      events.push({
+        id: `tsk_assign_${tsk._id}`,
+        sourceId: tsk._id,
+        eventType: 'TASK_ASSIGNED',
+        category: 'ASSIGN',
+        title: `Task Assigned: ${tsk.title}`,
+        description: `Assigned to ${tsk.assignedToName || tsk.assignedToRole}: ${tsk.description}`,
+        status: tsk.priority,
+        timestamp: tsk.createdAt,
+        actor: tsk.createdByName || 'Manager',
+        metadata: {
+          role: tsk.assignedToRole,
+          priority: tsk.priority,
+          status: tsk.status,
+        },
+        link: '/tasks',
+      });
+
+      if (tsk.completedAt) {
+        events.push({
+          id: `tsk_comp_${tsk._id}`,
+          sourceId: tsk._id,
+          eventType: 'TASK_COMPLETED',
+          category: 'TASK_COMPLETED',
+          title: `Task Completed: ${tsk.title}`,
+          description: `${tsk.assignedToName || 'Employee'} completed task. ${tsk.completionNote || ''}`,
+          status: 'COMPLETED',
+          timestamp: tsk.completedAt,
+          actor: tsk.assignedToName || 'Employee',
+          metadata: {
+            role: tsk.assignedToRole,
+          },
+          link: '/tasks',
+        });
+      }
     });
 
     // Sort chronologically descending

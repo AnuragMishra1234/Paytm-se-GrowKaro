@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { validateObjectId } = require('../middleware/errorHandler');
+const { restrictFinancials, requireRole } = require('../middleware/rbac');
 const {
   getAllMerchants,
   getMerchant,
@@ -37,8 +38,8 @@ router.get('/:id/products', validateObjectId, getProducts);
 // GET /api/merchants/:id/customers
 router.get('/:id/customers', validateObjectId, getCustomers);
 
-// GET /api/merchants/:id/analytics
-router.get('/:id/analytics', validateObjectId, getAnalytics);
+// GET /api/merchants/:id/analytics (Restricted for STAFF and MARKETING)
+router.get('/:id/analytics', validateObjectId, restrictFinancials(), getAnalytics);
 
 // ─── Phase 2 AI & Memory Endpoints ────────────────────────────────────────
 
@@ -111,5 +112,50 @@ router.post('/:id/brief/generate', (req, res, next) => {
 
 // POST /api/merchants/:id/simulate/:scenario - Demo & evaluation triggers
 router.post('/:id/simulate/:scenario', validateObjectId, runScenario);
+
+// ─── Phase 6 Team & Task Workflows ───────────────────────────────────────
+
+const { getTeam, inviteMember } = require('../controllers/teamController');
+const { getMerchantTasks, createTask } = require('../controllers/taskController');
+
+// GET /api/merchants/:id/team
+router.get('/:id/team', validateObjectId, getTeam);
+
+// POST /api/merchants/:id/team/invite (Restricted to OWNER and MANAGER)
+router.post('/:id/team/invite', validateObjectId, requireRole(['OWNER', 'MANAGER']), inviteMember);
+
+// GET /api/merchants/:id/tasks
+router.get('/:id/tasks', validateObjectId, getMerchantTasks);
+
+// POST /api/merchants/:id/tasks
+router.post('/:id/tasks', validateObjectId, createTask);
+
+// ─── Employee Workspace & AI Loyalty Workflows ───────────────────────────
+
+const {
+  getEmployeeDashboard,
+  startEmployeeTask,
+  completeEmployeeTask,
+} = require('../controllers/employeeController');
+
+const {
+  getLoyaltyCustomers,
+  getCustomerLoyaltyDetail,
+  getLoyaltyOpportunities,
+  submitPersonalizedOffer,
+  recordOfferOutcome,
+} = require('../controllers/loyaltyController');
+
+// Employee Workspace
+router.get('/:id/employee/dashboard', validateObjectId, getEmployeeDashboard);
+router.post('/:id/employee/tasks/:taskId/start', validateObjectId, startEmployeeTask);
+router.post('/:id/employee/tasks/:taskId/complete', validateObjectId, completeEmployeeTask);
+
+// AI Customer Loyalty & Personalized Offers
+router.get('/:id/loyalty/customers', validateObjectId, getLoyaltyCustomers);
+router.get('/:id/loyalty/customers/:customerId', validateObjectId, getCustomerLoyaltyDetail);
+router.get('/:id/loyalty/opportunities', validateObjectId, getLoyaltyOpportunities);
+router.post('/:id/loyalty/offers/create', validateObjectId, submitPersonalizedOffer);
+router.post('/:id/loyalty/offers/:actionId/outcome', validateObjectId, recordOfferOutcome);
 
 module.exports = router;

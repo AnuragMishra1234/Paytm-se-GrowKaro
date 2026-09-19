@@ -1,13 +1,14 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 /**
  * Middleware to validate MongoDB ObjectId before reaching controller
  */
 const validateObjectId = (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+  const id = req.params.id || req.params.memberId || req.params.taskId || req.params.insightId || req.params.actionId;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
       success: false,
-      message: `Invalid merchant ID: ${req.params.id}`,
+      message: `Invalid ID: ${id}`,
     });
   }
   next();

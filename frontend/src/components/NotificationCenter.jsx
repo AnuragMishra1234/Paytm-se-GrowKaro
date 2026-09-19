@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMerchantContext } from "../context/MerchantContext";
+import { useTeam } from "../context/TeamContext";
 import {
   fetchMerchantNotifications,
   markNotificationRead,
@@ -97,6 +98,24 @@ function getNotificationBadge(type, priority) {
         bg: "bg-indigo-100 text-indigo-900 border-indigo-300",
         label: "Morning Brief",
       };
+    case "TASK_ASSIGNED":
+      return {
+        icon: "📋",
+        bg: "bg-blue-100 text-[#002970] border-blue-300",
+        label: "Task Assigned",
+      };
+    case "TASK_COMPLETED":
+      return {
+        icon: "✅",
+        bg: "bg-emerald-100 text-emerald-900 border-emerald-300",
+        label: "Task Completed",
+      };
+    case "OUTCOME_AVAILABLE":
+      return {
+        icon: "🎯",
+        bg: "bg-purple-100 text-purple-900 border-purple-300",
+        label: "Campaign Result Ready",
+      };
     default:
       return {
         icon: "🔔",
@@ -108,12 +127,13 @@ function getNotificationBadge(type, priority) {
 
 export default function NotificationCenter() {
   const { merchant } = useMerchantContext();
+  const { currentRole } = useTeam();
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [filter, setFilter] = useState("all"); // 'all' | 'actions' | 'unread'
+  const [filter, setFilter] = useState("all"); // 'all' | 'actions' | 'tasks' | 'unread'
   const [pushActive, setPushActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const popoverRef = useRef(null);
@@ -129,7 +149,7 @@ export default function NotificationCenter() {
       if (!merchant?._id) return;
       try {
         if (!isBackground) setLoading(true);
-        const res = await fetchMerchantNotifications(merchant._id);
+        const res = await fetchMerchantNotifications(merchant._id, { role: currentRole });
         if (res.success) {
           const list = res.data || [];
           setNotifications(list);
@@ -157,7 +177,7 @@ export default function NotificationCenter() {
         if (!isBackground) setLoading(false);
       }
     },
-    [merchant?._id, pushActive, navigate]
+    [merchant?._id, currentRole, pushActive, navigate]
   );
 
   // Load on mount or merchant change
@@ -226,6 +246,12 @@ export default function NotificationCenter() {
     setIsOpen(false);
     if (notification.actionUrl) {
       navigate(notification.actionUrl);
+    } else if (
+      notification.category === "TASK" ||
+      notification.type === "TASK_ASSIGNED" ||
+      notification.type === "TASK_COMPLETED"
+    ) {
+      navigate("/tasks");
     } else if (notification.requiresApproval) {
       navigate("/campaigns");
     } else if (notification.category === "OUTCOME") {
@@ -236,12 +262,17 @@ export default function NotificationCenter() {
   // Filter list
   const filteredNotifications = notifications.filter((n) => {
     if (filter === "actions") return n.requiresApproval || n.type === "ACTION_REQUIRED";
+    if (filter === "tasks") return n.category === "TASK" || n.type === "TASK_ASSIGNED" || n.type === "TASK_COMPLETED";
     if (filter === "unread") return !n.read;
     return true;
   });
 
   const requiresActionCount = notifications.filter(
     (n) => n.requiresApproval && !n.read
+  ).length;
+
+  const taskNotifsCount = notifications.filter(
+    (n) => (n.category === "TASK" || n.type === "TASK_ASSIGNED" || n.type === "TASK_COMPLETED") && !n.read
   ).length;
 
   return (
@@ -332,6 +363,21 @@ export default function NotificationCenter() {
               {requiresActionCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-xs font-black flex items-center justify-center">
                   {requiresActionCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setFilter("tasks")}
+              className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                filter === "tasks"
+                  ? "bg-blue-100 text-[#002970] font-black"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              <span>Tasks</span>
+              {taskNotifsCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-xs font-black flex items-center justify-center">
+                  {taskNotifsCount}
                 </span>
               )}
             </button>
