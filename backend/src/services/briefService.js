@@ -60,35 +60,87 @@ const computeDailyMetrics = async (merchantId) => {
     effectivePrevTxs = recent.slice(10, 20);
   }
 
-  const ystdRev = effectiveYstdTxs.reduce((sum, t) => sum + t.amount, 0);
-  const prevRev = effectivePrevTxs.reduce((sum, t) => sum + t.amount, 0);
-  const revChange = prevRev > 0 ? Math.round(((ystdRev - prevRev) / prevRev) * 1000) / 10 : 0;
+  // Separate sales and refunds
+  let ystdGross = 0;
+  let ystdRefundTotal = 0;
+  let ystdRefundCount = 0;
+  let ystdSalesCount = 0;
+  const ystdCustomerIds = new Set();
 
-  const ystdCount = effectiveYstdTxs.length;
-  const prevCount = effectivePrevTxs.length;
-  const ystdAov = ystdCount > 0 ? Math.round(ystdRev / ystdCount) : 0;
+  effectiveYstdTxs.forEach((t) => {
+    const isRefund = t.transactionType === 'REFUND' || t.paymentStatus === 'refunded';
+    if (isRefund) {
+      ystdRefundTotal += (t.amount || 0);
+      ystdRefundCount += 1;
+    } else {
+      ystdGross += (t.amount || 0);
+      ystdSalesCount += 1;
+      if (t.customerId) ystdCustomerIds.add(t.customerId.toString());
+    }
+  });
 
-  // Item counts
+  const prevRev = effectivePrevTxs.reduce((sum, t) => {
+    const isRefund = t.transactionType === 'REFUND' || t.paymentStatus === 'refunded';
+    return sum + (isRefund ? 0 : (t.amount || 0));
+  }, 0);
+
+  const ystdNet = Math.max(0, ystdGross - ystdRefundTotal);
+  const revChange = prevRev > 0 ? Math.round(((ystdNet - prevRev) / prevRev) * 1000) / 10 : 0;
+  const ystdAov = ystdSalesCount > 0 ? Math.round(ystdNet / ystdSalesCount) : 0;
+
+  // Product item counts
   const itemCounts = {};
   effectiveYstdTxs.forEach((tx) => {
-    (tx.items || []).forEach((item) => {
-      const name = item.name || item.productName;
-      if (name) {
-        itemCounts[name] = (itemCounts[name] || 0) + (item.quantity || 1);
-      }
-    });
+    if (tx.transactionType !== 'REFUND' && tx.paymentStatus !== 'refunded') {
+      (tx.items || []).forEach((item) => {
+        const name = item.name || item.productName;
+        if (name) {
+          itemCounts[name] = (itemCounts[name] || 0) + (item.quantity || 1);
+        }
+      });
+    }
   });
 
   const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]);
   const topProduct = sortedItems.length > 0 ? sortedItems[0][0] : 'Cold Brew Coffee';
+  const weakestProduct = sortedItems.length > 1 ? sortedItems[sortedItems.length - 1][0] : 'Chocolate Cake Slice';
+
+  // Customer metrics
+  const activeCustomerDocs = await Customer.find({ _id: { $in: Array.from(ystdCustomerIds) } }).lean();
+  const repeatCustomersCount = activeCustomerDocs.filter((c) => (c.totalTransactions || 0) >= 2).length;
+  const newCustomersCount = activeCustomerDocs.length - repeatCustomersCount;
+
+  // Build grounded What Changed list
+  const whatChanged = [];
+  whatChanged.push(
+    `Revenue ${revChange >= 0 ? 'increased' : 'decreased'} ${Math.abs(revChange)}% compared with the previous comparable period.`
+  );
+  whatChanged.push(`${topProduct} led daily volume with the highest item transactions.`);
+  if (ystdRefundCount > 0) {
+    whatChanged.push(`Refund value recorded at ₹${ystdRefundTotal.toLocaleString('en-IN')} across ${ystdRefundCount} claim(s).`);
+  } else {
+    whatChanged.push('Zero return claims recorded during yesterday\'s operating shifts.');
+  }
+  if (repeatCustomersCount > 0) {
+    whatChanged.push(`${repeatCustomersCount} repeat patrons transacted, reinforcing customer retention.`);
+  }
 
   return {
-    yesterdayRevenue: ystdRev,
+    yesterdayRevenue: ystdNet,
+    yesterdayGross: ystdGross,
     previousRevenue: prevRev,
     revenueChange: revChange,
-    transactionCount: ystdCount,
+    transactionCount: ystdSalesCount,
+    refunds: {
+      count: ystdRefundCount,
+      total: ystdRefundTotal,
+    },
     aov: ystdAov,
     topProduct,
+    weakestProduct,
+    newCustomers: Math.max(0, newCustomersCount),
+    repeatCustomers: repeatCustomersCount,
+    whatChanged,
     yesterdayDateStr: yesterdayStart.toISOString().slice(0, 10),
   };
 };
@@ -110,26 +162,25 @@ const getOrGenerateDailyBrief = async (merchantId, forceRefresh = false) => {
 
   // 1. Calculate deterministic facts
   const metrics = await computeDailyMetrics(merchantId);
-  const weatherContext = await contextService.fetchCityWeather(merchant.city || 'Bengaluru');
-
-  // 2. Identify concerns & customer opportunities
-  const inactiveCustomers = await Customer.countDocuments({
-    merchantId,
-    daysInactive: { $gte: 14 },
-  });
+  const weatherContext = await contextService.fetchCityWeather(merchant.location?.city || merchant.city || 'Bengaluru');
 
   const sign = metrics.revenueChange >= 0 ? '↑' : '↓';
   const changeText = `${sign} ${Math.abs(metrics.revenueChange)}%`;
 
   const whatMatters = `Yesterday generated ₹${metrics.yesterdayRevenue.toLocaleString('en-IN')} (${changeText}) across ${metrics.transactionCount} transactions (AOV ₹${metrics.aov}).`;
-  const topOpportunity = `${metrics.topProduct} led daily volume. 2:00 PM – 4:30 PM sales remained slow.`;
-  const extNote = weatherContext.isRain
-    ? `Rain forecasted in ${weatherContext.city} (${weatherContext.temperature}°C) — hot beverage opportunity.`
-    : `Mild ${weatherContext.temperature}°C in ${weatherContext.city} — standard footfall window.`;
+  const whatNeedsAttention = metrics.refunds.count > 0
+    ? `Refund activity reached ₹${metrics.refunds.total.toLocaleString('en-IN')} across ${metrics.refunds.count} order(s). Review affected order tickets.`
+    : 'Afternoon sales (2:00 PM – 4:30 PM) remain below standard weekday baseline.';
+  const opportunity = `${metrics.topProduct} continues to show strong recurring demand. Friday and weekend peaks present bundling opportunity.`;
+  const topOpportunity = `${metrics.topProduct} led volume. ${whatNeedsAttention}`;
   
-  const recommendedAction = weatherContext.isRain
-    ? 'Promote hot beverages and pastry combos after 4:30 PM to capitalize on rain demand.'
-    : 'Deploy the ₹199 Afternoon Cold Brew combo between 2 PM and 4:30 PM to boost mid-day volume.';
+  const extNote = weatherContext.isRain
+    ? `Rain forecasted in ${weatherContext.city} (${weatherContext.temperature}°C). This is ambient context, not proof of causation.`
+    : `Mild ${weatherContext.temperature}°C in ${weatherContext.city} — standard ambient footfall conditions.`;
+  
+  const recommendedAction = metrics.refunds.count > 0
+    ? 'Verify product batch quality on refunded orders before running external promotional campaigns.'
+    : 'Deploy the ₹199 Afternoon Cold Brew & Pastry combo between 2:00 PM and 4:30 PM to boost mid-day volume.';
 
   // 3. Persist brief
   const brief = await DailyBrief.findOneAndUpdate(
@@ -141,12 +192,21 @@ const getOrGenerateDailyBrief = async (merchantId, forceRefresh = false) => {
       dateFormatted: new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' }),
       yesterdayPerformance: {
         revenue: metrics.yesterdayRevenue,
+        netSales: metrics.yesterdayRevenue,
         transactions: metrics.transactionCount,
         aov: metrics.aov,
         revenueChange: metrics.revenueChange,
+        refunds: metrics.refunds,
       },
+      topProduct: metrics.topProduct,
+      weakestProduct: metrics.weakestProduct,
+      newCustomers: metrics.newCustomers,
+      repeatCustomers: metrics.repeatCustomers,
+      whatChanged: metrics.whatChanged,
       whatMatters,
+      whatNeedsAttention,
       topOpportunity,
+      opportunity,
       externalContextNote: extNote,
       recommendedAction,
       generatedAt: new Date(),

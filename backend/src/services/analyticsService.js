@@ -41,40 +41,176 @@ const getYesterdayRange = () => {
 /**
  * Calculate KPIs for a time window
  */
+/**
+ * Calculate KPIs for a time window with Profit/Loss and Refund accounting
+ */
 const calcKPIsForRange = async (merchantId, start, end) => {
-  const result = await Transaction.aggregate([
-    {
-      $match: {
-        merchantId,
-        timestamp: { $gte: start, $lte: end },
-        paymentStatus: 'completed',
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        totalRevenue: { $sum: '$amount' },
-        transactionCount: { $sum: 1 },
-        uniqueCustomers: { $addToSet: '$customerId' },
-      },
-    },
-  ]);
+  const transactions = await Transaction.find({
+    merchantId,
+    timestamp: { $gte: start, $lte: end },
+    paymentStatus: { $ne: 'failed' },
+  }).lean();
 
-  if (!result.length) {
-    return { totalRevenue: 0, transactionCount: 0, aov: 0, uniqueCustomers: 0 };
-  }
+  let grossRevenue = 0;
+  let salesCount = 0;
+  let refundTotal = 0;
+  let refundCount = 0;
+  let totalCost = 0;
+  let costEntries = 0;
+  const uniqueCustomerSet = new Set();
 
-  const { totalRevenue, transactionCount, uniqueCustomers } = result[0];
+  transactions.forEach((tx) => {
+    const isRefund = tx.transactionType === 'REFUND' || tx.paymentStatus === 'refunded';
+    if (isRefund) {
+      refundTotal += (tx.amount || 0);
+      refundCount += 1;
+    } else {
+      grossRevenue += (tx.amount || 0);
+      salesCount += 1;
+      if (tx.customerId) uniqueCustomerSet.add(tx.customerId.toString());
+
+      // COGS calculation if cost information is present
+      if (Array.isArray(tx.items) && tx.items.length > 0) {
+        tx.items.forEach((item) => {
+          if (item.unitCost != null && !isNaN(item.unitCost) && item.unitCost > 0) {
+            totalCost += (item.unitCost * (item.quantity || 1));
+            costEntries += 1;
+          }
+        });
+      } else if (tx.cost != null && !isNaN(tx.cost) && tx.cost > 0) {
+        totalCost += tx.cost;
+        costEntries += 1;
+      }
+    }
+  });
+
+  const netRevenue = Math.max(0, grossRevenue - refundTotal);
+  const aov = salesCount > 0 ? Math.round((netRevenue / salesCount) * 100) / 100 : 0;
+  const refundRate = grossRevenue > 0 ? Math.round((refundTotal / grossRevenue) * 1000) / 10 : 0;
+  const hasCostData = costEntries > 0;
+  const grossProfit = hasCostData ? Math.round((netRevenue - totalCost) * 100) / 100 : null;
+  const grossMargin = (hasCostData && netRevenue > 0) ? Math.round(((netRevenue - totalCost) / netRevenue) * 1000) / 10 : null;
+
   return {
-    totalRevenue: Math.round(totalRevenue * 100) / 100,
-    transactionCount,
-    aov: transactionCount > 0 ? Math.round((totalRevenue / transactionCount) * 100) / 100 : 0,
-    uniqueCustomers: uniqueCustomers.filter(Boolean).length,
+    totalRevenue: netRevenue, // Preserved for backwards compatibility with existing UI
+    netRevenue,
+    grossRevenue,
+    refundTotal,
+    refundCount,
+    refundRate,
+    transactionCount: salesCount,
+    aov,
+    uniqueCustomers: uniqueCustomerSet.size,
+    hasCostData,
+    cogs: hasCostData ? Math.round(totalCost * 100) / 100 : null,
+    grossProfit,
+    grossMargin,
   };
 };
 
 /**
- * Get dashboard KPIs: today vs yesterday comparison
+ * Deterministically compute Business Pulse / Health status
+ * Scoring rules:
+ * - Base score: 75
+ * - Sales trend: +10 (>=+10%), +5 (>0%), -10 (<=-5%), -15 (<=-12%), -25 (<=-25%)
+ * - Refund rate: +5 (0%), -10 (>5%), -20 (>10% or >=3 refunds)
+ * - Repeat rate: +5 (>=35%), -5 (<20%)
+ * - Declining items: -5 per declining product (max -15)
+ * Score >= 75: HEALTHY | 50-74: NEEDS_ATTENTION | <50: RISK_DETECTED
+ */
+const calculateBusinessPulse = async (merchantId, kpis) => {
+  let score = 75;
+  const factors = [];
+
+  // 1. Sales Trend Factor
+  const revChange = kpis?.changes?.revenue ?? 0;
+  if (revChange >= 10) {
+    score += 10;
+    factors.push({ label: `Daily Sales Surge (+${revChange.toFixed(1)}%)`, impact: '+10', type: 'POSITIVE' });
+  } else if (revChange > 0) {
+    score += 5;
+    factors.push({ label: `Moderate Sales Growth (+${revChange.toFixed(1)}%)`, impact: '+5', type: 'POSITIVE' });
+  } else if (revChange <= -25) {
+    score -= 25;
+    factors.push({ label: `Critical Revenue Drop (${revChange.toFixed(1)}%)`, impact: '-25', type: 'NEGATIVE' });
+  } else if (revChange <= -12) {
+    score -= 15;
+    factors.push({ label: `Sizable Sales Drop (${revChange.toFixed(1)}%)`, impact: '-15', type: 'NEGATIVE' });
+  } else if (revChange < 0) {
+    score -= 5;
+    factors.push({ label: `Minor Daily Softness (${revChange.toFixed(1)}%)`, impact: '-5', type: 'NEGATIVE' });
+  }
+
+  // 2. Refund Activity Factor
+  const refundRate = kpis?.today?.refundRate ?? 0;
+  const refundCount = kpis?.today?.refundCount ?? 0;
+  if (refundRate > 10 || refundCount >= 3) {
+    score -= 20;
+    factors.push({ label: `Elevated Refund Activity (${refundRate}%, ${refundCount} claims)`, impact: '-20', type: 'NEGATIVE' });
+  } else if (refundRate > 5 || refundCount >= 1) {
+    score -= 10;
+    factors.push({ label: `Refund Activity Observed (${refundRate}%)`, impact: '-10', type: 'NEGATIVE' });
+  } else if (refundCount === 0) {
+    score += 5;
+    factors.push({ label: 'Zero Refund Claims Today', impact: '+5', type: 'POSITIVE' });
+  }
+
+  // 3. Repeat Customer Ratio
+  const repeatRate = kpis?.repeatCustomerPct ?? 0;
+  if (repeatRate >= 35) {
+    score += 5;
+    factors.push({ label: `Strong Repeat Patronage (${repeatRate}%)`, impact: '+5', type: 'POSITIVE' });
+  } else if (repeatRate > 0 && repeatRate < 20) {
+    score -= 5;
+    factors.push({ label: `Sub-Optimal Retention (${repeatRate}%)`, impact: '-5', type: 'NEGATIVE' });
+  }
+
+  // 4. Declining Product Check
+  try {
+    const decliningCount = await Product.countDocuments({ merchantId, trend: 'declining', isActive: true });
+    if (decliningCount > 0) {
+      const deduction = Math.min(15, decliningCount * 5);
+      score -= deduction;
+      factors.push({ label: `${decliningCount} Item(s) Showing Softening Demand`, impact: `-${deduction}`, type: 'NEGATIVE' });
+    }
+  } catch {}
+
+  score = Math.max(15, Math.min(98, score));
+
+  let status = 'HEALTHY';
+  let label = 'Healthy';
+  let badge = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+  let icon = '🟢';
+  let summary = 'Operational indicators demonstrate healthy revenue velocity and standard return rates.';
+
+  if (score < 50) {
+    status = 'RISK_DETECTED';
+    label = 'Risk Detected';
+    badge = 'bg-rose-100 text-rose-800 border-rose-300';
+    icon = '🔴';
+    summary = 'Immediate operational intervention advised due to notable sales decline or elevated refund activity.';
+  } else if (score < 75) {
+    status = 'NEEDS_ATTENTION';
+    label = 'Needs Attention';
+    badge = 'bg-amber-100 text-amber-800 border-amber-300';
+    icon = '🟡';
+    summary = 'Moderate performance drag observed. Monitor mid-day lull and product mix to recover momentum.';
+  }
+
+  return {
+    score,
+    status,
+    label,
+    icon,
+    badge,
+    summary,
+    factors,
+    lastEvaluatedAt: new Date(),
+  };
+};
+
+/**
+ * Get dashboard KPIs: today vs yesterday comparison + Business Pulse
  */
 const getDashboardKPIs = async (merchantId) => {
   await syncMerchantTelemetry(merchantId);
@@ -99,15 +235,29 @@ const getDashboardKPIs = async (merchantId) => {
   // Repeat customer % for today
   const repeatPct = await getRepeatCustomerRate(merchantId, 30);
 
-  return {
+  const kpis = {
     today: {
       revenue: today.totalRevenue,
+      netSales: today.netRevenue,
+      grossSales: today.grossRevenue,
+      refunds: today.refundTotal,
+      refundCount: today.refundCount,
+      refundRate: today.refundRate,
       transactions: today.transactionCount,
       aov: today.aov,
       uniqueCustomers: today.uniqueCustomers,
+      hasCostData: today.hasCostData,
+      cogs: today.cogs,
+      grossProfit: today.grossProfit,
+      grossMargin: today.grossMargin,
     },
     yesterday: {
       revenue: yesterday.totalRevenue,
+      netSales: yesterday.netRevenue,
+      grossSales: yesterday.grossRevenue,
+      refunds: yesterday.refundTotal,
+      refundCount: yesterday.refundCount,
+      refundRate: yesterday.refundRate,
       transactions: yesterday.transactionCount,
       aov: yesterday.aov,
     },
@@ -117,6 +267,11 @@ const getDashboardKPIs = async (merchantId) => {
     },
     repeatCustomerPct: repeatPct,
   };
+
+  const businessPulse = await calculateBusinessPulse(merchantId, kpis);
+  kpis.businessPulse = businessPulse;
+
+  return kpis;
 };
 
 /**
@@ -132,6 +287,7 @@ const getRevenueTrend = async (merchantId, days = 30) => {
         merchantId,
         timestamp: { $gte: start, $lte: end },
         paymentStatus: 'completed',
+        transactionType: { $ne: 'REFUND' },
       },
     },
     {
@@ -177,6 +333,7 @@ const getHourlySales = async (merchantId, days = 30) => {
         merchantId,
         timestamp: { $gte: start, $lte: end },
         paymentStatus: 'completed',
+        transactionType: { $ne: 'REFUND' },
       },
     },
     {
@@ -217,6 +374,7 @@ const getWeekdaySales = async (merchantId, weeks = 8) => {
         merchantId,
         timestamp: { $gte: start, $lte: end },
         paymentStatus: 'completed',
+        transactionType: { $ne: 'REFUND' },
       },
     },
     {
@@ -386,6 +544,8 @@ const getDashboardData = async (merchantId, revenueDays = 30) => {
 module.exports = {
   getDashboardData,
   getDashboardKPIs,
+  calculateBusinessPulse,
+  calcKPIsForRange,
   getRevenueTrend,
   getHourlySales,
   getWeekdaySales,

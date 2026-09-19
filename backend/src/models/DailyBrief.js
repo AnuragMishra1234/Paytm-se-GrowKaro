@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 /**
  * DailyBrief Model
@@ -28,15 +28,49 @@ const dailyBriefSchema = new mongoose.Schema(
     },
     yesterdayPerformance: {
       revenue: { type: Number, default: 0 },
+      netSales: { type: Number, default: 0 },
       transactions: { type: Number, default: 0 },
       aov: { type: Number, default: 0 },
       revenueChange: { type: Number, default: 0 },
+      refunds: {
+        count: { type: Number, default: 0 },
+        total: { type: Number, default: 0 },
+      },
     },
+    topProduct: {
+      type: String,
+      default: '',
+    },
+    weakestProduct: {
+      type: String,
+      default: '',
+    },
+    newCustomers: {
+      type: Number,
+      default: 0,
+    },
+    repeatCustomers: {
+      type: Number,
+      default: 0,
+    },
+    whatChanged: [
+      {
+        type: String,
+      },
+    ],
     whatMatters: {
       type: String,
       default: '',
     },
+    whatNeedsAttention: {
+      type: String,
+      default: '',
+    },
     topOpportunity: {
+      type: String,
+      default: '',
+    },
+    opportunity: {
       type: String,
       default: '',
     },

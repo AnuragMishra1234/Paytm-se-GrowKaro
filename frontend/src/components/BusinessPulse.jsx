@@ -1,11 +1,11 @@
-﻿import React from "react";
+import React from "react";
+import { TrendingDown, TrendingUp, Lightbulb, Calendar, RotateCcw } from "lucide-react";
 
 /**
- * BusinessPulse — Phase 1 placeholder for what Phase 2 will replace
+ * BusinessPulse — Phase 1 placeholder for what Phase 2 replaces
  * with AI-generated priority feed (Growth Detector + Groq).
  *
  * Shows deterministic business pattern flags calculated from analytics data.
- * No AI / LLM involved. Phase 2 will replace this with intelligent insights.
  */
 export function BusinessPulse({ dashboardData, loading = false }) {
   if (loading) {
@@ -33,7 +33,7 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     if (change <= -10) {
       flags.push({
         type: "warning",
-        icon: "📉",
+        icon: <TrendingDown className="w-5 h-5 text-red-600" />,
         title: "Revenue is down today",
         detail: `${Math.abs(change).toFixed(1)}% below yesterday`,
         color: "border-red-200 bg-red-50",
@@ -42,7 +42,7 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     } else if (change >= 15) {
       flags.push({
         type: "positive",
-        icon: "📈",
+        icon: <TrendingUp className="w-5 h-5 text-emerald-600" />,
         title: "Strong revenue today",
         detail: `${change.toFixed(1)}% above yesterday`,
         color: "border-green-200 bg-green-50",
@@ -59,7 +59,7 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     if (afternoonWeak && maxRevenue > 0) {
       flags.push({
         type: "opportunity",
-        icon: "💡",
+        icon: <Lightbulb className="w-5 h-5 text-blue-600" />,
         title: "Weak afternoon window",
         detail: "2–5 PM shows consistently lower activity",
         color: "border-blue-200 bg-blue-50",
@@ -74,7 +74,7 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     if (sorted[0]?.revenue > 0) {
       flags.push({
         type: "info",
-        icon: "🗓️",
+        icon: <Calendar className="w-5 h-5 text-gray-600" />,
         title: `${sorted[0].day} is your strongest day`,
         detail: `Followed by ${sorted[1]?.day || "–"}`,
         color: "border-gray-200 bg-gray-50",
@@ -87,7 +87,7 @@ export function BusinessPulse({ dashboardData, loading = false }) {
   if (kpis?.repeatCustomerPct > 50) {
     flags.push({
       type: "positive",
-      icon: "🔄",
+      icon: <RotateCcw className="w-5 h-5 text-emerald-600" />,
       title: "Strong repeat customer base",
       detail: `${kpis.repeatCustomerPct}% of recent customers returned`,
       color: "border-green-200 bg-green-50",
@@ -100,9 +100,9 @@ export function BusinessPulse({ dashboardData, loading = false }) {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-semibold text-gray-900">Business Pulse</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Pattern-based flags · AI insights coming in Phase 2</p>
+          <p className="text-xs text-gray-400 mt-0.5">Pattern-based flags · Deterministic telemetry</p>
         </div>
-        <span className="badge bg-blue-100 text-blue-700">Phase 1</span>
+        <span className="badge bg-blue-100 text-blue-700">Real-Time</span>
       </div>
 
       {flags.length === 0 ? (
@@ -113,7 +113,7 @@ export function BusinessPulse({ dashboardData, loading = false }) {
         <div className="space-y-3">
           {flags.map((flag, i) => (
             <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border ${flag.color}`}>
-              <span className="text-xl">{flag.icon}</span>
+              <div className="mt-0.5 shrink-0">{flag.icon}</div>
               <div>
                 <p className={`text-sm font-medium ${flag.textColor}`}>{flag.title}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{flag.detail}</p>

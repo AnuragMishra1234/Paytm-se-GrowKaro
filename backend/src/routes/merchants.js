@@ -36,6 +36,21 @@ router.get('/:id/dashboard', validateObjectId, getDashboard);
 // GET /api/merchants/:id/transactions
 router.get('/:id/transactions', validateObjectId, getTransactions);
 
+// POST /api/merchants/:id/transactions (Live Transaction Creation)
+const { createTransaction, getLiveFeed } = require('../controllers/transactionController');
+router.post('/:id/transactions', validateObjectId, createTransaction);
+router.get('/:id/transactions/live-feed', validateObjectId, getLiveFeed);
+
+// ─── Market & Sales Intelligence APIs ─────────────────────────────────────
+const {
+  getMarketIntelligence,
+  refreshMarketIntelligence,
+  adoptRecommendation,
+} = require('../controllers/marketIntelligenceController');
+router.get('/:id/market-intelligence', validateObjectId, getMarketIntelligence);
+router.post('/:id/market-intelligence/refresh', validateObjectId, refreshMarketIntelligence);
+router.post('/:id/market-intelligence/adopt', validateObjectId, adoptRecommendation);
+
 // GET /api/merchants/:id/products
 router.get('/:id/products', validateObjectId, getProducts);
 

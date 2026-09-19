@@ -25,6 +25,10 @@ const insightSchema = new mongoose.Schema(
       enum: [
         'SALES_DROP',
         'SALES_SPIKE',
+        'LOSS_SIGNAL',
+        'REFUND_INCREASE',
+        'AOV_DECLINE',
+        'HIGH_VALUE_CUSTOMER_ACTIVITY',
         'WEAK_HOURS',
         'STRONG_HOURS',
         'PRODUCT_GROWTH',

@@ -402,37 +402,77 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
 
               {/* Yesterday Performance Grid */}
               {briefData.yesterdayPerformance && (
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                  <div className="bg-white/90 p-3 rounded-xl border border-blue-100 shadow-2xs text-center">
-                    <div className="text-[11px] font-bold text-gray-500">Yesterday Revenue</div>
-                    <div className="text-base sm:text-lg font-black text-gray-900">
-                      ₹{Number(briefData.yesterdayPerformance.revenue || 0).toLocaleString("en-IN")}
-                    </div>
-                    {briefData.yesterdayPerformance.revenueChange !== undefined && (
-                      <div
-                        className={`text-[11px] font-extrabold ${
-                          briefData.yesterdayPerformance.revenueChange >= 0 ? "text-emerald-700" : "text-rose-700"
-                        }`}
-                      >
-                        {briefData.yesterdayPerformance.revenueChange >= 0 ? "↑" : "↓"}{" "}
-                        {Math.abs(briefData.yesterdayPerformance.revenueChange)}% vs prev day
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="bg-white/90 p-2.5 rounded-xl border border-blue-100 shadow-2xs text-center">
+                      <div className="text-[11px] font-bold text-gray-500">Yesterday Revenue</div>
+                      <div className="text-base sm:text-lg font-black text-gray-900">
+                        ₹{Number(briefData.yesterdayPerformance.revenue || 0).toLocaleString("en-IN")}
                       </div>
-                    )}
-                  </div>
-                  <div className="bg-white/90 p-3 rounded-xl border border-blue-100 shadow-2xs text-center">
-                    <div className="text-[11px] font-bold text-gray-500">Orders</div>
-                    <div className="text-base sm:text-lg font-black text-gray-900">
-                      {briefData.yesterdayPerformance.transactions || 0}
+                      {briefData.yesterdayPerformance.revenueChange !== undefined && (
+                        <div
+                          className={`text-[10px] font-extrabold ${
+                            briefData.yesterdayPerformance.revenueChange >= 0 ? "text-emerald-700" : "text-rose-700"
+                          }`}
+                        >
+                          {briefData.yesterdayPerformance.revenueChange >= 0 ? "↑" : "↓"}{" "}
+                          {Math.abs(briefData.yesterdayPerformance.revenueChange)}% vs prev day
+                        </div>
+                      )}
                     </div>
-                    <div className="text-[11px] text-gray-500 font-medium">Completed txs</div>
-                  </div>
-                  <div className="bg-white/90 p-3 rounded-xl border border-blue-100 shadow-2xs text-center">
-                    <div className="text-[11px] font-bold text-gray-500">Avg Order Value</div>
-                    <div className="text-base sm:text-lg font-black text-gray-900">
-                      ₹{briefData.yesterdayPerformance.aov || 0}
+                    <div className="bg-white/90 p-2.5 rounded-xl border border-blue-100 shadow-2xs text-center">
+                      <div className="text-[11px] font-bold text-rose-600">Refunds Deducted</div>
+                      <div className="text-base sm:text-lg font-black text-rose-700">
+                        ₹{Number(briefData.yesterdayPerformance.refunds || 0).toLocaleString("en-IN")}
+                      </div>
+                      <div className="text-[10px] text-gray-500 font-medium">Recorded returns</div>
                     </div>
-                    <div className="text-[11px] text-gray-500 font-medium">Per ticket</div>
+                    <div className="bg-white/90 p-2.5 rounded-xl border border-blue-100 shadow-2xs text-center">
+                      <div className="text-[11px] font-bold text-gray-500">Orders &amp; AOV</div>
+                      <div className="text-base sm:text-lg font-black text-gray-900">
+                        {briefData.yesterdayPerformance.transactions || 0} <span className="text-xs font-normal text-gray-500">txs</span>
+                      </div>
+                      <div className="text-[10px] text-gray-500 font-medium">₹{briefData.yesterdayPerformance.aov || 0} avg ticket</div>
+                    </div>
+                    <div className="bg-white/90 p-2.5 rounded-xl border border-blue-100 shadow-2xs text-center">
+                      <div className="text-[11px] font-bold text-gray-500">Customers</div>
+                      <div className="text-base sm:text-lg font-black text-purple-700">
+                        {briefData.repeatCustomers ?? 0} <span className="text-xs font-normal text-gray-500">repeat</span>
+                      </div>
+                      <div className="text-[10px] text-gray-500 font-medium">+{briefData.newCustomers ?? 0} first-time</div>
+                    </div>
                   </div>
+
+                  {(briefData.topProduct || briefData.weakestProduct) && (
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {briefData.topProduct && (
+                        <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-1.5 text-emerald-950 font-bold">
+                          <span>🌟 Top Seller:</span>
+                          <span className="truncate">{briefData.topProduct}</span>
+                        </div>
+                      )}
+                      {briefData.weakestProduct && (
+                        <div className="p-2 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-1.5 text-amber-950 font-bold">
+                          <span>⚠️ Low Performer:</span>
+                          <span className="truncate">{briefData.weakestProduct}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* What Changed Real Facts */}
+              {briefData.whatChanged && briefData.whatChanged.length > 0 && (
+                <div className="bg-white/90 p-3 rounded-xl border border-blue-100 space-y-1.5">
+                  <strong className="text-blue-950 font-bold text-xs flex items-center gap-1.5">
+                    <span>🔍</span> Key Business Changes Observed:
+                  </strong>
+                  <ul className="space-y-1 text-xs text-gray-700 list-disc list-inside">
+                    {briefData.whatChanged.map((change, idx) => (
+                      <li key={idx} className="leading-relaxed">{change}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
@@ -443,9 +483,18 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                   <p className="leading-relaxed">{briefData.whatMatters}</p>
                 </div>
 
+                {briefData.whatNeedsAttention && (
+                  <div className="bg-rose-50/90 p-3 rounded-xl border border-rose-200 space-y-1 text-rose-950">
+                    <strong className="font-bold block flex items-center gap-1.5">
+                      <span>⚠️</span> What Needs Attention Today:
+                    </strong>
+                    <p className="leading-relaxed">{briefData.whatNeedsAttention}</p>
+                  </div>
+                )}
+
                 <div className="bg-white/90 p-3 rounded-xl border border-blue-100 space-y-1">
-                  <strong className="text-blue-950 font-bold block">Top Opportunity &amp; Concern:</strong>
-                  <p className="leading-relaxed">{briefData.topOpportunity}</p>
+                  <strong className="text-blue-950 font-bold block">Top Opportunity &amp; Strategic Move:</strong>
+                  <p className="leading-relaxed">{briefData.topOpportunity || briefData.opportunity}</p>
                 </div>
 
                 {briefData.externalContextNote && (

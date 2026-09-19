@@ -260,3 +260,21 @@ export const fetchDataSourceStatus = (merchantId) =>
 
 export const simulateDataSourceLink = (merchantId) =>
   client.post(`/api/merchants/${merchantId}/data-sources/simulate-link`);
+
+// ─── Live Transactions & Simulation APIs ─────────────────────────────────
+
+export const createLiveTransaction = (merchantId, data) =>
+  client.post(`/api/merchants/${merchantId}/transactions`, data);
+
+export const fetchLiveTransactions = (merchantId, limit = 20) =>
+  client.get(`/api/merchants/${merchantId}/transactions/live-feed?limit=${limit}`);
+
+// ─── Market & Sales AI Intelligence APIs ────────────────────────────────
+export const fetchMarketIntelligence = (merchantId) =>
+  client.get(`/api/merchants/${merchantId}/market-intelligence`);
+
+export const refreshMarketIntelligence = (merchantId) =>
+  client.post(`/api/merchants/${merchantId}/market-intelligence/refresh`);
+
+export const adoptMarketRecommendation = (merchantId, suggestionId) =>
+  client.post(`/api/merchants/${merchantId}/market-intelligence/adopt`, { suggestionId });

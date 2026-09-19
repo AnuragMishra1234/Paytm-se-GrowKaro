@@ -65,38 +65,65 @@ function formatRelativeTime(dateString) {
   return `${diffDays}d ago`;
 }
 
-function getNotificationBadge(type, priority) {
-  switch (type) {
+function getNotificationBadge(type, priority, category) {
+  // Check category or type
+  const c = category || type;
+  switch (c) {
+    case "ACT_NOW":
+    case "LOSS_SIGNAL":
+      return {
+        icon: "🚨",
+        bg: "bg-rose-100 text-rose-900 border-rose-300 font-black",
+        label: "ACT NOW",
+      };
+    case "WARNING":
+    case "REFUND_INCREASE":
+    case "AOV_DECLINE":
+    case "ACTION_FAILED":
+      return {
+        icon: "⚠️",
+        bg: "bg-amber-100 text-amber-900 border-amber-300 font-bold",
+        label: "WARNING",
+      };
+    case "OPPORTUNITY":
+      return {
+        icon: "💡",
+        bg: "bg-cyan-100 text-cyan-900 border-cyan-300 font-bold",
+        label: "OPPORTUNITY",
+      };
+    case "BUSINESS_UPDATE":
+    case "DAILY_BRIEF":
+      return {
+        icon: "📊",
+        bg: "bg-blue-100 text-[#002970] border-blue-300 font-bold",
+        label: "BUSINESS UPDATE",
+      };
+    case "CONTEXT":
+      return {
+        icon: "🌦",
+        bg: "bg-purple-100 text-purple-900 border-purple-300 font-bold",
+        label: "CONTEXT",
+      };
+    case "POSITIVE_TREND":
+    case "OUTCOME_MEASURED":
+    case "OUTCOME_READY":
+    case "HIGH_VALUE_CUSTOMER_ACTIVITY":
+      return {
+        icon: "✅",
+        bg: "bg-emerald-100 text-emerald-900 border-emerald-300 font-bold",
+        label: "POSITIVE TREND",
+      };
     case "ACTION_REQUIRED":
       return {
         icon: "⚡",
         bg: "bg-amber-100 text-amber-900 border-amber-300",
         label: "Requires Approval",
       };
-    case "OUTCOME_MEASURED":
-    case "OUTCOME_READY":
-      return {
-        icon: "📈",
-        bg: "bg-emerald-100 text-emerald-900 border-emerald-300",
-        label: "Outcome Measured",
-      };
     case "ACTION_COMPLETED":
       return {
         icon: "🚀",
         bg: "bg-blue-100 text-blue-900 border-blue-300",
         label: "Dispatched",
-      };
-    case "ACTION_FAILED":
-      return {
-        icon: "⚠️",
-        bg: "bg-rose-100 text-rose-900 border-rose-300",
-        label: "Failed",
-      };
-    case "DAILY_BRIEF":
-      return {
-        icon: "☀️",
-        bg: "bg-indigo-100 text-indigo-900 border-indigo-300",
-        label: "Morning Brief",
       };
     case "TASK_ASSIGNED":
       return {
@@ -411,7 +438,7 @@ export default function NotificationCenter() {
               </div>
             ) : (
               filteredNotifications.map((n) => {
-                const badge = getNotificationBadge(n.type, n.priority);
+                const badge = getNotificationBadge(n.type, n.priority, n.category);
                 return (
                   <div
                     key={n._id}

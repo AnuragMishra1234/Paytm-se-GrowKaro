@@ -128,6 +128,28 @@ const UserGroupIcon = () => (
   </svg>
 );
 
+const GlobeTrendIcon = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.9"
+      d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"
+    />
+  </svg>
+);
+
+const BoltReceiptIcon = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.9"
+      d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h7.5m-7.5 3h7.5m-7.5 3h4.5"
+    />
+  </svg>
+);
+
 // ─── Role-Adaptive Navigation Categorized Sections ───────────────────────────
 const getNavSections = (role) => {
   if (role === "MARKETING") {
@@ -143,6 +165,7 @@ const getNavSections = (role) => {
       {
         title: "Intelligence & Results",
         items: [
+          { to: "/market-intelligence", icon: GlobeTrendIcon, label: "Market & Sales AI", badge: "Radar" },
           { to: "/performance", icon: TargetIcon, label: "Campaign Results", badge: "ROI" },
           { to: "/ai-copilot", icon: SparklesIcon, label: "Marketing Copilot", badge: "AI" },
           { to: "/activity", icon: ClockIcon, label: "Activity Timeline" },
@@ -151,6 +174,7 @@ const getNavSections = (role) => {
       {
         title: "Testing & Validation",
         items: [
+          { to: "/live-simulation", icon: BoltReceiptIcon, label: "Live Transactions", badge: "Live" },
           { to: "/test-real-data", icon: ChartBarIcon, label: "Test With Real Data", badge: "New" },
         ],
       },
@@ -170,6 +194,7 @@ const getNavSections = (role) => {
       {
         title: "Testing & Validation",
         items: [
+          { to: "/live-simulation", icon: BoltReceiptIcon, label: "Live Transactions", badge: "Live" },
           { to: "/test-real-data", icon: ChartBarIcon, label: "Test With Real Data", badge: "New" },
         ],
       },
@@ -182,13 +207,15 @@ const getNavSections = (role) => {
       title: null,
       items: [
         { to: "/dashboard", icon: HomeIcon, label: "Dashboard" },
+        { to: "/market-intelligence", icon: GlobeTrendIcon, label: "Market & Sales AI", badge: "Live" },
+        { to: "/live-simulation", icon: BoltReceiptIcon, label: "Live Transactions", badge: "Live" },
         { to: "/ai-copilot", icon: SparklesIcon, label: "AI Copilot", badge: "AI" },
       ],
     },
     {
       title: "Agentic Intelligence",
       items: [
-        { to: "/insights", icon: LightbulbIcon, label: "Insights", badge: "Live" },
+        { to: "/insights", icon: LightbulbIcon, label: "Insights", badge: "Radar" },
         { to: "/campaigns", icon: MegaphoneIcon, label: "Actions & Campaigns", badge: "Action" },
         { to: "/performance", icon: TargetIcon, label: "Performance & Outcomes", badge: "ROI" },
         { to: "/activity", icon: ClockIcon, label: "Activity Timeline", badge: "Log" },

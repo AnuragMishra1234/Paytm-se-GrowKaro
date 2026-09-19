@@ -14,6 +14,7 @@ const transactionItemSchema = new mongoose.Schema(
     category: { type: String, default: 'uncategorized' },
     quantity: { type: Number, default: 1 },
     unitPrice: { type: Number, required: true },
+    unitCost: { type: Number, default: null }, // Optional product unit cost (COGS tracking)
     totalPrice: { type: Number, required: true },
   },
   { _id: false }
@@ -36,6 +37,31 @@ const transactionSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+    },
+    transactionType: {
+      type: String,
+      enum: ['SALE', 'REFUND'],
+      default: 'SALE',
+      index: true,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    cost: {
+      type: Number,
+      default: null, // Total COGS for transaction if cost data available
+    },
+    isLiveSimulated: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    billNumber: {
+      type: String,
+      default: null,
+      index: true,
     },
     timestamp: {
       type: Date,
@@ -61,7 +87,7 @@ const transactionSchema = new mongoose.Schema(
     // Data Source & Order-Payment Linking Architecture
     sourceProvider: {
       type: String,
-      enum: ['PAYTM', 'MERCHANT_POS', 'BILLING_SOFTWARE', 'ECOMMERCE', 'CSV', 'MANUAL_IMPORT'],
+      enum: ['PAYTM', 'MERCHANT_POS', 'BILLING_SOFTWARE', 'ECOMMERCE', 'CSV', 'MANUAL_IMPORT', 'LIVE_SIMULATION', 'MANUAL_ENTRY'],
       default: 'PAYTM',
       index: true,
     },

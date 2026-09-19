@@ -69,4 +69,24 @@ router.get('/status', async (req, res, next) => {
   }
 });
 
+const { runScenario } = require('../controllers/simulatorController');
+
+/**
+ * POST /api/demo/simulate/:scenario
+ * Convenience endpoint for One-Click Judge Demo (defaults to Cafe Aroma if merchantId not supplied)
+ */
+router.post('/simulate/:scenario', async (req, res, next) => {
+  try {
+    let merchantId = req.body.merchantId;
+    if (!merchantId) {
+      const cafe = await Merchant.findOne({ businessName: /Cafe Aroma/i }).select('_id');
+      merchantId = cafe?._id;
+    }
+    req.params.id = merchantId;
+    return runScenario(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

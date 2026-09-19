@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 /**
  * Product Model
@@ -28,11 +28,20 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    costPrice: {
+      type: Number,
+      default: null, // null = not configured; used for COGS / Profit calculation when provided
+      min: 0,
+    },
     stock: {
       type: Number,
       default: null, // null = not tracked (services)
     },
     unitsSold: {
+      type: Number,
+      default: 0,
+    },
+    refundUnits: {
       type: Number,
       default: 0,
     },

@@ -66,17 +66,16 @@ async function ensureCafeAromaLull(merchantId) {
     paymentStatus: 'completed',
   });
 
-  const existingSum = existingLullTxs.reduce((s, t) => s + t.amount, 0);
-
-  // If already exactly 6 orders and ₹1,850, we're pristine
-  if (existingLullTxs.length === 6 && existingSum === 1850) {
+  // If already populated with orders, don't overwrite
+  if (existingLullTxs.length >= 6) {
     return;
   }
 
-  // Remove any mismatched transactions in this specific 2:00 - 4:30 PM window
+  // Only remove non-simulated baseline transactions if seeding fresh
   await Transaction.deleteMany({
     merchantId,
     timestamp: { $gte: lullStart, $lte: lullEnd },
+    isLiveSimulated: { $ne: true },
   });
 
   // Get customer references for realistic association

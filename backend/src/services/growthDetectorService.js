@@ -410,6 +410,87 @@ const detectCampaignResults = async (merchantId) => {
 };
 
 /**
+ * 8. Detect Refund Surge & Loss Signals
+ */
+const detectRefundAnomalies = (kpis) => {
+  if (!kpis || !kpis.today) return null;
+  const refunds = kpis.today.refunds || 0;
+  const refundCount = kpis.today.refundCount || 0;
+  const refundRate = kpis.today.refundRate || 0;
+  const grossSales = kpis.today.grossSales || kpis.today.revenue || 0;
+
+  if (refunds >= 800 || refundCount >= 2 || (grossSales > 0 && refundRate >= 5.0)) {
+    const isCritical = refundRate >= 10 || refunds >= 2000;
+    return {
+      type: 'LOSS_SIGNAL',
+      severity: isCritical ? 'CRITICAL' : 'HIGH',
+      category: 'WARNING',
+      title: `Refund Activity Increased: ₹${refunds.toLocaleString('en-IN')} Refunded`,
+      whatHappened: `Recorded ${refundCount} refund(s) totaling ₹${refunds.toLocaleString('en-IN')} today, resulting in an elevated ${refundRate}% refund rate.`,
+      whyItMatters: 'Refund value is higher than the recent baseline. Increased return volume erodes net operating margin and can signal kitchen inconsistencies or item dissatisfaction.',
+      whatToDo: 'Review recent order tickets and staff notes for returned items before assuming this is a normal daily fluctuation.',
+      recommendedAction: 'Inspect affected order items, verify product batch quality, and review counter handoff standards.',
+      comparisonPeriod: 'vs. 0% Normal Baseline',
+      confidence: 'HIGH',
+      dataSource: 'PAYTM_LINKED_POS',
+      metric: 'refund_rate',
+      currentValue: refunds,
+      baselineValue: kpis.yesterday?.refunds || 0,
+      changePercentage: refundRate,
+      priorityScore: isCritical ? 96 : 90,
+      evidence: [
+        `Recorded ₹${refunds.toLocaleString('en-IN')} in customer refunds across ${refundCount} claim(s).`,
+        `Current refund rate is ${refundRate}% of gross daily turnover (₹${grossSales.toLocaleString('en-IN')}).`,
+        `Net revenue adjusted to ₹${(kpis.today.netSales || kpis.today.revenue || 0).toLocaleString('en-IN')}.`,
+      ],
+      defaultAction: 'Conduct a spot-check on refunded item preparations and customer feedback.',
+      defaultGoal: 'Minimize return rate and protect daily operating margins.',
+    };
+  }
+  return null;
+};
+
+/**
+ * 9. Detect AOV Decline
+ */
+const detectAOVDecline = (kpis) => {
+  if (!kpis || !kpis.today || !kpis.yesterday) return null;
+  const todayAov = kpis.today.aov || 0;
+  const ystdAov = kpis.yesterday.aov || 0;
+
+  if (ystdAov > 0 && todayAov > 0) {
+    const aovDrop = Math.round(((todayAov - ystdAov) / ystdAov) * 100);
+    if (aovDrop <= -20) {
+      return {
+        type: 'AOV_DECLINE',
+        severity: 'MEDIUM',
+        category: 'WARNING',
+        title: `Average Order Value Down ${Math.abs(aovDrop)}% vs Yesterday`,
+        whatHappened: `Today's basket size average is ₹${todayAov}, a ${Math.abs(aovDrop)}% contraction compared to yesterday's ₹${ystdAov}.`,
+        whyItMatters: 'Smaller ticket sizes require higher transaction footfall to maintain identical daily turnover.',
+        whatToDo: 'Offer low-friction checkout add-ons (e.g. ₹40 pastry pairing) to lift transaction size.',
+        recommendedAction: 'Brief counter staff on beverage and pastry cross-sell pairings at point of payment.',
+        comparisonPeriod: 'vs. Yesterday AOV',
+        confidence: 'HIGH',
+        dataSource: 'PAYTM_LINKED_POS',
+        metric: 'average_order_value',
+        currentValue: todayAov,
+        baselineValue: ystdAov,
+        changePercentage: aovDrop,
+        priorityScore: 76,
+        evidence: [
+          `Current AOV: ₹${todayAov} across ${kpis.today.transactions || 0} transactions.`,
+          `Yesterday AOV: ₹${ystdAov}.`,
+        ],
+        defaultAction: 'Promote combo pairing add-ons to lift average basket size.',
+        defaultGoal: 'Restore ticket size towards baseline.',
+      };
+    }
+  }
+  return null;
+};
+
+/**
  * Master Pipeline: Runs all detectors and aggregates structured insights
  */
 const runAllDetectors = async (merchantId) => {
@@ -430,25 +511,33 @@ const runAllDetectors = async (merchantId) => {
   const salesSignal = detectSalesFluctuation(dashboardData.kpis);
   if (salesSignal) rawInsights.push(salesSignal);
 
-  // 2. Weak Hours (Afternoon Lull)
+  // 2. Refund & Loss Anomaly (New)
+  const refundSignal = detectRefundAnomalies(dashboardData.kpis);
+  if (refundSignal) rawInsights.push(refundSignal);
+
+  // 3. AOV Softness (New)
+  const aovSignal = detectAOVDecline(dashboardData.kpis);
+  if (aovSignal) rawInsights.push(aovSignal);
+
+  // 4. Weak Hours (Afternoon Lull)
   const weakHoursSignal = detectWeakHours(dashboardData.hourlySales);
   if (weakHoursSignal) rawInsights.push(weakHoursSignal);
 
-  // 3. Strong Days (Peak periods)
+  // 5. Strong Days (Peak periods)
   const strongDaySignal = detectStrongPeriods(dashboardData.weekdaySales);
   if (strongDaySignal) rawInsights.push(strongDaySignal);
 
-  // 4. Product Trends (Growth & Decline)
+  // 6. Product Trends (Growth & Decline)
   productInsights.forEach((pi) => rawInsights.push(pi));
 
-  // 5. Customer Signals (Churn Risk & Repeat Rate)
+  // 7. Customer Signals (Churn Risk & Repeat Rate)
   customerInsights.forEach((ci) => rawInsights.push(ci));
 
-  // 6. External Context Signals (Weather & Calendar)
+  // 8. External Context Signals (Weather & Calendar)
   const contextInsights = detectContextOpportunities(contextData);
   contextInsights.forEach((cei) => rawInsights.push(cei));
 
-  // 7. Campaign Results
+  // 9. Campaign Results
   campaignInsights.forEach((cri) => rawInsights.push(cri));
 
   // Sort by priorityScore descending
@@ -464,6 +553,8 @@ const runAllDetectors = async (merchantId) => {
 
 module.exports = {
   detectSalesFluctuation,
+  detectRefundAnomalies,
+  detectAOVDecline,
   detectWeakHours,
   detectStrongPeriods,
   detectProductAnomalies,

@@ -19,6 +19,8 @@ import Team from "./pages/Team";
 import Tasks from "./pages/Tasks";
 import EmployeeWorkspace from "./pages/EmployeeWorkspace";
 import RealDataTesting from "./pages/RealDataTesting";
+import MarketIntelligence from "./pages/MarketIntelligence";
+import LiveSimulation from "./pages/LiveSimulation";
 
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -50,6 +52,11 @@ function App() {
             {/* Main app with sidebar layout */}
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/market-intelligence" element={<MarketIntelligence />} />
+              <Route path="/market" element={<Navigate to="/market-intelligence" replace />} />
+              <Route path="/live-simulation" element={<LiveSimulation />} />
+              <Route path="/live-transactions" element={<Navigate to="/live-simulation" replace />} />
+              <Route path="/simulation" element={<Navigate to="/live-simulation" replace />} />
               <Route path="/ai-copilot" element={<AICopilot />} />
               <Route path="/insights" element={<Insights />} />
               <Route path="/campaigns" element={<Campaigns />} />
