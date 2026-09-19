@@ -240,3 +240,23 @@ export const queryDatasetCopilot = (sessionId, query) =>
 
 export const deleteDatasetSession = (sessionId) =>
   client.delete(`/api/datasets/${sessionId}`);
+
+// ─── Proactive Business Intelligence & Data Sources APIs ────────────────
+
+export const fetchAutomatedDailyBrief = (merchantId, forceRefresh = false) =>
+  client.get(`/api/merchants/${merchantId}/briefs/daily${forceRefresh ? "?forceRefresh=true" : ""}`);
+
+export const generateAutomatedDailyBrief = (merchantId) =>
+  client.post(`/api/merchants/${merchantId}/briefs/daily/generate`);
+
+export const fetchAutomatedWeeklyReview = (merchantId, forceRefresh = false) =>
+  client.get(`/api/merchants/${merchantId}/briefs/weekly${forceRefresh ? "?forceRefresh=true" : ""}`);
+
+export const generateAutomatedWeeklyReview = (merchantId) =>
+  client.post(`/api/merchants/${merchantId}/briefs/weekly/generate`);
+
+export const fetchDataSourceStatus = (merchantId) =>
+  client.get(`/api/merchants/${merchantId}/data-sources/status`);
+
+export const simulateDataSourceLink = (merchantId) =>
+  client.post(`/api/merchants/${merchantId}/data-sources/simulate-link`);

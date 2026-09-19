@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 /**
  * Transaction Model
@@ -8,7 +8,9 @@
  */
 const transactionItemSchema = new mongoose.Schema(
   {
+    productId: { type: String, default: null },
     name: { type: String, required: true },
+    productName: { type: String, default: null },
     category: { type: String, default: 'uncategorized' },
     quantity: { type: Number, default: 1 },
     unitPrice: { type: Number, required: true },
@@ -56,6 +58,40 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       default: 'uncategorized',
     },
+    // Data Source & Order-Payment Linking Architecture
+    sourceProvider: {
+      type: String,
+      enum: ['PAYTM', 'MERCHANT_POS', 'BILLING_SOFTWARE', 'ECOMMERCE', 'CSV', 'MANUAL_IMPORT'],
+      default: 'PAYTM',
+      index: true,
+    },
+    sourceType: {
+      type: String,
+      enum: ['PAYMENT', 'ORDER', 'UNIFIED_LINKED', 'IMPORTED_DATASET'],
+      default: 'UNIFIED_LINKED',
+      index: true,
+    },
+    externalOrderId: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    externalTransactionId: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    dataConfidence: {
+      type: String,
+      enum: ['HIGH', 'MEDIUM', 'LOW'],
+      default: 'HIGH',
+      index: true,
+    },
+    productInfoStatus: {
+      type: String,
+      enum: ['AVAILABLE', 'PARTIAL', 'UNKNOWN_UNAVAILABLE'],
+      default: 'AVAILABLE',
+    },
   },
   {
     timestamps: true,
@@ -65,5 +101,6 @@ const transactionSchema = new mongoose.Schema(
 // Compound index for all time-series analytics queries
 transactionSchema.index({ merchantId: 1, timestamp: -1 });
 transactionSchema.index({ merchantId: 1, category: 1 });
+transactionSchema.index({ merchantId: 1, externalOrderId: 1 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

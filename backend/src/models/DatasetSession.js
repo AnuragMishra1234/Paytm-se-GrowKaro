@@ -116,6 +116,19 @@ const datasetSessionSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    hasProductData: {
+      type: Boolean,
+      default: true,
+    },
+    dataConfidence: {
+      type: String,
+      enum: ['HIGH', 'MEDIUM', 'LOW'],
+      default: 'HIGH',
+    },
+    limitationDisclaimer: {
+      type: String,
+      default: null,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

@@ -49,6 +49,23 @@ const SAMPLE_RETAIL_NO_CUST_CSV = `date,time,sku_name,dept,sales_value,mode
 2026-09-05,18:30,Amul Taaza Milk 1L,Dairy,68,upi
 2026-09-06,12:00,Cadbury Dairy Milk Silk,Snacks,175,upi`;
 
+const SAMPLE_PAYMENT_ONLY_CSV = `payment_ref,transaction_date,amount,mode,status
+PAY_901,2026-09-01T10:15:00Z,450,upi,success
+PAY_902,2026-09-01T11:45:00Z,220,upi,success
+PAY_903,2026-09-01T14:30:00Z,180,upi,success
+PAY_904,2026-09-01T17:15:00Z,650,card,success
+PAY_905,2026-09-02T09:45:00Z,340,upi,success
+PAY_906,2026-09-02T14:15:00Z,220,upi,success
+PAY_907,2026-09-02T15:00:00Z,190,upi,success
+PAY_908,2026-09-03T11:00:00Z,580,upi,success
+PAY_909,2026-09-03T14:45:00Z,220,upi,success
+PAY_910,2026-09-03T18:30:00Z,720,card,success
+PAY_911,2026-09-04T10:00:00Z,310,upi,success
+PAY_912,2026-09-04T15:30:00Z,250,upi,success
+PAY_913,2026-09-05T14:00:00Z,180,upi,success
+PAY_914,2026-09-05T17:45:00Z,890,upi,success
+PAY_915,2026-09-06T12:30:00Z,420,card,success`;
+
 export default function RealDataTesting() {
   const [step, setStep] = useState("upload"); // 'upload' | 'mapping' | 'dashboard'
   const [rawText, setRawText] = useState("");
@@ -250,16 +267,16 @@ export default function RealDataTesting() {
             <span className="text-xs font-black uppercase tracking-wider text-gray-500 block">
               Quick Test: Try with Pre-Configured Sample Datasets
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 onClick={() => handleLoadSample(SAMPLE_CAFE_CSV, "cafe_sample_with_customers.csv")}
                 className="p-3 bg-white border border-gray-200 rounded-xl text-left hover:border-[#002970] hover:shadow-xs transition-all space-y-1"
               >
                 <strong className="text-xs sm:text-sm font-bold text-gray-900 block">
-                  ☕ Cafe Transactions (With Customer IDs)
+                  ☕ Cafe (Items + Customers)
                 </strong>
                 <span className="text-xs text-gray-500 block">
-                  Includes customer IDs, item names, hourly timestamps, and repeat orders.
+                  Full items, customer IDs, and repeat orders. (High Confidence)
                 </span>
               </button>
 
@@ -268,10 +285,22 @@ export default function RealDataTesting() {
                 className="p-3 bg-white border border-gray-200 rounded-xl text-left hover:border-[#002970] hover:shadow-xs transition-all space-y-1"
               >
                 <strong className="text-xs sm:text-sm font-bold text-gray-900 block">
-                  🛒 Retail Store (Anonymous, No Customer IDs)
+                  🛒 Retail (Items, No Customers)
                 </strong>
                 <span className="text-xs text-gray-500 block">
-                  Demonstrates graceful handling of missing customer identifiers.
+                  Tests graceful handling when customer IDs are omitted.
+                </span>
+              </button>
+
+              <button
+                onClick={() => handleLoadSample(SAMPLE_PAYMENT_ONLY_CSV, "paytm_payments_only.csv")}
+                className="p-3 bg-white border border-amber-300 rounded-xl text-left hover:border-amber-500 hover:shadow-xs transition-all space-y-1 bg-amber-50/30"
+              >
+                <strong className="text-xs sm:text-sm font-bold text-amber-950 block">
+                  💳 Payment-Only (No Products)
+                </strong>
+                <span className="text-xs text-amber-800 block">
+                  Tests Data Honesty standard &amp; limitation disclaimer. (Low Confidence)
                 </span>
               </button>
             </div>
@@ -451,14 +480,14 @@ export default function RealDataTesting() {
           <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase text-gray-400 tracking-wider">
-                Data Quality Report
+                Data Quality &amp; Completeness Report
               </span>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 {sessionData.qualitySummary.validRows} Valid Transactions
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs sm:text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 text-xs sm:text-sm">
               <div className="bg-gray-50 p-3 rounded-xl">
                 <span className="text-gray-400 block text-xs uppercase font-bold">Total Rows</span>
                 <strong className="text-sm sm:text-base text-gray-900">{sessionData.qualitySummary.totalRows}</strong>
@@ -476,13 +505,59 @@ export default function RealDataTesting() {
                 <strong className="text-sm sm:text-base text-gray-900">{sessionData.qualitySummary.duplicateRows}</strong>
               </div>
               <div className="bg-gray-50 p-3 rounded-xl">
-                <span className="text-gray-400 block text-xs uppercase font-bold">Customer Identifiers</span>
+                <span className="text-gray-400 block text-xs uppercase font-bold">Customer IDs</span>
                 <strong className={`text-sm sm:text-base ${sessionData.hasCustomerIdentifiers ? "text-[#002970]" : "text-amber-600"}`}>
                   {sessionData.hasCustomerIdentifiers ? "Detected" : "None Provided"}
                 </strong>
               </div>
+              <div className="bg-gray-50 p-3 rounded-xl">
+                <span className="text-gray-400 block text-xs uppercase font-bold">Product Data</span>
+                <strong className={`text-sm sm:text-base ${sessionData.hasProductData !== false ? "text-emerald-600" : "text-amber-600"}`}>
+                  {sessionData.hasProductData !== false ? "Available" : "Missing / None"}
+                </strong>
+              </div>
             </div>
           </div>
+
+          {/* Data Honesty & Confidence Banner */}
+          {sessionData.hasProductData === false || sessionData.dataConfidence === "LOW" ? (
+            <div className="bg-amber-50/90 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 text-amber-950 shadow-2xs">
+              <span className="text-2xl shrink-0">⚠️</span>
+              <div className="space-y-1 text-xs sm:text-sm">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <strong className="text-sm sm:text-base font-black text-amber-950">
+                    Data Limitation Notice · LOW CONFIDENCE
+                  </strong>
+                  <span className="badge bg-amber-200/80 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded">
+                    Payment-Level Data Only
+                  </span>
+                </div>
+                <p className="font-semibold text-amber-900">
+                  {sessionData.limitationDisclaimer || "Product-level insights unavailable because the uploaded dataset does not contain item-level order data."}
+                </p>
+                <p className="text-amber-800 text-xs">
+                  Overall revenue, transaction velocity, AOV, and peak/weak hour patterns remain deterministically 100% accurate. Product basket analysis and combo recommendations are honestly withheld to prevent AI hallucinations.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-emerald-50/90 border border-emerald-300 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-emerald-950 shadow-2xs">
+              <div className="flex items-center gap-3">
+                <span className="text-xl shrink-0">🛡️</span>
+                <div className="text-xs sm:text-sm">
+                  <strong className="font-black text-emerald-950 mr-2">
+                    Verified Itemized Dataset · HIGH CONFIDENCE
+                  </strong>
+                  <span className="text-emerald-800 font-medium">
+                    Item-level order data detected. Product affinity, combo recommendations, and category turnover are active.
+                  </span>
+                </div>
+              </div>
+              <span className="badge bg-emerald-200/70 text-emerald-900 border border-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full shrink-0 self-start sm:self-auto">
+                Full AI Reasoning Active
+              </span>
+            </div>
+          )}
 
           {/* Primary KPI Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

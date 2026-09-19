@@ -10,6 +10,7 @@ const Outcome = require('../src/models/Outcome');
 const Notification = require('../src/models/Notification');
 const Memory = require('../src/models/Memory');
 const DailyBrief = require('../src/models/DailyBrief');
+const WeeklyReview = require('../src/models/WeeklyReview');
 const Task = require('../src/models/Task');
 const TeamMember = require('../src/models/TeamMember');
 const Customer = require('../src/models/Customer');
@@ -64,6 +65,7 @@ async function resetDemoData() {
     const delNotifs = await Notification.deleteMany({ merchantId: cafe._id });
     const delInsights = await Insight.deleteMany({ merchantId: cafe._id });
     const delBriefs = await DailyBrief.deleteMany({ merchantId: cafe._id });
+    const delReviews = await WeeklyReview.deleteMany({ merchantId: cafe._id });
     const delTasks = await Task.deleteMany({ merchantId: cafe._id });
     const delTeam = await TeamMember.deleteMany({ merchantId: cafe._id });
     await Memory.deleteMany({
@@ -407,11 +409,23 @@ async function resetDemoData() {
       createdAt: new Date(),
     });
 
-    // Create a clean daily brief
+    // Create a clean daily brief with full structured proactive properties
     const todayStr = new Date().toISOString().split('T')[0];
     await DailyBrief.create({
       merchantId: cafe._id,
       briefDate: todayStr,
+      greeting: 'Good morning!',
+      dateFormatted: new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' }),
+      yesterdayPerformance: {
+        revenue: 78200,
+        transactions: 142,
+        aov: 550,
+        revenueChange: -4.2,
+      },
+      whatMatters: 'Yesterday generated ₹78,200 (↓ 4.2%) across 142 orders with an AOV of ₹550. Sales slowed down noticeably between 2:00 PM and 4:30 PM.',
+      topOpportunity: 'Cold Brew Coffee led volume with 38 orders. A recurring 31% revenue drop during afternoon hours offers prime recovery potential.',
+      externalContextNote: 'Overcast & cool in Bengaluru (21°C) — coincided with higher warm beverage preference.',
+      recommendedAction: 'Deploy the ₹199 Afternoon Cold Brew combo between 2 PM and 4:30 PM to recover mid-day volume.',
       summary: `☀️ Good morning, Cafe Aroma! Today's focus: Afternoon revenue is tracking 31% below normal. Cool weather in Bengaluru (21°C). Launching the ₹199 Cold Brew Combo can recover mid-day footfall.`,
       kpiSummary: {
         todayRevenue: 84500,

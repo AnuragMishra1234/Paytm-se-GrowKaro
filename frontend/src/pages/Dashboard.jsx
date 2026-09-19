@@ -8,7 +8,7 @@ import { WeekdayChart } from "../components/charts/WeekdayChart";
 import { AIPriorityFeed } from "../components/AIPriorityFeed";
 import { ErrorState } from "../components/LoadingSpinner";
 import { getBusinessTypeInfo, formatDate } from "../utils/formatters";
-import { fetchDailyBrief, triggerAnalysis } from "../services/api";
+import { fetchDailyBrief, triggerAnalysis, fetchDataSourceStatus, simulateDataSourceLink } from "../services/api";
 import { useOutcomes } from "../hooks/useOutcomes";
 import { useTeam } from "../context/TeamContext";
 import { Link } from "react-router-dom";
@@ -26,6 +26,9 @@ export default function Dashboard() {
   const { data, loading, error, refetch } = useDashboard(merchant?._id, days);
   const { outcomes, learnedSummary } = useOutcomes(merchant?._id);
   const [dailyBrief, setDailyBrief] = useState(null);
+  const [dataSourceStatus, setDataSourceStatus] = useState(null);
+  const [showDataModal, setShowDataModal] = useState(false);
+  const [linkingLoading, setLinkingLoading] = useState(false);
 
   const { label, logo } = getBusinessTypeInfo(merchant?.businessType, merchant?.businessName);
 
@@ -34,8 +37,28 @@ export default function Dashboard() {
       fetchDailyBrief(merchant._id)
         .then((res) => setDailyBrief(res.data))
         .catch(() => setDailyBrief(null));
+
+      fetchDataSourceStatus(merchant._id)
+        .then((res) => setDataSourceStatus(res.data))
+        .catch(() => setDataSourceStatus(null));
     }
   }, [merchant?._id]);
+
+  const handleSimulateLink = async () => {
+    if (!merchant?._id) return;
+    setLinkingLoading(true);
+    try {
+      const res = await simulateDataSourceLink(merchant._id);
+      if (res.data?.status) {
+        setDataSourceStatus(res.data.status);
+      }
+      refetch();
+    } catch (err) {
+      console.error("Link simulation failed:", err);
+    } finally {
+      setLinkingLoading(false);
+    }
+  };
 
   const handleRefreshAnalysis = async () => {
     if (!merchant?._id) return;
@@ -73,10 +96,33 @@ export default function Dashboard() {
             />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-              {merchant?.businessName}
-            </h1>
-            <p className="text-gray-500 text-sm mt-0.5">{label} · AI Business Partner Overview</p>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                {merchant?.businessName}
+              </h1>
+              {dataSourceStatus && (
+                <button
+                  onClick={() => setShowDataModal(true)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-all shadow-2xs ${
+                    dataSourceStatus.primaryStatus === "HIGH_CONFIDENCE"
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100"
+                      : "bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100"
+                  }`}
+                  title="Click to view Data Source linking details"
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      dataSourceStatus.primaryStatus === "HIGH_CONFIDENCE"
+                        ? "bg-emerald-500"
+                        : "bg-amber-500 animate-pulse"
+                    }`}
+                  />
+                  <span>{dataSourceStatus.badgeText}</span>
+                  <span className="text-[10px] text-gray-500 underline ml-0.5">details</span>
+                </button>
+              )}
+            </div>
+            <p className="text-gray-500 text-sm mt-0.5">{label} · Autonomous AI Business Intelligence Active</p>
           </div>
         </div>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
@@ -368,6 +414,91 @@ export default function Dashboard() {
               <p className="font-bold text-gray-900">
                 {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(kpis.yesterday?.aov || 0)}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Multi-Source Data Architecture Modal */}
+      {showDataModal && dataSourceStatus && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between border-b pb-3">
+              <div>
+                <span className="badge bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded">
+                  Data Architecture &amp; Honesty
+                </span>
+                <h3 className="text-base md:text-lg font-black text-gray-950 mt-1">
+                  Paytm Payment vs. POS Order Ingestion
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowDataModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-lg p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Architecture Explanation */}
+            <div className="text-xs md:text-sm text-gray-700 space-y-2 leading-relaxed">
+              <p>
+                GrowKaro cleanly separates <strong>Payment Data</strong> (Paytm UPI / Soundbox transactions: amount, timestamp, txn ID) from <strong>Itemized Order Data</strong> (Merchant POS / Billing tickets: items, quantities, prices).
+              </p>
+              <div className="bg-blue-50/80 p-3 rounded-xl border border-blue-200 text-blue-950 font-medium text-xs">
+                {dataSourceStatus.honestyStatement}
+              </div>
+            </div>
+
+            {/* Metrics Breakdown */}
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
+                <div className="text-xs font-bold text-gray-500 uppercase">Total Transactions</div>
+                <div className="text-xl font-black text-gray-900 mt-0.5">
+                  {dataSourceStatus.totalTransactions}
+                </div>
+              </div>
+              <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                <div className="text-xs font-bold text-emerald-800 uppercase">Linked POS Orders</div>
+                <div className="text-xl font-black text-emerald-700 mt-0.5">
+                  {dataSourceStatus.linkedPercentage}%
+                </div>
+              </div>
+            </div>
+
+            {/* Confidence Breakdown Bars */}
+            <div className="space-y-1.5 text-xs">
+              <div className="font-bold text-gray-700 uppercase">Confidence Distribution:</div>
+              <div className="flex items-center justify-between text-gray-600">
+                <span>High Confidence (Paytm + POS Linked):</span>
+                <span className="font-black text-emerald-700">{dataSourceStatus.confidenceBreakdown?.HIGH || 0}</span>
+              </div>
+              <div className="flex items-center justify-between text-gray-600">
+                <span>Medium Confidence (POS Item Ticket Only):</span>
+                <span className="font-black text-blue-700">{dataSourceStatus.confidenceBreakdown?.MEDIUM || 0}</span>
+              </div>
+              <div className="flex items-center justify-between text-gray-600">
+                <span>Low Confidence (Payment Only - No Items):</span>
+                <span className="font-black text-amber-700">{dataSourceStatus.confidenceBreakdown?.LOW || 0}</span>
+              </div>
+            </div>
+
+            {/* Simulate Linking Button */}
+            <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+              <button
+                onClick={handleSimulateLink}
+                disabled={linkingLoading}
+                className="btn-primary text-xs font-bold py-2 px-3.5 flex items-center gap-1.5 shadow-2xs"
+              >
+                <span>{linkingLoading ? "Linking..." : "Simulate POS Order Linking"}</span>
+                <span>🔗</span>
+              </button>
+              <button
+                onClick={() => setShowDataModal(false)}
+                className="btn-secondary text-xs px-4 py-2 font-bold"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

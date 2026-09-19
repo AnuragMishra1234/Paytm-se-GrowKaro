@@ -18,6 +18,10 @@ const {
   addMerchantMemory,
   getMerchantContext,
   getMerchantActivity,
+  getDailyBrief,
+  getWeeklyReview,
+  getDataSourceStatus,
+  simulateDataSourceLink,
 } = require('../controllers/merchantController');
 
 // GET /api/merchants
@@ -76,7 +80,6 @@ router.get('/:id/campaigns', validateObjectId, getMerchantCampaigns);
 
 const { getNotifications, markAllRead } = require('../controllers/notificationController');
 const { getOutcomes, getLearnedSummary } = require('../controllers/outcomeController');
-const { getDailyBrief } = require('../controllers/aiController');
 const { runScenario } = require('../controllers/simulatorController');
 
 // GET /api/merchants/:id/notifications
@@ -94,21 +97,28 @@ router.get('/:id/outcomes', validateObjectId, getOutcomes);
 // GET /api/merchants/:id/learned
 router.get('/:id/learned', validateObjectId, getLearnedSummary);
 
-// GET /api/merchants/:id/daily-brief & /:id/brief
-router.get('/:id/daily-brief', (req, res, next) => {
-  req.params.merchantId = req.params.id;
-  getDailyBrief(req, res, next);
-});
+// ─── Proactive Business Intelligence: Daily Brief & Weekly Review ──────────
 
-router.get('/:id/brief', (req, res, next) => {
-  req.params.merchantId = req.params.id;
-  getDailyBrief(req, res, next);
-});
+// GET & POST /api/merchants/:id/briefs/daily
+router.get('/:id/briefs/daily', validateObjectId, getDailyBrief);
+router.post('/:id/briefs/daily/generate', validateObjectId, getDailyBrief);
 
-router.post('/:id/brief/generate', (req, res, next) => {
-  req.params.merchantId = req.params.id;
-  getDailyBrief(req, res, next);
-});
+// GET & POST /api/merchants/:id/briefs/weekly
+router.get('/:id/briefs/weekly', validateObjectId, getWeeklyReview);
+router.post('/:id/briefs/weekly/generate', validateObjectId, getWeeklyReview);
+
+// Backward-compatible endpoints
+router.get('/:id/daily-brief', validateObjectId, getDailyBrief);
+router.get('/:id/brief', validateObjectId, getDailyBrief);
+router.post('/:id/brief/generate', validateObjectId, getDailyBrief);
+
+// ─── Data Source Integration & Linking ────────────────────────────────────
+
+// GET /api/merchants/:id/data-sources/status
+router.get('/:id/data-sources/status', validateObjectId, getDataSourceStatus);
+
+// POST /api/merchants/:id/data-sources/simulate-link
+router.post('/:id/data-sources/simulate-link', validateObjectId, simulateDataSourceLink);
 
 // POST /api/merchants/:id/simulate/:scenario - Demo & evaluation triggers
 router.post('/:id/simulate/:scenario', validateObjectId, runScenario);

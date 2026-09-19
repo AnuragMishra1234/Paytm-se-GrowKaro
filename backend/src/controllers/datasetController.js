@@ -83,13 +83,23 @@ const analyzeDataset = async (req, res, next) => {
     // 3. Calculate Deterministic Analytics
     const analyticsSummary = datasetParserService.computeDeterministicAnalytics(validTransactions);
 
-    // 4. Calculate Customer Intelligence & Loyalty Opportunities
+    // 4. Determine Data Completeness & Confidence
+    const hasProductData = Boolean(
+      columnMapping.product &&
+      validTransactions.some((tx) => tx.product && tx.product !== 'General Item')
+    );
+    const dataConfidence = hasProductData ? 'HIGH' : 'LOW';
+    const limitationDisclaimer = hasProductData
+      ? null
+      : 'Product-level insights unavailable because the uploaded dataset does not contain item-level order data.';
+
+    // 5. Calculate Customer Intelligence & Loyalty Opportunities
     const customerIntelligence = datasetParserService.computeCustomerIntelligence(validTransactions);
 
-    // 5. Generate Grounded AI Insights
-    const insights = await datasetParserService.generateRealDataInsights(analyticsSummary, customerIntelligence);
+    // 6. Generate Grounded AI Insights
+    const insights = await datasetParserService.generateRealDataInsights(analyticsSummary, customerIntelligence, hasProductData);
 
-    // 6. Create Isolated DatasetSession
+    // 7. Create Isolated DatasetSession
     const sessionId = `ds_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const session = await DatasetSession.create({
       sessionId,
@@ -104,6 +114,9 @@ const analyzeDataset = async (req, res, next) => {
       insights,
       customerProfiles: customerIntelligence.customerProfiles || [],
       hasCustomerIdentifiers: customerIntelligence.hasCustomerIdentifiers,
+      hasProductData,
+      dataConfidence,
+      limitationDisclaimer,
     });
 
     res.status(201).json({
@@ -117,6 +130,9 @@ const analyzeDataset = async (req, res, next) => {
         insights: session.insights,
         customerIntelligence,
         hasCustomerIdentifiers: session.hasCustomerIdentifiers,
+        hasProductData: session.hasProductData,
+        dataConfidence: session.dataConfidence,
+        limitationDisclaimer: session.limitationDisclaimer,
       },
     });
   } catch (err) {
@@ -144,6 +160,9 @@ const getDatasetSession = async (req, res, next) => {
         insights: session.insights,
         customerProfiles: session.customerProfiles,
         hasCustomerIdentifiers: session.hasCustomerIdentifiers,
+        hasProductData: session.hasProductData !== false,
+        dataConfidence: session.dataConfidence || (session.hasProductData !== false ? 'HIGH' : 'LOW'),
+        limitationDisclaimer: session.limitationDisclaimer || (session.hasProductData === false ? 'Product-level insights unavailable because the uploaded dataset does not contain item-level order data.' : null),
         uploadedAt: session.createdAt,
       },
     });

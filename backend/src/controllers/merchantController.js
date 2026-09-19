@@ -11,6 +11,8 @@ const analyticsService = require('../services/analyticsService');
 const recommendationService = require('../services/recommendationService');
 const memoryService = require('../services/memoryService');
 const contextService = require('../services/contextService');
+const briefService = require('../services/briefService');
+const dataSourceService = require('../services/dataSourceService');
 
 /**
  * GET /api/merchants
@@ -546,6 +548,93 @@ const getMerchantActivity = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/merchants/:id/briefs/daily
+ * Get or dynamically generate today's Daily Business Brief
+ */
+const getDailyBrief = async (req, res, next) => {
+  try {
+    const merchantId = req.params.id;
+    const forceRefresh = req.query.forceRefresh === 'true' || req.method === 'POST';
+    const brief = await briefService.getOrGenerateDailyBrief(merchantId, forceRefresh);
+    res.json({ success: true, data: brief });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * GET /api/merchants/:id/briefs/weekly
+ * Get or dynamically generate the Weekly Business Review
+ */
+const getWeeklyReview = async (req, res, next) => {
+  try {
+    const merchantId = req.params.id;
+    const forceRefresh = req.query.forceRefresh === 'true' || req.method === 'POST';
+    const review = await briefService.getOrGenerateWeeklyReview(merchantId, forceRefresh);
+    res.json({ success: true, data: review });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * GET /api/merchants/:id/data-sources/status
+ * Get multi-source linking ratio, confidence tier, and honesty disclaimer
+ */
+const getDataSourceStatus = async (req, res, next) => {
+  try {
+    const merchantId = req.params.id;
+    const status = await dataSourceService.getDataSourceStatus(merchantId);
+    res.json({ success: true, data: status });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/merchants/:id/data-sources/simulate-link
+ * Ingest sample POS order items and reconcile with Paytm payments to demonstrate link progression
+ */
+const simulateDataSourceLink = async (req, res, next) => {
+  try {
+    const merchantId = req.params.id;
+    const unlinked = await Transaction.find({
+      merchantId,
+      sourceType: 'PAYMENT',
+    }).limit(5);
+
+    let linkedCount = 0;
+    for (const tx of unlinked) {
+      const orderId = tx.externalOrderId || `POS-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+      tx.externalOrderId = orderId;
+      tx.sourceType = 'UNIFIED_LINKED';
+      tx.dataConfidence = 'HIGH';
+      tx.productInfoStatus = 'AVAILABLE';
+      if (!tx.items || tx.items.length === 0) {
+        tx.items = [
+          { name: 'Cold Brew Coffee', quantity: 1, price: 220, category: 'Beverages' },
+          { name: 'Butter Croissant', quantity: 1, price: 140, category: 'Food' },
+        ];
+      }
+      await tx.save();
+      linkedCount++;
+    }
+
+    const updatedStatus = await dataSourceService.getDataSourceStatus(merchantId);
+    res.json({
+      success: true,
+      data: {
+        linkedCount,
+        message: `Linked ${linkedCount} Paytm payment transactions with itemized POS billing tickets.`,
+        status: updatedStatus,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getAllMerchants,
   getMerchant,
@@ -562,4 +651,8 @@ module.exports = {
   addMerchantMemory,
   getMerchantContext,
   getMerchantActivity,
+  getDailyBrief,
+  getWeeklyReview,
+  getDataSourceStatus,
+  simulateDataSourceLink,
 };

@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 /**
  * Insight Model
@@ -30,9 +30,17 @@ const insightSchema = new mongoose.Schema(
         'PRODUCT_GROWTH',
         'PRODUCT_DECLINE',
         'CUSTOMER_INACTIVITY',
+        'CUSTOMER_CHURN_RISK',
+        'LOYAL_CUSTOMER_OPPORTUNITY',
         'REPEAT_CUSTOMER_OPP',
+        'LOW_REPEAT_RATE',
+        'WEAK_TIME_PERIOD',
+        'STRONG_TIME_PERIOD',
+        'UNUSUAL_TRANSACTION_PATTERN',
+        'CAMPAIGN_RESULT',
         'INVENTORY_WARNING',
         'EXTERNAL_CONTEXT',
+        'EXTERNAL_CONTEXT_OPPORTUNITY',
       ],
     },
     severity: {
@@ -42,13 +50,43 @@ const insightSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['ACT_NOW', 'OPPORTUNITY', 'WARNING', 'POSITIVE_TREND'],
+      enum: ['ACT_NOW', 'OPPORTUNITY', 'WARNING', 'POSITIVE_TREND', 'CONTEXT'],
       required: true,
       index: true,
     },
     title: {
       type: String,
       required: true,
+    },
+    whatHappened: {
+      type: String,
+      default: '',
+    },
+    whyItMatters: {
+      type: String,
+      default: '',
+    },
+    whatToDo: {
+      type: String,
+      default: '',
+    },
+    recommendedAction: {
+      type: String,
+      default: '',
+    },
+    comparisonPeriod: {
+      type: String,
+      default: 'vs. baseline',
+    },
+    confidence: {
+      type: String,
+      enum: ['HIGH', 'MEDIUM', 'LOW'],
+      default: 'HIGH',
+      index: true,
+    },
+    dataSource: {
+      type: String,
+      default: 'PAYTM_LINKED_POS',
     },
     metric: {
       type: String,
@@ -114,5 +152,6 @@ const insightSchema = new mongoose.Schema(
 
 insightSchema.index({ merchantId: 1, priorityScore: -1 });
 insightSchema.index({ merchantId: 1, category: 1 });
+insightSchema.index({ merchantId: 1, confidence: 1 });
 
 module.exports = mongoose.model('Insight', insightSchema);

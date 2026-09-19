@@ -439,7 +439,7 @@ class DatasetParserService {
   /**
    * Deterministic & Groq-Reasoned Real-Data Insights
    */
-  async generateRealDataInsights(analytics, customerIntelligence) {
+  async generateRealDataInsights(analytics, customerIntelligence, hasProductData = true) {
     const insights = [];
 
     // 1. Weak Hours Insight
@@ -468,8 +468,8 @@ class DatasetParserService {
       }
     }
 
-    // 2. Product Concentration Insight
-    if (analytics.topProducts && analytics.topProducts.length >= 2) {
+    // 2. Product Concentration Insight (Only if real product data exists)
+    if (hasProductData && analytics.topProducts && analytics.topProducts.length >= 2) {
       const top2Rev = (analytics.topProducts[0]?.revenue || 0) + (analytics.topProducts[1]?.revenue || 0);
       const sharePct = Math.round((top2Rev / (analytics.totalRevenue || 1)) * 100);
       if (sharePct >= 30) {
@@ -488,6 +488,21 @@ class DatasetParserService {
           recommendation: `Pair "${analytics.topProducts[0]?.name}" with complementary slower-moving inventory in a combo package to lift average order value.`,
         });
       }
+    } else if (!hasProductData) {
+      insights.push({
+        type: 'DATA_SOURCE_LIMITATION',
+        title: 'Data Limitation: Item-Level Order Data Unavailable',
+        category: 'WARNING',
+        severity: 'LOW',
+        description: 'Product-level insights unavailable because the uploaded dataset does not contain item-level order data.',
+        metric: 'data_confidence',
+        evidence: [
+          'Dataset contains payment totals and timestamps but lacks product or SKU columns.',
+          'Overall revenue, peak hours, and customer trends remain fully accurate.',
+          'Product and basket-level recommendations are withheld to prevent AI hallucinations.',
+        ],
+        recommendation: 'To unlock product mix and combo recommendations, upload or link itemized POS order tickets.',
+      });
     }
 
     // 3. Customer Loyalty / Repeat Insight
@@ -519,6 +534,7 @@ class DatasetParserService {
    * Answers queries strictly grounded in the pre-computed dataset facts.
    */
   async queryDatasetCopilot(session, query) {
+    const hasProductData = session.hasProductData !== false;
     const facts = {
       fileName: session.fileName,
       totalRevenue: session.qualitySummary?.totalRevenue,
@@ -526,7 +542,10 @@ class DatasetParserService {
       aov: session.analyticsSummary?.aov,
       peakHours: session.analyticsSummary?.peakHours,
       weakHours: session.analyticsSummary?.weakHours,
-      topProducts: session.analyticsSummary?.topProducts?.slice(0, 5),
+      topProducts: hasProductData ? session.analyticsSummary?.topProducts?.slice(0, 5) : [],
+      hasProductData,
+      dataConfidence: session.dataConfidence || (hasProductData ? 'HIGH' : 'LOW'),
+      limitationDisclaimer: session.limitationDisclaimer || (hasProductData ? null : 'Product-level insights unavailable because the uploaded dataset does not contain item-level order data.'),
       hasCustomerData: session.hasCustomerIdentifiers,
       totalCustomers: session.customerProfiles?.length || 0,
       repeatRate: session.qualitySummary?.repeatRate || (session.customerProfiles?.length ? Math.round((session.customerProfiles.filter(p => p.totalVisits >= 2).length / session.customerProfiles.length) * 100) : null),
@@ -592,13 +611,17 @@ ${JSON.stringify(facts, null, 2)}`,
         answer += `\n\n• **Customer Identification**: Customer-level personalization and loyalty metrics require a Customer ID column in the uploaded dataset.`;
       }
     } else if (q.includes('product') || q.includes('promote') || q.includes('grow') || q.includes('sell')) {
-      answer += `\n\n• **Top Selling Products**:\n`;
-      facts.topProducts?.forEach((p) => {
-        answer += `  - **${p.name}**: ₹${p.revenue?.toLocaleString()} (${p.count} orders).\n`;
-      });
-      answer += `\n• **Recommendation**: Create a combo pairing your top seller with complementary items to increase Average Order Value (currently ₹${facts.aov}).`;
+      if (facts.hasProductData && facts.topProducts?.length > 0) {
+        answer += `\n\n• **Top Selling Products**:\n`;
+        facts.topProducts.forEach((p) => {
+          answer += `  - **${p.name}**: ₹${p.revenue?.toLocaleString()} (${p.count} orders).\n`;
+        });
+        answer += `\n• **Recommendation**: Create a combo pairing your top seller with complementary items to increase Average Order Value (currently ₹${facts.aov}).`;
+      } else {
+        answer += `\n\n• **Product Intelligence**: Product-level insights unavailable because the uploaded dataset does not contain item-level order data. Only transaction revenue and timing are analyzed.`;
+      }
     } else {
-      answer += `\n\n• **Total Revenue**: ₹${facts.totalRevenue?.toLocaleString()}\n• **Average Order Value (AOV)**: ₹${facts.aov}\n• **Total Transactions**: ${facts.validTransactions?.toLocaleString()}\n• **Top Product**: ${facts.topProducts?.[0]?.name || 'N/A'}`;
+      answer += `\n\n• **Total Revenue**: ₹${facts.totalRevenue?.toLocaleString()}\n• **Average Order Value (AOV)**: ₹${facts.aov}\n• **Total Transactions**: ${facts.validTransactions?.toLocaleString()}\n• **Top Product**: ${facts.hasProductData ? (facts.topProducts?.[0]?.name || 'N/A') : 'Unavailable (Payment-only data)'}`;
     }
 
     return {
