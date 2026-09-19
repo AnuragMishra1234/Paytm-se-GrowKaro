@@ -139,10 +139,15 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
                   <span>{item}</span>
                 </li>
               ))}
-              {insight.externalContext?.summary && (
+              {Boolean(typeof insight.externalContext === "string" ? insight.externalContext : insight.externalContext?.summary) && (
                 <li className="flex items-start gap-2 text-blue-950 font-semibold">
                   <span className="text-blue-600 font-bold shrink-0">☁️</span>
-                  <span>External Context: {insight.externalContext.summary}</span>
+                  <span>
+                    External Context:{" "}
+                    {typeof insight.externalContext === "string"
+                      ? insight.externalContext
+                      : insight.externalContext?.summary}
+                  </span>
                 </li>
               )}
             </ul>

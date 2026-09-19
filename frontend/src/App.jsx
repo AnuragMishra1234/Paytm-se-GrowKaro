@@ -20,6 +20,8 @@ import Tasks from "./pages/Tasks";
 import EmployeeWorkspace from "./pages/EmployeeWorkspace";
 import RealDataTesting from "./pages/RealDataTesting";
 
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
 /**
  * App.jsx — Root router
  * - / : High-impact Paytm for Business-style Landing Page
@@ -30,10 +32,11 @@ import RealDataTesting from "./pages/RealDataTesting";
  */
 function App() {
   return (
-    <MerchantProvider>
-      <TeamProvider>
-        <BrowserRouter>
-          <Routes>
+    <ErrorBoundary>
+      <MerchantProvider>
+        <TeamProvider>
+          <BrowserRouter>
+            <Routes>
             {/* Landing Page (Paytm for Business template) */}
             <Route path="/" element={<Landing />} />
 
@@ -74,6 +77,7 @@ function App() {
         </BrowserRouter>
       </TeamProvider>
     </MerchantProvider>
+  </ErrorBoundary>
   );
 }
 

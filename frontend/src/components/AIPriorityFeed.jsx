@@ -54,6 +54,15 @@ const confidenceMeta = {
   },
 };
 
+const getContextText = (ctx) => {
+  if (!ctx) return null;
+  if (typeof ctx === "string") return ctx.trim() || null;
+  if (typeof ctx === "object") {
+    return (ctx.summary || ctx.note || "").trim() || null;
+  }
+  return null;
+};
+
 export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = null, onRefresh = null }) {
   const { merchant } = useMerchantContext();
   const [activeTab, setActiveTab] = useState("noticed"); // 'noticed' | 'daily' | 'weekly'
@@ -315,9 +324,9 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                   )}
 
                   {/* 4. External Context (Weather/Non-Causal) */}
-                  {item.externalContext && (
+                  {getContextText(item.externalContext) && (
                     <div className="bg-sky-50/80 border border-sky-200 rounded-xl p-2.5 text-xs text-sky-950">
-                      <span className="font-bold">☁️ External Context:</span> {item.externalContext}
+                      <span className="font-bold">☁️ External Context:</span> {getContextText(item.externalContext)}
                     </div>
                   )}
 
@@ -563,7 +572,7 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                     </div>
                     <div className="text-amber-800 font-medium">
                       <strong>Declining / Lull:</strong>{" "}
-                      {weeklyData.decliningProducts?.map((p) => `${p.name} (↓${p.dropPct}%)`).join(", ") || "None"}
+                      {weeklyData.decliningProducts?.map((p) => typeof p === "string" ? p : `${p.name} (↓${Math.abs(p.change || p.dropPct || 0)}%)`).join(", ") || "None"}
                     </div>
                   </div>
                 </div>
@@ -572,20 +581,20 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                   <div className="font-bold text-gray-900 uppercase">Peak vs Weak Hours:</div>
                   <div className="space-y-1">
                     <div className="text-blue-800 font-medium">
-                      <strong>Peak Windows:</strong> {weeklyData.peakHours?.join(", ") || "5 PM - 8 PM"}
+                      <strong>Peak Windows:</strong> {Array.isArray(weeklyData.peakHours) ? weeklyData.peakHours.join(", ") : (weeklyData.peakHours || "5 PM - 8 PM")}
                     </div>
                     <div className="text-rose-800 font-medium">
-                      <strong>Slow Windows:</strong> {weeklyData.weakHours?.join(", ") || "2 PM - 4 PM"}
+                      <strong>Slow Windows:</strong> {Array.isArray(weeklyData.weakHours) ? weeklyData.weakHours.join(", ") : (weeklyData.weakHours || "2 PM - 4 PM")}
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* External Context Summary */}
-              {weeklyData.externalContextSummary && (
+              {getContextText(weeklyData.externalContextSummary) && (
                 <div className="bg-sky-50/90 border border-sky-200 rounded-xl p-3 text-xs text-sky-950">
                   <span className="font-bold">☁️ Weather &amp; Footfall Observation:</span>{" "}
-                  {weeklyData.externalContextSummary}
+                  {getContextText(weeklyData.externalContextSummary)}
                 </div>
               )}
 
@@ -667,11 +676,11 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
             )}
 
             {/* External Context */}
-            {selectedInsight.externalContext && (
+            {getContextText(selectedInsight.externalContext) && (
               <div>
                 <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">External Context</h4>
                 <p className="text-xs text-sky-800 leading-relaxed bg-sky-50 p-3 rounded-lg border border-sky-200">
-                  {selectedInsight.externalContext}
+                  {getContextText(selectedInsight.externalContext)}
                 </p>
               </div>
             )}
