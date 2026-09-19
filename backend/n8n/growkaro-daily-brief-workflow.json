@@ -1,0 +1,67 @@
+﻿{
+  "name": "GrowKaro — Daily Business Brief Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Daily Morning Schedule (8 AM IST)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5000/api/merchants",
+        "options": {}
+      },
+      "name": "Fetch All Active Merchants",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:5000/api/ai/brief/{{$json[\"_id\"]}}",
+        "options": {}
+      },
+      "name": "Generate Merchant Brief",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Daily Morning Schedule (8 AM IST)": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Active Merchants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Active Merchants": {
+      "main": [
+        [
+          {
+            "node": "Generate Merchant Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

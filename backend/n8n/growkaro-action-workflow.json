@@ -1,0 +1,91 @@
+﻿{
+  "name": "GrowKaro — Action Execution Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "growkaro-action",
+        "options": {}
+      },
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"Webhook Trigger\"].json[\"body\"][\"type\"]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "Validate Action Payload",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Transform payload into channel-specific delivery format\nconst body = items[0].json.body;\nreturn [{\n  json: {\n    actionId: body.actionId,\n    merchantId: body.merchantId,\n    channel: body.channel,\n    message: body.payload.body,\n    headline: body.payload.headline,\n    cta: body.payload.cta,\n    offer: body.payload.offer,\n    audience: body.targetAudience,\n    timestamp: new Date().toISOString(),\n    status: 'SUCCESS'\n  }\n}];"
+      },
+      "name": "Format Channel Dispatch",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [720, 200]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "={{$node[\"Webhook Trigger\"].json[\"body\"][\"callbackUrl\"]}}",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{JSON.stringify({\n  actionId: $json[\"actionId\"],\n  executionId: $executionId,\n  status: 'SUCCESS',\n  message: 'n8n workflow executed successfully'\n})}}"
+      },
+      "name": "Report Status to GrowKaro",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [950, 200]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Action Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Action Payload": {
+      "main": [
+        [
+          {
+            "node": "Format Channel Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Channel Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Report Status to GrowKaro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}
