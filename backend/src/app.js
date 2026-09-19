@@ -23,6 +23,8 @@ app.get('/health', (req, res) => {
 const notificationRoutes = require('./routes/notifications');
 const demoRoutes = require('./routes/demo');
 const paytmRoutes = require('./routes/paytm');
+const customerOfferRoutes = require('./routes/customerOffers');
+const customerOfferService = require('./services/customerOfferService');
 
 // Routes
 app.use('/api/merchants', merchantRoutes);
@@ -32,6 +34,17 @@ app.use('/api/n8n', n8nRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/demo', demoRoutes);
 app.use('/api/paytm', paytmRoutes);
+app.use('/api/customer-offers', customerOfferRoutes);
+
+// GET /api/customers/:customerId/offers
+app.get('/api/customers/:customerId/offers', async (req, res, next) => {
+  try {
+    const offers = await customerOfferService.getCustomerOffers(req.params.customerId);
+    return res.json({ success: true, data: offers });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Error handling
 app.use(notFound);

@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 /**
  * Customer Model
@@ -56,6 +56,18 @@ const customerSchema = new mongoose.Schema(
       default: 'new',
     },
     averageOrderValue: {
+      type: Number,
+      default: 0,
+    },
+    telegramChatId: {
+      type: String,
+      default: '',
+    },
+    favoriteProduct: {
+      type: String,
+      default: '',
+    },
+    averageVisitGapDays: {
       type: Number,
       default: 0,
     },

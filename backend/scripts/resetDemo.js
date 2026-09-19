@@ -10,7 +10,9 @@ const Outcome = require('../src/models/Outcome');
 const Notification = require('../src/models/Notification');
 const Memory = require('../src/models/Memory');
 const DailyBrief = require('../src/models/DailyBrief');
+const CustomerOffer = require('../src/models/CustomerOffer');
 const telemetrySyncService = require('../src/services/telemetrySyncService');
+const customerOfferService = require('../src/services/customerOfferService');
 
 /**
  * resetDemo.js — Controlled Clean Presentation Reset
@@ -59,6 +61,7 @@ async function resetDemoData() {
     const delNotifs = await Notification.deleteMany({ merchantId: cafe._id });
     const delInsights = await Insight.deleteMany({ merchantId: cafe._id });
     const delBriefs = await DailyBrief.deleteMany({ merchantId: cafe._id });
+    const delOffers = await CustomerOffer.deleteMany({ merchantId: cafe._id });
     await Memory.deleteMany({
       merchantId: cafe._id,
       type: { $in: ['past_outcome', 'preference'] },
@@ -69,6 +72,7 @@ async function resetDemoData() {
     console.log(`   Removed ${delOutcomes.deletedCount} old outcomes`);
     console.log(`   Removed ${delNotifs.deletedCount} old notifications`);
     console.log(`   Removed ${delInsights.deletedCount} old insights`);
+    console.log(`   Removed ${delOffers.deletedCount} old customer offers`);
 
     // 2. Create the ONE historical completed campaign with measured outcome
     console.log('\n--- Seeding 1 clean historical completed campaign ---');
@@ -338,6 +342,11 @@ async function resetDemoData() {
     console.log(`   ✓ Created active Insight: "${activeInsight.title}"`);
     console.log(`   ✓ Created pending Action Draft: "${activeAction.title}" (ID: ${activeAction._id})`);
     console.log(`   ✓ Created Notification: "${activeNotif.title}" (Bell count: 1)`);
+
+    // 5. Detect and initialize personalized customer win-back opportunities (Rahul)
+    console.log('\n--- Evaluating Customer Opportunities (Win-Back Detection) ---');
+    const winbackResult = await customerOfferService.detectAndCreateCustomerOffers(cafe._id);
+    console.log(`   ✓ Customer opportunities generated: ${winbackResult.created} (Scanned: ${winbackResult.scanned})`);
 
     console.log('\n================================================================');
     console.log('🎉 DEMO RESET COMPLETE!');

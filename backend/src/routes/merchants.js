@@ -112,4 +112,24 @@ router.post('/:id/brief/generate', (req, res, next) => {
 // POST /api/merchants/:id/simulate/:scenario - Demo & evaluation triggers
 router.post('/:id/simulate/:scenario', validateObjectId, runScenario);
 
+// ─── Customer Opportunities & Win-Back Offers ─────────────────────────────
+const customerOfferService = require('../services/customerOfferService');
+
+router.get('/:id/customer-opportunities', validateObjectId, async (req, res, next) => {
+  try {
+    const merchantId = req.params.id;
+    let offers = await customerOfferService.getMerchantCustomerOffers(merchantId);
+
+    // Auto-detect if no offers exist yet for this merchant
+    if (offers.length === 0) {
+      await customerOfferService.detectAndCreateCustomerOffers(merchantId);
+      offers = await customerOfferService.getMerchantCustomerOffers(merchantId);
+    }
+
+    return res.json({ success: true, data: offers });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

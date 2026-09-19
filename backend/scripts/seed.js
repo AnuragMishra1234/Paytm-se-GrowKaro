@@ -386,9 +386,63 @@ const seedDatabase = async (disconnectAfter = false) => {
 
   console.log('Generating seed data for Cafe Aroma...');
   const cafeCustomers = generateCustomers(cafe._id, 40, 0.65);
+
+  // Configure Rahul as the canonical win-back demo customer for Cafe Aroma
+  const rahul = cafeCustomers[0];
+  rahul.displayName = 'Rahul';
+  rahul.phone = '+91 98765 43210';
+  rahul.telegramChatId = process.env.DEMO_TELEGRAM_CHAT_ID || 'demo_rahul_telegram_chat';
+  rahul.favoriteProduct = 'Cold Brew Coffee';
+
   const cafeProductDocs = cafeProducts.map((p) => ({ ...p, merchantId: cafe._id, _id: new mongoose.Types.ObjectId() }));
-  const cafeTxs = generateTransactions(cafe._id, cafeCustomers, cafeProducts, 90, cafeWeekdayWeight, cafeHourWeight, 22);
+  let cafeTxs = generateTransactions(cafe._id, cafeCustomers, cafeProducts, 90, cafeWeekdayWeight, cafeHourWeight, 22);
+
+  // Filter out random transactions for Rahul and inject the canonical 14 visits
+  cafeTxs = cafeTxs.filter((tx) => tx.customerId?.toString() !== rahul._id.toString());
+  const rahulVisitDays = [82, 77, 72, 67, 62, 57, 52, 47, 42, 37, 32, 27, 22, 17];
+  const amounts = [230, 230, 235, 230, 235, 230, 230, 235, 230, 230, 235, 230, 230, 230];
+  const rahulTxs = rahulVisitDays.map((daysAgo, idx) => {
+    const txDate = new Date();
+    txDate.setDate(txDate.getDate() - daysAgo);
+    txDate.setHours(15, 30, 0, 0);
+    return {
+      _id: new mongoose.Types.ObjectId(),
+      merchantId: cafe._id,
+      customerId: rahul._id,
+      amount: amounts[idx],
+      timestamp: txDate,
+      paymentStatus: 'completed',
+      paymentMethod: 'upi',
+      category: 'beverages',
+      items: [
+        {
+          name: 'Cold Brew Coffee',
+          category: 'beverages',
+          quantity: 1,
+          unitPrice: 160,
+          totalPrice: 160,
+        },
+        {
+          name: 'Croissant',
+          category: 'food',
+          quantity: 1,
+          unitPrice: amounts[idx] - 160,
+          totalPrice: amounts[idx] - 160,
+        },
+      ],
+    };
+  });
+
+  cafeTxs.push(...rahulTxs);
   assignSegmentsAndStats(cafeCustomers, cafeProductDocs, cafeTxs);
+
+  rahul.totalTransactions = 14;
+  rahul.totalSpend = 3240;
+  rahul.averageOrderValue = Math.round(3240 / 14);
+  rahul.lastTransactionAt = rahulTxs[13].timestamp;
+  rahul.firstTransactionAt = rahulTxs[0].timestamp;
+  rahul.customerSegment = 'repeat';
+  rahul.averageVisitGapDays = 5;
 
   console.log('Generating seed data for Fresh Kirana...');
   seed = 137; // reset seed for variety

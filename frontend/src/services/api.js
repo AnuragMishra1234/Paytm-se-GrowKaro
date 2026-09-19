@@ -156,4 +156,24 @@ export const fetchDemoStatus = () =>
 // ─── Paytm Connection Telemetry API ───────────────────────────────────────
 
 export const fetchPaytmStatus = () =>
-  client.get("/api/paytm/status");
+  client.get("/api/paytm/status");
+
+// ─── Personalized Customer Win-Back Offers APIs ──────────────────────────
+
+export const fetchCustomerOpportunities = (merchantId) =>
+  client.get(`/api/merchants/${merchantId}/customer-opportunities`);
+
+export const triggerCustomerOpportunityDetect = (merchantId) =>
+  client.post("/api/customer-offers/detect", { merchantId });
+
+export const approveCustomerOffer = (offerId, merchantId) =>
+  client.post(`/api/customer-offers/${offerId}/approve`, { merchantId });
+
+export const rejectCustomerOffer = (offerId, merchantId, reason) =>
+  client.post(`/api/customer-offers/${offerId}/reject`, { merchantId, reason });
+
+export const editCustomerOffer = (offerId, merchantId, payload) =>
+  client.post(`/api/customer-offers/${offerId}/edit`, { merchantId, ...payload });
+
+export const recordCustomerOfferOutcome = (offerId, payload) =>
+  client.post(`/api/customer-offers/${offerId}/outcome`, payload);

@@ -1,0 +1,120 @@
+{
+  "name": "GrowKaro — Customer Win-Back Personalized Dispatch",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "growkaro-customer-winback",
+        "options": {}
+      },
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "growkaro-customer-winback-hook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.status}}",
+              "value2": "APPROVED"
+            },
+            {
+              "value1": "={{$json.body.offerType}}",
+              "value2": "WIN_BACK"
+            }
+          ],
+          "boolean": [
+            {
+              "value1": "={{Boolean($json.body.targetTelegramChatId && $json.body.customerId && $json.body.offerId)}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Validate 1-to-1 Target & Approval Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.body.targetTelegramChatId}}",
+        "text": "={{$json.body.messageText}}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "name": "Send 1-to-1 Telegram Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "={{$json.body.callbackUrl}}",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\n  \"offerId\": \"{{$json.body.offerId}}\",\n  \"status\": \"SENT\",\n  \"deliveryMode\": \"real\",\n  \"deliveryTimestamp\": \"{{new Date().toISOString()}}\"\n}"
+      },
+      "name": "Callback to GrowKaro API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [940, 200]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Validation failed: Offer is not APPROVED or target individual Telegram chat ID is missing."
+      },
+      "name": "Reject Unauthorized Dispatch",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [700, 420]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate 1-to-1 Target & Approval Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate 1-to-1 Target & Approval Gate": {
+      "main": [
+        [
+          {
+            "node": "Send 1-to-1 Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject Unauthorized Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send 1-to-1 Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Callback to GrowKaro API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

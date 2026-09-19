@@ -11,6 +11,7 @@ import { getBusinessTypeInfo, formatDate } from "../utils/formatters";
 import { fetchDailyBrief, triggerAnalysis } from "../services/api";
 import { useOutcomes } from "../hooks/useOutcomes";
 import { Link } from "react-router-dom";
+import CustomerOpportunities from "../components/CustomerOpportunities";
 
 const PERIOD_OPTIONS = [
   { label: "7 days", value: 7 },
@@ -141,6 +142,12 @@ export default function Dashboard() {
           />
         </div>
       </div>
+
+      {/* Personalized Customer Win-Back Opportunities */}
+      <CustomerOpportunities
+        merchantId={merchant?._id}
+        merchantName={merchant?.businessName}
+      />
 
       {/* Phase 4: Recent Action Results & What GrowKaro Has Learned */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
