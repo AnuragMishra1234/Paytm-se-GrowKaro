@@ -1,8 +1,9 @@
-﻿{
+{
   "name": "growkaro",
   "version": "1.0.0",
   "description": "GrowKaro - AI Business Partner for Merchants",
   "scripts": {
+    "build": "cd frontend && npm install && npm run build",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "seed": "cd backend && npm run seed",
