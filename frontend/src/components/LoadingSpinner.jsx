@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 export function LoadingSpinner({ size = "md", message = "Loading..." }) {
   const sizes = { sm: "h-4 w-4", md: "h-8 w-8", lg: "h-12 w-12" };
@@ -23,7 +23,7 @@ export function SkeletonCard() {
 export function ErrorState({ message, onRetry }) {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-16">
-      <div className="text-4xl">⚠️</div>
+      <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-xl">!</div>
       <div className="text-center">
         <p className="text-gray-900 font-medium">Something went wrong</p>
         <p className="text-sm text-gray-500 mt-1">{message}</p>
@@ -37,10 +37,10 @@ export function ErrorState({ message, onRetry }) {
   );
 }
 
-export function EmptyState({ message = "No data available", icon = "📊" }) {
+export function EmptyState({ message = "No data available", icon = null }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12">
-      <div className="text-4xl">{icon}</div>
+      {icon && <div className="text-2xl">{icon}</div>}
       <p className="text-gray-500 text-sm">{message}</p>
     </div>
   );

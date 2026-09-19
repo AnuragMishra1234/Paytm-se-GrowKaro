@@ -115,7 +115,6 @@ export default function Performance() {
           <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Campaigns Measured</p>
           <div className="flex items-center justify-between mt-1.5">
             <span className="text-3xl font-black text-emerald-600">{totalMeasured}</span>
-            <span className="text-2xl">📊</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Deterministic before/after evaluation</p>
         </div>
@@ -124,7 +123,6 @@ export default function Performance() {
           <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Avg Observed Lift</p>
           <div className="flex items-center justify-between mt-1.5">
             <span className="text-3xl font-black text-blue-600">+{avgLift}%</span>
-            <span className="text-2xl">📈</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Observed post-action change</p>
         </div>
@@ -137,7 +135,6 @@ export default function Performance() {
                 memoryMatrix.merchantPreferences.length +
                 memoryMatrix.trafficPatterns.length}
             </span>
-            <span className="text-2xl">🧠</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Active in Cognee / MongoDB</p>
         </div>
@@ -148,7 +145,6 @@ export default function Performance() {
             <span className="text-sm md:text-base font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200">
               Active &amp; Adapting
             </span>
-            <span className="text-2xl">⚡</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Grounded in Groq reasoning</p>
         </div>
@@ -159,7 +155,6 @@ export default function Performance() {
         <div className="card p-6 border-2 border-dashed border-blue-300 bg-blue-50/40 space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <span className="text-xl">⚡</span>
               <h3 className="font-bold text-base md:text-lg text-blue-950">
                 Executed Campaigns Awaiting Measurement ({unmeasuredActions.length})
               </h3>
@@ -185,7 +180,7 @@ export default function Performance() {
                   disabled={measuring || measuringId === act._id}
                   className="btn-primary text-sm py-2 px-4 whitespace-nowrap shadow-sm font-bold"
                 >
-                  {measuringId === act._id ? "Calculating..." : "Measure Outcome 📊"}
+                  {measuringId === act._id ? "Calculating..." : "Measure Outcome"}
                 </button>
               </div>
             ))}
@@ -222,7 +217,6 @@ export default function Performance() {
         <div className="space-y-4">
           {outcomes.length === 0 ? (
             <div className="card p-12 text-center text-gray-400 space-y-3">
-              <span className="text-5xl">📈</span>
               <p className="font-bold text-lg text-gray-800">No measured outcomes yet</p>
               <p className="text-sm md:text-base text-gray-500">
                 Run an approved action and click "Measure Outcome" to see before/after impact.
@@ -315,7 +309,7 @@ export default function Performance() {
                         {item.interpretation}
                       </p>
                       <div className="flex flex-wrap items-center gap-1.5 text-xs md:text-sm text-emerald-900 font-semibold pt-2 border-t border-emerald-200/80">
-                        <span>🛡️ Non-Causal Attribution Standard:</span>
+                        <span>Non-Causal Attribution Standard:</span>
                         <span className="font-normal text-emerald-800">
                           Calculated directly from merchant transaction delta over {item.measurementWindow}.
                         </span>
@@ -343,7 +337,7 @@ export default function Performance() {
                     <div className="flex items-center justify-between pt-3 border-t text-xs md:text-sm text-gray-500 font-medium">
                       <span>Window: {item.measurementWindow}</span>
                       <span className="text-purple-700 font-bold flex items-center gap-1.5">
-                        <span>🧠 Stored in Business Memory</span>
+                        <span>Stored in Business Memory</span>
                       </span>
                     </div>
                   </div>
@@ -360,7 +354,6 @@ export default function Performance() {
           {/* Proven Tactics */}
           <div className="card p-6 space-y-4">
             <div className="flex items-center gap-2.5 border-b pb-3">
-              <span className="text-2xl">🏆</span>
               <h3 className="font-black text-base md:text-lg text-gray-900">Proven Tactics</h3>
             </div>
             <p className="text-sm text-gray-600 font-medium leading-relaxed">
@@ -397,7 +390,6 @@ export default function Performance() {
           {/* Merchant Preferences & Policies */}
           <div className="card p-6 space-y-4">
             <div className="flex items-center gap-2.5 border-b pb-3">
-              <span className="text-2xl">⚙️</span>
               <h3 className="font-black text-base md:text-lg text-gray-900">Merchant Preferences</h3>
             </div>
             <p className="text-sm text-gray-600 font-medium leading-relaxed">
@@ -434,7 +426,6 @@ export default function Performance() {
           {/* Business & Traffic Patterns */}
           <div className="card p-6 space-y-4">
             <div className="flex items-center gap-2.5 border-b pb-3">
-              <span className="text-2xl">⏱️</span>
               <h3 className="font-black text-base md:text-lg text-gray-900">Operational Patterns</h3>
             </div>
             <p className="text-sm text-gray-600 font-medium leading-relaxed">

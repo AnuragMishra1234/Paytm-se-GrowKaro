@@ -68,38 +68,32 @@ function getNotificationBadge(type, priority) {
   switch (type) {
     case "ACTION_REQUIRED":
       return {
-        icon: "⚡",
         bg: "bg-amber-100 text-amber-900 border-amber-300",
         label: "Requires Approval",
       };
     case "OUTCOME_MEASURED":
     case "OUTCOME_READY":
       return {
-        icon: "📈",
         bg: "bg-emerald-100 text-emerald-900 border-emerald-300",
         label: "Outcome Measured",
       };
     case "ACTION_COMPLETED":
       return {
-        icon: "🚀",
         bg: "bg-blue-100 text-blue-900 border-blue-300",
         label: "Dispatched",
       };
     case "ACTION_FAILED":
       return {
-        icon: "⚠️",
         bg: "bg-rose-100 text-rose-900 border-rose-300",
         label: "Failed",
       };
     case "DAILY_BRIEF":
       return {
-        icon: "☀️",
         bg: "bg-indigo-100 text-indigo-900 border-indigo-300",
         label: "Morning Brief",
       };
     default:
       return {
-        icon: "🔔",
         bg: "bg-gray-100 text-gray-800 border-gray-200",
         label: priority || "Notice",
       };
@@ -297,13 +291,13 @@ export default function NotificationCenter() {
               </div>
               <button
                 onClick={handleTogglePush}
-                className={`text-xs font-bold px-3 py-1 rounded-lg transition-all ${
+                className={`px-3 py-1 rounded-lg font-bold text-xs transition-all ${
                   pushActive
                     ? "bg-emerald-600 text-white shadow-2xs"
                     : "bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
                 }`}
               >
-                {pushActive ? "✓ Active" : "Enable Alerts"}
+                {pushActive ? "Active" : "Enable Alerts"}
               </button>
             </div>
           )}
@@ -353,8 +347,8 @@ export default function NotificationCenter() {
               <div className="py-12 text-center text-sm md:text-base text-gray-400">Loading alerts...</div>
             ) : filteredNotifications.length === 0 ? (
               <div className="py-14 text-center px-6">
-                <div className="w-12 h-12 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3 text-xl">
-                  🔔
+                <div className="w-12 h-12 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3">
+                  <BellIcon className="w-6 h-6" />
                 </div>
                 <h4 className="text-base font-bold text-gray-800">All caught up!</h4>
                 <p className="text-sm text-gray-500 mt-1">
@@ -374,8 +368,8 @@ export default function NotificationCenter() {
                       !n.read ? "bg-blue-50/30 font-medium" : "bg-white text-gray-600"
                     }`}
                   >
-                    {/* Icon */}
-                    <div className="text-2xl shrink-0 mt-0.5">{badge.icon}</div>
+                    {/* Indicator */}
+                    <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${!n.read ? "bg-blue-600" : "bg-transparent"}`} />
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">

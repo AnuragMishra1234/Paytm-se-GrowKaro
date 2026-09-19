@@ -152,3 +152,8 @@ export const resetDemoEnvironment = () =>
 
 export const fetchDemoStatus = () =>
   client.get("/api/demo/status");
+
+// ─── Paytm Connection Telemetry API ───────────────────────────────────────
+
+export const fetchPaytmStatus = () =>
+  client.get("/api/paytm/status");

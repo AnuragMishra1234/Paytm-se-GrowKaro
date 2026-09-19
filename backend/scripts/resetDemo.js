@@ -108,7 +108,7 @@ async function resetDemoData() {
       targetAudience: 'Nearby regular patrons (30 customers)',
       timing: '2:00 PM – 5:00 PM',
       payload: {
-        headline: 'Rainy Day Chai & Samosa Special 🌧️',
+        headline: 'Rainy Day Chai & Samosa Special',
         body: 'Warm up your afternoon! Enjoy our freshly brewed Ginger Chai paired with hot vegetable samosas for just ₹120.',
         offer: '₹120 Monsoon Combo',
         cta: 'Order takeaway or dine in today',
@@ -250,7 +250,7 @@ async function resetDemoData() {
         goal: 'Recover quiet mid-day footfall and lift afternoon revenue towards baseline.',
         suggestedAction: {
           type: 'CAMPAIGN_DRAFT',
-          title: '☕ Afternoon Cold Brew & Pastry Combo',
+          title: 'Afternoon Cold Brew & Pastry Combo',
           details: 'Pair signature Cold Brew with a freshly baked Butter Croissant for ₹199.',
           targetAudience: '25 Repeat & Nearby Customers',
           timing: '2:00 PM – 5:00 PM Today',
@@ -273,12 +273,12 @@ async function resetDemoData() {
       insightId: activeInsight._id,
       type: 'CAMPAIGN_DRAFT',
       channel: 'WHATSAPP',
-      title: '☕ Afternoon Cold Brew & Pastry Combo',
+      title: 'Afternoon Cold Brew & Pastry Combo',
       description: 'Beat the mid-day lull with our refreshing Cold Brew and Croissant combo at a special ₹199 price.',
       targetAudience: '25 Repeat & Nearby Customers',
       timing: '2:00 PM – 5:00 PM Today',
       payload: {
-        headline: 'Beat the Afternoon Slump ☕',
+        headline: 'Beat the Afternoon Slump',
         body: 'Recharge your afternoon! Enjoy our artisan Cold Brew paired with a freshly baked Butter Croissant for just ₹199 today.',
         offer: '₹199 Combo Deal',
         cta: 'Show this message at counter or order online',
@@ -320,7 +320,7 @@ async function resetDemoData() {
     await DailyBrief.create({
       merchantId: cafe._id,
       briefDate: todayStr,
-      summary: `☀️ Good morning, Cafe Aroma! Today's focus: Afternoon revenue is tracking 31% below normal. Cool weather in Bengaluru (21°C). Launching the ₹199 Cold Brew Combo can recover mid-day footfall.`,
+      summary: `Good morning, Cafe Aroma! Today's focus: Afternoon revenue is tracking 31% below normal. Cool weather in Bengaluru (21°C). Launching the ₹199 Cold Brew Combo can recover mid-day footfall.`,
       kpiSummary: {
         todayRevenue: 84500,
         yesterdayRevenue: 78200,

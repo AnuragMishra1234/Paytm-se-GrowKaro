@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 const phaseColors = {
@@ -21,8 +21,8 @@ export default function ComingSoon({ feature = "Feature", phase = 2 }) {
     <div className="flex-1 flex items-center justify-center min-h-full p-8">
       <div className="text-center max-w-md">
         <div className={`inline-flex items-center justify-center w-20 h-20 bg-${color}-100 rounded-2xl mb-6`}>
-          <span className="text-4xl">
-            {phase === 2 ? "🤖" : phase === 3 ? "⚡" : "🎯"}
+          <span className={`text-2xl font-black text-${color}-700`}>
+            P{phase}
           </span>
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">{feature}</h1>

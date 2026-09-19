@@ -7,12 +7,12 @@ import { formatDate } from "../utils/formatters";
 
 const STAGES = [
   { id: "ALL", label: "All Events" },
-  { id: "DETECT", label: "1. Observe & Detect", icon: "🔍" },
-  { id: "RECOMMEND", label: "2. Recommend", icon: "💡" },
-  { id: "APPROVE", label: "3. Merchant Gate", icon: "🛡️" },
-  { id: "ACT", label: "4. n8n Execution", icon: "🚀" },
-  { id: "MEASURE", label: "5. Outcome", icon: "📈" },
-  { id: "LEARN", label: "6. Memory & Learn", icon: "🧠" },
+  { id: "DETECT", label: "1. Observe & Detect" },
+  { id: "RECOMMEND", label: "2. Recommend" },
+  { id: "APPROVE", label: "3. Merchant Gate" },
+  { id: "ACT", label: "4. n8n Execution" },
+  { id: "MEASURE", label: "5. Outcome" },
+  { id: "LEARN", label: "6. Memory & Learn" },
 ];
 
 function resolveActivityLink(link, category) {
@@ -33,49 +33,42 @@ function getCategoryTheme(category) {
       return {
         bg: "bg-purple-50 text-purple-800 border-purple-200",
         dot: "bg-purple-600 ring-purple-100",
-        icon: "🔍",
         label: "DETECT",
       };
     case "RECOMMEND":
       return {
         bg: "bg-amber-50 text-amber-800 border-amber-200",
         dot: "bg-amber-500 ring-amber-100",
-        icon: "💡",
         label: "RECOMMEND",
       };
     case "APPROVE":
       return {
         bg: "bg-blue-50 text-blue-800 border-blue-200",
         dot: "bg-blue-600 ring-blue-100",
-        icon: "🛡️",
         label: "APPROVE",
       };
     case "ACT":
       return {
         bg: "bg-indigo-50 text-indigo-800 border-indigo-200",
         dot: "bg-indigo-600 ring-indigo-100",
-        icon: "🚀",
         label: "ACT",
       };
     case "MEASURE":
       return {
         bg: "bg-emerald-50 text-emerald-800 border-emerald-200",
         dot: "bg-emerald-600 ring-emerald-100",
-        icon: "📈",
         label: "MEASURE",
       };
     case "LEARN":
       return {
         bg: "bg-rose-50 text-rose-800 border-rose-200",
         dot: "bg-rose-600 ring-rose-100",
-        icon: "🧠",
         label: "LEARN",
       };
     default:
       return {
         bg: "bg-gray-100 text-gray-800 border-gray-200",
         dot: "bg-gray-500 ring-gray-100",
-        icon: "📋",
         label: category,
       };
   }
@@ -210,7 +203,6 @@ export default function Activity() {
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
-            {st.icon && <span>{st.icon}</span>}
             <span>{st.label}</span>
           </button>
         ))}
@@ -220,9 +212,6 @@ export default function Activity() {
       <div className="bg-white rounded-3xl border border-gray-200/90 shadow-sm p-6 sm:p-8">
         {filteredEvents.length === 0 ? (
           <div className="py-16 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3 text-2xl">
-              📋
-            </div>
             <h3 className="text-lg font-bold text-gray-900">No events found for this filter</h3>
             <p className="text-sm text-gray-500 mt-1">
               Select "All Events" or trigger a scenario from the Demo Simulator to generate events.
@@ -247,7 +236,6 @@ export default function Activity() {
                         <span
                           className={`text-xs font-black uppercase px-3 py-1 rounded-md border flex items-center gap-1.5 ${theme.bg}`}
                         >
-                          <span>{theme.icon}</span>
                           <span>{theme.label}</span>
                         </span>
                         {ev.status && (

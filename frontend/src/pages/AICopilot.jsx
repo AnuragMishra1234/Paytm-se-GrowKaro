@@ -331,7 +331,7 @@ export default function AICopilot() {
     try {
       await approveAction(voiceConfirmModal._id, { merchantId: merchant._id });
       setVoiceSuccessMsg(
-        `✓ Campaign "${voiceConfirmModal.title}" approved and dispatched via n8n automation.`
+        `Campaign "${voiceConfirmModal.title}" approved and dispatched via n8n automation.`
       );
       const approvedTitle = voiceConfirmModal.title;
       setVoiceConfirmModal(null);
@@ -579,19 +579,19 @@ export default function AICopilot() {
                   onClick={() => { navigate("/analytics"); setMoreMenuOpen(false); }}
                   className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#2f2f2f] transition-colors"
                 >
-                  📊 Business Analytics
+                  Business Analytics
                 </button>
                 <button
                   onClick={() => { navigate("/products"); setMoreMenuOpen(false); }}
                   className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#2f2f2f] transition-colors"
                 >
-                  📦 Products &amp; Inventory
+                  Products &amp; Inventory
                 </button>
                 <button
                   onClick={() => { navigate("/customers"); setMoreMenuOpen(false); }}
                   className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#2f2f2f] transition-colors"
                 >
-                  👥 Customer Clusters
+                  Customer Clusters
                 </button>
               </div>
             )}
@@ -778,7 +778,7 @@ export default function AICopilot() {
                     >
                       {!isUser && (
                         <div className="w-7 h-7 rounded-full bg-[#10a37f] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm mt-0.5">
-                          ✦
+                          AI
                         </div>
                       )}
 
@@ -796,7 +796,7 @@ export default function AICopilot() {
                         {!isUser && msg.facts && msg.facts.length > 0 && (
                           <div className="bg-[#1e1e1e] border border-[#333] rounded-xl p-3 space-y-1 mt-2">
                             <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                              <span>📊 Grounded Business Telemetry &amp; Facts</span>
+                              <span>Grounded Business Telemetry &amp; Facts</span>
                             </div>
                             <ul className="list-disc pl-4 text-xs sm:text-sm text-gray-300 space-y-1">
                               {msg.facts.map((fact, idx) => (
@@ -813,7 +813,7 @@ export default function AICopilot() {
                           <div className="bg-gradient-to-r from-[#1c242e] to-[#1a2b27] border border-emerald-500/30 rounded-xl p-3.5 space-y-2 mt-2 shadow">
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                                💡 Recommended Agentic Action
+                                Recommended Action
                               </span>
                               <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
                                 Ready to Launch
@@ -848,7 +848,7 @@ export default function AICopilot() {
                           <div className="pt-1.5 flex flex-wrap items-center justify-between text-[11px] text-gray-400 border-t border-[#2e2e2e] gap-2">
                             <div className="flex items-center gap-2">
                               <span className="text-gray-400">
-                                {msg.isGenerative ? "✨ Groq Qwen 2.5" : "⚡ Grounded Rule Reasoning"}
+                                {msg.isGenerative ? "Groq Qwen 2.5" : "Grounded Rule Reasoning"}
                               </span>
                               <span>•</span>
                               <span>MongoDB &amp; Cognee Memory</span>
@@ -868,7 +868,7 @@ export default function AICopilot() {
                               {speakingMsgIndex === index ? (
                                 <>
                                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                                  <span>Speaking... ⏹️</span>
+                                  <span>Speaking... (Stop)</span>
                                 </>
                               ) : (
                                 <>
@@ -890,7 +890,7 @@ export default function AICopilot() {
                 {loading && (
                   <div className="flex gap-3.5 justify-start animate-pulse">
                     <div className="w-7 h-7 rounded-full bg-[#10a37f] text-white flex items-center justify-center shrink-0 text-xs font-bold">
-                      ✦
+                      AI
                     </div>
                     <div className="bg-[#262626] border border-[#333] rounded-2xl rounded-tl-sm p-3.5 text-sm flex items-center gap-3">
                       <div className="w-4 h-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
@@ -914,7 +914,6 @@ export default function AICopilot() {
             {voiceError && (
               <div className="mb-2.5 px-3.5 py-2 rounded-xl bg-red-950/70 border border-red-500/40 text-red-200 text-xs flex items-center justify-between animate-fade-in shadow-lg">
                 <span className="flex items-center gap-2">
-                  <span>⚠️</span>
                   <span>{voiceError}</span>
                 </span>
                 <button
@@ -922,7 +921,7 @@ export default function AICopilot() {
                   onClick={() => setVoiceError(null)}
                   className="text-gray-400 hover:text-white font-bold ml-2 px-1"
                 >
-                  ✕
+                  &times;
                 </button>
               </div>
             )}
@@ -930,7 +929,6 @@ export default function AICopilot() {
             {voiceSuccessMsg && (
               <div className="mb-2.5 px-3.5 py-2 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between animate-fade-in shadow-lg">
                 <span className="flex items-center gap-2">
-                  <span>⚡</span>
                   <span>{voiceSuccessMsg}</span>
                 </span>
                 <button
@@ -938,7 +936,7 @@ export default function AICopilot() {
                   onClick={() => setVoiceSuccessMsg(null)}
                   className="text-gray-400 hover:text-white font-bold ml-2 px-1"
                 >
-                  ✕
+                  &times;
                 </button>
               </div>
             )}
@@ -1039,9 +1037,6 @@ export default function AICopilot() {
             <div className="bg-[#1f1f1f] border border-emerald-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
               <div className="flex items-center justify-between border-b border-[#333] pb-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-bold border border-emerald-500/30">
-                    🎙️
-                  </div>
                   <div>
                     <h3 className="text-base font-bold text-white">Voice Action Approval Confirmation</h3>
                     <p className="text-xs text-emerald-400 font-medium">Merchant Approval Safety Gate Enforced</p>
@@ -1051,7 +1046,7 @@ export default function AICopilot() {
                   onClick={() => setVoiceConfirmModal(null)}
                   className="text-gray-400 hover:text-white text-lg font-bold"
                 >
-                  ✕
+                  &times;
                 </button>
               </div>
 
@@ -1059,7 +1054,7 @@ export default function AICopilot() {
                 <div className="flex justify-between items-center text-xs text-gray-400">
                   <span>Detected Voice Intent:</span>
                   <span className="font-semibold text-emerald-400 uppercase tracking-wider">
-                    ✓ Approve &amp; Launch
+                    Approve &amp; Launch
                   </span>
                 </div>
                 <div className="font-bold text-base text-white pt-1">
@@ -1108,7 +1103,7 @@ export default function AICopilot() {
                     </>
                   ) : (
                     <>
-                      <span>Confirm &amp; Launch Automation ⚡</span>
+                      <span>Confirm &amp; Launch Automation</span>
                     </>
                   )}
                 </button>

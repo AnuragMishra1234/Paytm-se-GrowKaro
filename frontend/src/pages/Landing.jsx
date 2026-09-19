@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMerchantContext } from "../context/MerchantContext";
 import { fetchMerchants } from "../services/api";
 import { getBusinessTypeInfo } from "../utils/formatters";
+import PaytmLiveConnection from "../components/PaytmLiveConnection";
 
 // Code Snippets for the Developer Section
 const CODE_SNIPPETS = {
@@ -30,7 +31,7 @@ const result = await executeActionWorkflow({
   targetAudience: "Repeat & nearby patrons",
   timing: "2:00 PM - 5:00 PM",
   payload: {
-    headline: "Afternoon Coffee & Snack Break ☕",
+    headline: "Afternoon Coffee & Snack Break",
     body: "Beat the afternoon slump! Handcrafted cold brew with fresh croissant.",
     offer: "₹199 Combo"
   },
@@ -209,35 +210,80 @@ export default function Landing() {
         {/* Subtle ambient background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[650px] bg-gradient-to-b from-sky-50/70 via-blue-50/30 to-transparent pointer-events-none -z-10" />
 
-        <div className="w-full max-w-6xl mx-auto px-6 sm:px-10 lg:px-16 text-center">
-          {/* Grand Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-[58px] xl:text-[66px] font-extrabold text-[#0f172a] tracking-tight leading-[1.12] max-w-5xl mx-auto">
-            Payments infrastructure &amp; growth tools to power your business
-          </h1>
+        <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+            {/* Left Headline & Action Column */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              {/* Partner Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50/90 border border-blue-200/80 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-[#00baf2]" />
+                <span className="text-xs font-bold text-[#002970] uppercase tracking-wider">
+                  Paytm Ecosystem Partner
+                </span>
+                <span className="text-gray-300">|</span>
+                <span className="text-xs font-semibold text-gray-600">
+                  Smart Retail Intelligence
+                </span>
+              </div>
 
-          {/* Clean Subtitle Paragraph */}
-          <p className="mt-6 text-lg sm:text-[20px] text-gray-600 font-normal leading-relaxed max-w-4xl mx-auto">
-            Grow your business with GrowKaro. An autonomous AI business partner that watches real UPI &amp; Soundbox transactions, detects quiet hours and demand dips, drafts merchant-approved promotions, executes through n8n workflows, and measures verified revenue lift.
-          </p>
+              {/* Grand Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[60px] font-extrabold text-[#0f172a] tracking-tight leading-[1.12]">
+                Your AI Business Partner, powered by real Paytm transactions
+              </h1>
 
-          {/* Primary CTA Button */}
-          <div className="mt-10 flex items-center justify-center">
-            <button
-              onClick={openMerchantModal}
-              className="inline-flex items-center gap-2.5 px-10 py-4 rounded-full text-base sm:text-[17px] font-bold text-white bg-[#002970] hover:bg-[#001f54] transition-all shadow-xl shadow-[#002970]/20 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <span>Become a GrowKaro Merchant</span>
-              <span className="text-lg font-light">›</span>
-            </button>
+              {/* Clean Subtitle Paragraph */}
+              <p className="text-lg sm:text-[19px] text-gray-600 font-normal leading-relaxed max-w-2xl">
+                Grow your business with intelligence from your transactions. GrowKaro watches live UPI and Soundbox activity, detects quiet hours, drafts merchant-approved promotions, executes through n8n workflows, and measures verified revenue lift.
+              </p>
+
+              {/* Primary CTA Buttons */}
+              <div className="pt-2 flex flex-wrap items-center gap-4">
+                <button
+                  onClick={openMerchantModal}
+                  className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full text-base font-bold text-white bg-[#002970] hover:bg-[#001f54] transition-all shadow-xl shadow-[#002970]/20 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span>Become a GrowKaro Merchant</span>
+                  <span className="text-lg font-light">›</span>
+                </button>
+                <button
+                  onClick={openMerchantModal}
+                  className="inline-flex items-center gap-2 px-6 py-4 rounded-full text-base font-semibold text-gray-700 bg-white border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all"
+                >
+                  <span>Explore Sandbox Store</span>
+                  <span className="text-xs">›</span>
+                </button>
+              </div>
+
+              {/* Trust & Architecture Pipeline */}
+              <div className="pt-2 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs font-medium text-gray-500">
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Continuous Soundbox Sync</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00baf2]" />
+                  <span>Zero Fake Telemetry</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                  <span>Autonomous n8n Actions</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 3D Paytm Connection Visualization */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+              <PaytmLiveConnection className="w-full max-w-sm sm:max-w-md" />
+            </div>
           </div>
         </div>
 
         {/* ─── Hero Showcase Mockup (Spacious Full-Width Container) ──────────── */}
         <div className="w-full max-w-[1680px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-24 mt-20 sm:mt-24">
           <div className="relative rounded-[32px] sm:rounded-[40px] p-5 sm:p-10 md:p-12 bg-gradient-to-b from-[#00b9f5]/15 via-blue-50/40 to-white border border-blue-100 shadow-2xl">
-            {/* Sparkle AI Badge floating in top right */}
+            {/* AI Badge floating in top right */}
             <div className="absolute -top-4 right-8 sm:right-16 bg-white border border-sky-200 px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 text-xs font-bold text-[#002970]">
-              <span className="text-sky-500 text-sm">✨</span>
+              <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
               <span>AI Autonomous Loop</span>
             </div>
 
@@ -312,7 +358,7 @@ export default function Landing() {
                       ))}
                     </div>
                     <p className="text-[11px] text-amber-700 font-medium text-center mt-3.5 bg-amber-50 py-2 rounded-lg">
-                      ⚠️ Yellow bars flag 2 PM – 4:30 PM lull (68% lower traffic) → AI triggered ₹199 Combo Draft
+                      Notice: Yellow bars flag 2 PM – 4:30 PM lull (68% lower traffic) → AI triggered ₹199 Combo Draft
                     </p>
                   </div>
                 </div>
@@ -328,7 +374,7 @@ export default function Landing() {
                       <span className="text-[10px] text-gray-400 font-mono">2:05 PM</span>
                     </div>
                     <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm space-y-3 border border-emerald-100">
-                      <p className="font-extrabold text-gray-900 text-xs sm:text-sm">Afternoon Coffee &amp; Snack Break ☕</p>
+                      <p className="font-extrabold text-gray-900 text-xs sm:text-sm">Afternoon Coffee &amp; Snack Break</p>
                       <p className="text-xs text-gray-700 leading-relaxed">
                         Beat the afternoon slump! Enjoy our handcrafted Cold Brew with a freshly baked Butter Croissant for ₹199.
                       </p>
@@ -343,7 +389,7 @@ export default function Landing() {
 
                   <div className="mt-5 pt-3.5 border-t border-emerald-200/60 flex items-center justify-between text-xs">
                     <span className="text-gray-500">Audience: <strong>34 Delivered</strong></span>
-                    <span className="text-emerald-700 font-bold">✓ Approved by Owner</span>
+                    <span className="text-emerald-700 font-bold">Approved by Owner</span>
                   </div>
                 </div>
               </div>
@@ -372,7 +418,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
               <div className="lg:col-span-7 space-y-6">
                 <span className="inline-flex items-center gap-2 bg-blue-500/20 text-sky-300 border border-sky-400/30 px-4 py-1.5 rounded-full text-xs font-semibold">
-                  🔊 Soundbox Audio Sync + Dynamic UPI
+                  Soundbox Audio Sync + Dynamic UPI
                 </span>
                 <h3 className="text-2xl sm:text-4xl lg:text-[42px] font-extrabold leading-snug">
                   Every scan feeds your autonomous merchant memory
@@ -382,13 +428,13 @@ export default function Landing() {
                 </p>
                 <div className="flex flex-wrap gap-3 pt-2">
                   <span className="bg-white/10 px-4 py-2 rounded-xl text-xs font-medium backdrop-blur">
-                    ✓ Instant Settlement Telemetry
+                    Instant Settlement Telemetry
                   </span>
                   <span className="bg-white/10 px-4 py-2 rounded-xl text-xs font-medium backdrop-blur">
-                    ✓ Basket Size &amp; AOV Tracking
+                    Basket Size &amp; AOV Tracking
                   </span>
                   <span className="bg-white/10 px-4 py-2 rounded-xl text-xs font-medium backdrop-blur">
-                    ✓ Zero Data Entry Required
+                    Zero Data Entry Required
                   </span>
                 </div>
               </div>
@@ -405,7 +451,7 @@ export default function Landing() {
                   <p className="text-xs text-gray-400">Latest UPI Payment Received</p>
                   <p className="text-3xl sm:text-4xl font-extrabold text-white">₹199.00</p>
                   <p className="text-xs text-sky-300 italic pt-1">
-                    "Paytm par ek sau ninyanve rupaye prapt hue" 🔊
+                    "Paytm par ek sau ninyanve rupaye prapt hue"
                   </p>
                 </div>
                 <div className="text-xs text-gray-300 bg-white/5 p-4 rounded-xl flex items-center justify-between">
@@ -419,8 +465,8 @@ export default function Landing() {
           {/* 3 Pillar Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 w-full">
             <div className="card p-8 sm:p-10 space-y-4 hover:shadow-lg transition-all rounded-2xl border border-gray-100">
-              <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
-                📡
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-sm font-black">
+                01
               </div>
               <h4 className="text-xl font-bold text-gray-900">Real-Time Transaction Stream</h4>
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -429,8 +475,8 @@ export default function Landing() {
             </div>
 
             <div className="card p-8 sm:p-10 space-y-4 hover:shadow-lg transition-all rounded-2xl border border-gray-100">
-              <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
-                ⏱️
+              <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-sm font-black">
+                02
               </div>
               <h4 className="text-xl font-bold text-gray-900">Weak Hour &amp; Lull Detection</h4>
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -439,8 +485,8 @@ export default function Landing() {
             </div>
 
             <div className="card p-8 sm:p-10 space-y-4 hover:shadow-lg transition-all rounded-2xl border border-gray-100">
-              <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
-                🛒
+              <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-sm font-black">
+                03
               </div>
               <h4 className="text-xl font-bold text-gray-900">Velocity &amp; Category Shifts</h4>
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -494,13 +540,13 @@ export default function Landing() {
               <div className="lg:col-span-6 bg-white p-6 sm:p-8 lg:p-10 rounded-2xl shadow-lg border border-gray-200 space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b">
                   <span className="badge bg-amber-100 text-amber-800 text-xs font-bold">
-                    ⏳ Approval Gate Awaiting Sign-Off
+                    Approval Gate Awaiting Sign-Off
                   </span>
                   <span className="text-xs text-gray-400 font-mono">Channel: WhatsApp Business</span>
                 </div>
                 <div className="space-y-2">
                   <div className="bg-gray-50 p-5 rounded-xl border text-xs sm:text-sm space-y-1.5">
-                    <p className="font-bold text-gray-900">Headline: Afternoon Coffee &amp; Snack Break ☕</p>
+                    <p className="font-bold text-gray-900">Headline: Afternoon Coffee &amp; Snack Break</p>
                     <p className="text-gray-600">
                       Body: Beat the afternoon slump! Recharge with our ₹199 cold brew &amp; croissant combo.
                     </p>
@@ -510,9 +556,9 @@ export default function Landing() {
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-xs text-gray-500">Audience: <strong>35 Verified Patrons</strong></span>
                   <div className="flex gap-2">
-                    <span className="text-xs text-red-600 px-3 py-1.5 font-semibold cursor-pointer">Reject ✕</span>
+                    <span className="text-xs text-red-600 px-3 py-1.5 font-semibold cursor-pointer">Reject</span>
                     <span className="text-xs bg-[#002970] text-white px-5 py-2.5 rounded-lg font-bold">
-                      Approve &amp; Execute ⚡
+                      Approve &amp; Execute
                     </span>
                   </div>
                 </div>
@@ -523,8 +569,8 @@ export default function Landing() {
           {/* 3 Value Pillars */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 w-full">
             <div className="card p-8 sm:p-10 space-y-4 hover:shadow-lg transition-all rounded-2xl border border-gray-100">
-              <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
-                ✍️
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-sm font-black">
+                01
               </div>
               <h4 className="text-xl font-bold text-gray-900">Grounded Groq AI Copywriting</h4>
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -533,8 +579,8 @@ export default function Landing() {
             </div>
 
             <div className="card p-8 sm:p-10 space-y-4 hover:shadow-lg transition-all rounded-2xl border border-gray-100">
-              <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
-                🛡️
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-sm font-black">
+                02
               </div>
               <h4 className="text-xl font-bold text-gray-900">Deterministic Approval Gate</h4>
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -543,8 +589,8 @@ export default function Landing() {
             </div>
 
             <div className="card p-8 sm:p-10 space-y-4 hover:shadow-lg transition-all rounded-2xl border border-gray-100">
-              <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-3xl font-bold">
-                🎯
+              <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-sm font-black">
+                03
               </div>
               <h4 className="text-xl font-bold text-gray-900">Verified Outcome Attribution</h4>
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -569,8 +615,8 @@ export default function Landing() {
               <div className="space-y-7 sm:space-y-8 pt-4">
                 {devFeatures.map((feat, idx) => (
                   <div key={idx} className="flex items-center gap-4">
-                    <div className="w-7 h-7 rounded-full border border-gray-600 bg-black flex items-center justify-center shrink-0 text-white text-xs font-bold shadow-inner">
-                      ✓
+                    <div className="w-7 h-7 rounded-full border border-gray-600 bg-black flex items-center justify-center shrink-0 shadow-inner">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
                     </div>
                     <span className="text-base sm:text-[17px] font-medium text-white leading-snug">
                       {feat}
@@ -852,7 +898,7 @@ export default function Landing() {
                 onClick={() => setShowMerchantModal(false)}
                 className="text-gray-400 hover:text-gray-600 text-lg p-1"
               >
-                ✕
+                &times;
               </button>
             </div>
 

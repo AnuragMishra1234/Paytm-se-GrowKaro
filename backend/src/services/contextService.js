@@ -1,4 +1,4 @@
-﻿/**
+/**
  * contextService.js — External Context Intelligence
  *
  * Connects to live weather (Open-Meteo API, free & no key needed)
@@ -16,15 +16,15 @@ const CITY_COORDINATES = {
 
 // Weather code interpreter (WMO standard)
 const interpretWeatherCode = (code) => {
-  if (code === 0) return { condition: 'Clear Sky', isRain: false, isGloomy: false, icon: '☀️' };
-  if (code >= 1 && code <= 3) return { condition: 'Partly Cloudy', isRain: false, isGloomy: false, icon: '⛅' };
-  if (code >= 45 && code <= 48) return { condition: 'Foggy', isRain: false, isGloomy: true, icon: '🌫️' };
-  if (code >= 51 && code <= 55) return { condition: 'Drizzle', isRain: true, isGloomy: true, icon: '🌦️' };
-  if (code >= 61 && code <= 67) return { condition: 'Rain', isRain: true, isGloomy: true, icon: '🌧️' };
-  if (code >= 71 && code <= 77) return { condition: 'Snow', isRain: false, isGloomy: true, icon: '❄️' };
-  if (code >= 80 && code <= 82) return { condition: 'Rain Showers', isRain: true, isGloomy: true, icon: '🌧️' };
-  if (code >= 95) return { condition: 'Thunderstorm', isRain: true, isGloomy: true, icon: '⛈️' };
-  return { condition: 'Mild', isRain: false, isGloomy: false, icon: '🌤️' };
+  if (code === 0) return { condition: 'Clear Sky', isRain: false, isGloomy: false, icon: '' };
+  if (code >= 1 && code <= 3) return { condition: 'Partly Cloudy', isRain: false, isGloomy: false, icon: '' };
+  if (code >= 45 && code <= 48) return { condition: 'Foggy', isRain: false, isGloomy: true, icon: '' };
+  if (code >= 51 && code <= 55) return { condition: 'Drizzle', isRain: true, isGloomy: true, icon: '' };
+  if (code >= 61 && code <= 67) return { condition: 'Rain', isRain: true, isGloomy: true, icon: '' };
+  if (code >= 71 && code <= 77) return { condition: 'Snow', isRain: false, isGloomy: true, icon: '' };
+  if (code >= 80 && code <= 82) return { condition: 'Rain Showers', isRain: true, isGloomy: true, icon: '' };
+  if (code >= 95) return { condition: 'Thunderstorm', isRain: true, isGloomy: true, icon: '' };
+  return { condition: 'Mild', isRain: false, isGloomy: false, icon: '' };
 };
 
 // Simple memory cache to prevent excessive external requests (30-min TTL)

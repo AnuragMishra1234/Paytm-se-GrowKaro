@@ -78,7 +78,6 @@ export default function Campaigns() {
           <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Awaiting Approval</p>
           <div className="flex items-center justify-between mt-1.5">
             <span className="text-3xl font-black text-amber-600">{stats.pending}</span>
-            <span className="text-2xl">⏳</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Requires merchant sign-off</p>
         </div>
@@ -87,7 +86,6 @@ export default function Campaigns() {
           <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Running / Queued</p>
           <div className="flex items-center justify-between mt-1.5">
             <span className="text-3xl font-black text-blue-600">{stats.running}</span>
-            <span className="text-2xl">⚙️</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">In workflow execution</p>
         </div>
@@ -96,7 +94,6 @@ export default function Campaigns() {
           <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Executed Campaigns</p>
           <div className="flex items-center justify-between mt-1.5">
             <span className="text-3xl font-black text-emerald-600">{stats.completed}</span>
-            <span className="text-2xl">✓</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Successfully dispatched</p>
         </div>
@@ -105,7 +102,6 @@ export default function Campaigns() {
           <p className="text-xs md:text-sm text-gray-600 font-bold uppercase tracking-wider">Total Actions Logged</p>
           <div className="flex items-center justify-between mt-1.5">
             <span className="text-3xl font-black text-purple-600">{stats.total}</span>
-            <span className="text-2xl">📋</span>
           </div>
           <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Full audit trail preserved</p>
         </div>
@@ -150,7 +146,6 @@ export default function Campaigns() {
         <div className="space-y-4">
           {pendingActions.length === 0 ? (
             <div className="card p-12 text-center text-gray-400 space-y-3">
-              <span className="text-5xl">✨</span>
               <p className="font-bold text-lg text-gray-800">Approval Queue is Clear</p>
               <p className="text-sm md:text-base text-gray-500">
                 No proposed actions are awaiting decision. Proactive recommendations will appear here when growth opportunities or risks are detected.
@@ -165,7 +160,7 @@ export default function Campaigns() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="badge bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold px-2.5 py-1 rounded-lg">
-                      ⏳ Awaiting Decision
+                      Awaiting Decision
                     </span>
                     <span className="text-xs md:text-sm text-gray-500 font-semibold">
                       {formatDate(item.createdAt)}
@@ -184,7 +179,7 @@ export default function Campaigns() {
 
                   <div className="flex items-center justify-between pt-3 border-t border-amber-200">
                     <span className="text-sm font-bold text-blue-800">
-                      🏷️ {item.payload?.offer || "Special Promotion"}
+                      {item.payload?.offer || "Special Promotion"}
                     </span>
                     <button
                       onClick={() => setSelectedAction(item)}
@@ -206,7 +201,6 @@ export default function Campaigns() {
         <div className="space-y-4">
           {campaigns.length === 0 ? (
             <div className="card p-12 text-center text-gray-400 space-y-3">
-              <span className="text-5xl">📣</span>
               <p className="font-bold text-lg text-gray-800">No campaigns on record yet</p>
               <p className="text-sm md:text-base text-gray-500">
                 Approve an action from the Approval Queue to deploy your first campaign.
@@ -249,7 +243,7 @@ export default function Campaigns() {
 
                   <div className="flex items-center justify-between text-xs md:text-sm pt-2 border-t border-gray-100">
                     <span className="px-2.5 py-1 rounded-md font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      ✓ Automated via n8n
+                      Automated via n8n
                     </span>
                     {camp.status === "COMPLETED" && (
                       <Link

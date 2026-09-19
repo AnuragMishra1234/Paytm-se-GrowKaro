@@ -22,6 +22,7 @@ app.get('/health', (req, res) => {
 
 const notificationRoutes = require('./routes/notifications');
 const demoRoutes = require('./routes/demo');
+const paytmRoutes = require('./routes/paytm');
 
 // Routes
 app.use('/api/merchants', merchantRoutes);
@@ -30,6 +31,7 @@ app.use('/api/actions', actionRoutes);
 app.use('/api/n8n', n8nRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/demo', demoRoutes);
+app.use('/api/paytm', paytmRoutes);
 
 // Error handling
 app.use(notFound);

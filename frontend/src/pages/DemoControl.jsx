@@ -85,7 +85,7 @@ export default function DemoControl() {
       badgeColor: "bg-rose-100 text-rose-800 border-rose-300",
       description:
         "Simulates a 31% revenue dip during 2:00 PM – 4:30 PM. Deterministic detector flags the lull, Groq crafts the ₹199 Cold Brew Combo, and an Action Required alert is sent to the bell.",
-      buttonText: "⚡ Trigger Sales Drop",
+      buttonText: "Trigger Sales Drop",
       buttonColor: "bg-rose-600 hover:bg-rose-700 text-white",
     },
     {
@@ -95,7 +95,7 @@ export default function DemoControl() {
       badgeColor: "bg-blue-100 text-blue-800 border-blue-300",
       description:
         "Injects real-time Bengaluru monsoon drizzle telemetry (21°C, 88% humidity). AI crafts a warm beverage & snack promotion and drafts a WhatsApp campaign.",
-      buttonText: "🌧️ Trigger Monsoon Rain",
+      buttonText: "Trigger Monsoon Rain",
       buttonColor: "bg-blue-600 hover:bg-blue-700 text-white",
     },
     {
@@ -105,7 +105,7 @@ export default function DemoControl() {
       badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
       description:
         "Calculates pre vs. post campaign revenue delta (+37.4% observed change). Persists honest non-causal attribution to MongoDB and stores learned strategy into Cognee memory.",
-      buttonText: "📈 Measure Outcome",
+      buttonText: "Measure Outcome",
       buttonColor: "bg-emerald-600 hover:bg-emerald-700 text-white",
     },
     {
@@ -115,7 +115,7 @@ export default function DemoControl() {
       badgeColor: "bg-purple-100 text-purple-800 border-purple-300",
       description:
         "Synthesizes weather forecast, today's revenue pulse, and priority action items into an executive morning briefing, creating a DAILY_BRIEF alert.",
-      buttonText: "☀️ Trigger Daily Brief",
+      buttonText: "Trigger Daily Brief",
       buttonColor: "bg-purple-600 hover:bg-purple-700 text-white",
     },
   ];
@@ -126,9 +126,6 @@ export default function DemoControl() {
         {/* Top Navbar */}
         <div className="flex items-center justify-between bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gray-900 to-gray-700 text-white font-black flex items-center justify-center text-lg shadow-sm">
-              🛠️
-            </div>
             <div>
               <h1 className="font-extrabold text-gray-900 text-lg sm:text-xl leading-tight">
                 Developer Demo Controller &amp; Reset Panel
@@ -150,7 +147,7 @@ export default function DemoControl() {
         {/* Error Banner */}
         {error && (
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 font-bold">
-            ⚠️ {error}
+            {error}
           </div>
         )}
 
@@ -220,7 +217,7 @@ export default function DemoControl() {
               </>
             ) : (
               <>
-                <span>🔄 Reset Demo to Clean Baseline</span>
+                <span>Reset Demo to Clean Baseline</span>
               </>
             )}
           </button>
@@ -233,7 +230,7 @@ export default function DemoControl() {
               Autonomous Pipeline Scenarios
             </h3>
             <p className="text-xs text-gray-500">
-              Click any scenario to execute the real GrowKaro backend pipeline (Analytics ➔ Growth Detector ➔ Groq AI ➔ Notification)
+              Click any scenario to execute the real GrowKaro backend pipeline (Analytics &rarr; Growth Detector &rarr; Groq AI &rarr; Notification)
             </p>
           </div>
 

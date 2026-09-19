@@ -80,9 +80,6 @@ export default function DemoSimulatorModal({ isOpen, onClose, onScenarioSuccess 
         {/* Header */}
         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/80">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white font-black flex items-center justify-center text-xl shadow-md">
-              ⚡
-            </div>
             <div>
               <h3 className="font-extrabold text-gray-900 text-lg">
                 Merchant Scenario Simulator
@@ -96,7 +93,7 @@ export default function DemoSimulatorModal({ isOpen, onClose, onScenarioSuccess 
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-gray-200/70 hover:bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold transition-all"
           >
-            ✕
+            &times;
           </button>
         </div>
 
@@ -109,7 +106,7 @@ export default function DemoSimulatorModal({ isOpen, onClose, onScenarioSuccess 
 
           {error && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 font-medium">
-              ⚠️ {error}
+              {error}
             </div>
           )}
 
@@ -154,7 +151,7 @@ export default function DemoSimulatorModal({ isOpen, onClose, onScenarioSuccess 
                         </>
                       ) : (
                         <>
-                          <span>⚡ Run Scenario</span>
+                          <span>Run Scenario</span>
                         </>
                       )}
                     </button>
@@ -169,7 +166,7 @@ export default function DemoSimulatorModal({ isOpen, onClose, onScenarioSuccess 
             <div className="mt-4 p-4 rounded-2xl bg-gray-900 text-emerald-400 font-mono text-xs overflow-x-auto shadow-inner">
               <div className="flex items-center justify-between text-gray-400 border-b border-gray-800 pb-2 mb-2">
                 <span>Console Output · {resultLog.timestamp}</span>
-                <span className="text-emerald-400 font-bold">✓ SCENARIO EXECUTED</span>
+                <span className="text-emerald-400 font-bold">SCENARIO EXECUTED</span>
               </div>
               <pre className="whitespace-pre-wrap text-[11px] leading-relaxed">
                 {JSON.stringify(resultLog.data, null, 2)}

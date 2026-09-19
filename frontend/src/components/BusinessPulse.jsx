@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 /**
  * BusinessPulse — Phase 1 placeholder for what Phase 2 will replace
@@ -33,7 +33,6 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     if (change <= -10) {
       flags.push({
         type: "warning",
-        icon: "📉",
         title: "Revenue is down today",
         detail: `${Math.abs(change).toFixed(1)}% below yesterday`,
         color: "border-red-200 bg-red-50",
@@ -42,7 +41,6 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     } else if (change >= 15) {
       flags.push({
         type: "positive",
-        icon: "📈",
         title: "Strong revenue today",
         detail: `${change.toFixed(1)}% above yesterday`,
         color: "border-green-200 bg-green-50",
@@ -59,7 +57,6 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     if (afternoonWeak && maxRevenue > 0) {
       flags.push({
         type: "opportunity",
-        icon: "💡",
         title: "Weak afternoon window",
         detail: "2–5 PM shows consistently lower activity",
         color: "border-blue-200 bg-blue-50",
@@ -74,7 +71,6 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     if (sorted[0]?.revenue > 0) {
       flags.push({
         type: "info",
-        icon: "🗓️",
         title: `${sorted[0].day} is your strongest day`,
         detail: `Followed by ${sorted[1]?.day || "–"}`,
         color: "border-gray-200 bg-gray-50",
@@ -83,11 +79,10 @@ export function BusinessPulse({ dashboardData, loading = false }) {
     }
   }
 
-  // Repeat customer flag
+  // Repeat customer base
   if (kpis?.repeatCustomerPct > 50) {
     flags.push({
       type: "positive",
-      icon: "🔄",
       title: "Strong repeat customer base",
       detail: `${kpis.repeatCustomerPct}% of recent customers returned`,
       color: "border-green-200 bg-green-50",
@@ -112,8 +107,7 @@ export function BusinessPulse({ dashboardData, loading = false }) {
       ) : (
         <div className="space-y-3">
           {flags.map((flag, i) => (
-            <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border ${flag.color}`}>
-              <span className="text-xl">{flag.icon}</span>
+            <div key={i} className={`p-3 rounded-lg border ${flag.color}`}>
               <div>
                 <p className={`text-sm font-medium ${flag.textColor}`}>{flag.title}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{flag.detail}</p>

@@ -98,7 +98,6 @@ export default function Dashboard() {
           title="Today's Revenue"
           value={kpis?.today?.revenue}
           change={kpis?.changes?.revenue}
-          icon="💰"
           format="currency"
           loading={loading}
         />
@@ -106,21 +105,18 @@ export default function Dashboard() {
           title="Transactions"
           value={kpis?.today?.transactions}
           change={kpis?.changes?.transactions}
-          icon="🧾"
           format="number"
           loading={loading}
         />
         <KPICard
           title="Avg Order Value"
           value={kpis?.today?.aov}
-          icon="🎯"
           format="currency"
           loading={loading}
         />
         <KPICard
           title="Repeat Customers"
           value={kpis?.repeatCustomerPct}
-          icon="🔄"
           format="percent"
           changeLabel="last 30 days"
           loading={loading}
@@ -152,7 +148,6 @@ export default function Dashboard() {
         <div className="card p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="text-xl">📊</span>
               <h2 className="font-black text-base md:text-lg text-gray-950">Recent Action Results</h2>
             </div>
             <Link
@@ -206,7 +201,7 @@ export default function Dashboard() {
 
                     <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-200">
                       <span>Baseline: <strong>{formatVal(item.baselineValue)}</strong> → Post: <strong>{formatVal(item.postActionValue)}</strong></span>
-                      <span className="text-purple-700 font-bold">🧠 Stored in Memory</span>
+                      <span className="text-purple-700 font-bold">Stored in Memory</span>
                     </div>
                   </div>
                 );
@@ -219,7 +214,6 @@ export default function Dashboard() {
         <div className="card p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="text-xl">🧠</span>
               <h2 className="font-black text-base md:text-lg text-gray-950">What GrowKaro Has Learned</h2>
             </div>
             <Link
@@ -234,7 +228,7 @@ export default function Dashboard() {
             {learnedSummary?.memoryMatrix?.provenTactics?.length > 0 ? (
               <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-1.5 shadow-2xs">
                 <div className="flex items-center justify-between text-xs text-emerald-800 font-bold uppercase">
-                  <span>🏆 Verified Tactic</span>
+                  <span>Verified Tactic</span>
                   <span>High Confidence</span>
                 </div>
                 <p className="text-sm md:text-base font-bold text-emerald-950 leading-relaxed">
@@ -246,7 +240,7 @@ export default function Dashboard() {
             {learnedSummary?.memoryMatrix?.merchantPreferences?.length > 0 ? (
               <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-1.5 shadow-2xs">
                 <div className="flex items-center justify-between text-xs text-blue-800 font-bold uppercase">
-                  <span>⚙️ Merchant Rule</span>
+                  <span>Merchant Rule</span>
                   <span>Active Preference</span>
                 </div>
                 <p className="text-sm md:text-base font-bold text-blue-950 leading-relaxed">
@@ -258,7 +252,7 @@ export default function Dashboard() {
             {learnedSummary?.memoryMatrix?.trafficPatterns?.length > 0 ? (
               <div className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl space-y-1.5 shadow-2xs">
                 <div className="flex items-center justify-between text-xs text-purple-800 font-bold uppercase">
-                  <span>⏱️ Operational Trend</span>
+                  <span>Operational Trend</span>
                   <span>Detected Pattern</span>
                 </div>
                 <p className="text-sm md:text-base font-bold text-purple-950 leading-relaxed">

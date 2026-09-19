@@ -1,16 +1,15 @@
-﻿import React from "react";
+import React from "react";
 import { useMerchantContext } from "../context/MerchantContext";
 import { useCustomers } from "../hooks/useCustomers";
 import { ErrorState, EmptyState } from "../components/LoadingSpinner";
 import { formatINR, formatRelativeTime, segmentStyle } from "../utils/formatters";
 
-function SegmentCard({ label, count, description, icon, color, loading }) {
+function SegmentCard({ label, count, description, color, loading }) {
   if (loading) return <div className="card p-5 animate-pulse h-24" />;
   return (
     <div className={`card p-5 border-l-4 ${color}`}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-gray-500">{label}</span>
-        <span className="text-xl">{icon}</span>
       </div>
       <p className="text-3xl font-bold text-gray-900">{count}</p>
       <p className="text-xs text-gray-400 mt-1">{description}</p>
@@ -41,7 +40,6 @@ export default function Customers() {
           label="Total Customers"
           count={segments.total || 0}
           description="All-time unique customers"
-          icon="👥"
           color="border-blue-500"
           loading={loading}
         />
@@ -49,7 +47,6 @@ export default function Customers() {
           label="Repeat Customers"
           count={segments.repeat || 0}
           description="2+ transactions"
-          icon="🔄"
           color="border-green-500"
           loading={loading}
         />
@@ -57,7 +54,6 @@ export default function Customers() {
           label="VIP Customers"
           count={segments.vip || 0}
           description="Repeat + spend ₹5,000+"
-          icon="⭐"
           color="border-purple-500"
           loading={loading}
         />
@@ -65,7 +61,6 @@ export default function Customers() {
           label="Inactive"
           count={segments.inactive || 0}
           description="No visit in 30+ days"
-          icon="😴"
           color="border-gray-300"
           loading={loading}
         />
@@ -122,7 +117,7 @@ export default function Customers() {
             {[1,2,3,4,5].map(i => <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />)}
           </div>
         ) : topCustomers.length === 0 ? (
-          <EmptyState message="No customer data available" icon="👥" />
+          <EmptyState message="No customer data available" />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

@@ -1,4 +1,4 @@
-﻿import { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { chatCopilot } from "../services/api";
 
 export function useCopilot(merchantId) {
@@ -62,7 +62,7 @@ export function useCopilot(merchantId) {
           ...prev,
           {
             role: "assistant",
-            content: `⚠️ ${errMsg}`,
+            content: errMsg,
             isError: true,
             timestamp: new Date(),
           },

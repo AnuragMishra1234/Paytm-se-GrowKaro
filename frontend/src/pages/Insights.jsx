@@ -7,10 +7,10 @@ import { ActionReviewModal } from "../components/ActionReviewModal";
 
 const FILTERS = [
   { id: "ALL", label: "All Insights" },
-  { id: "ACT_NOW", label: "🔴 Act Now" },
-  { id: "OPPORTUNITY", label: "🟡 Opportunities" },
-  { id: "WARNING", label: "🟠 Warnings" },
-  { id: "POSITIVE_TREND", label: "🟢 Positive Trends" },
+  { id: "ACT_NOW", label: "Act Now" },
+  { id: "OPPORTUNITY", label: "Opportunities" },
+  { id: "WARNING", label: "Warnings" },
+  { id: "POSITIVE_TREND", label: "Positive Trends" },
 ];
 
 const categoryMeta = {
@@ -18,25 +18,21 @@ const categoryMeta = {
     label: "ACT NOW",
     badge: "bg-red-100 text-red-800 border-red-200",
     border: "border-red-300 bg-red-50/30",
-    icon: "🔴",
   },
   OPPORTUNITY: {
     label: "OPPORTUNITY",
     badge: "bg-amber-100 text-amber-800 border-amber-200",
     border: "border-amber-300 bg-amber-50/30",
-    icon: "🟡",
   },
   WARNING: {
     label: "WARNING",
     badge: "bg-orange-100 text-orange-800 border-orange-200",
     border: "border-orange-300 bg-orange-50/30",
-    icon: "🟠",
   },
   POSITIVE_TREND: {
     label: "POSITIVE TREND",
     badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
     border: "border-emerald-300 bg-emerald-50/30",
-    icon: "🟢",
   },
 };
 
@@ -133,7 +129,7 @@ export default function Insights() {
             </>
           ) : (
             <>
-              <span>⚡ Run Diagnosis</span>
+              <span>Run Diagnosis</span>
             </>
           )}
         </button>
@@ -169,7 +165,7 @@ export default function Insights() {
       {error && filtered.length === 0 && <ErrorState message={error} onRetry={refetch} />}
       {error && filtered.length > 0 && (
         <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs md:text-sm font-medium flex items-center justify-between">
-          <span>⚠️ {error}. Displaying latest recorded proactive insights.</span>
+          <span>{error}. Displaying latest recorded proactive insights.</span>
           <button onClick={refetch} className="font-bold underline text-amber-900 hover:text-amber-950">Refresh</button>
         </div>
       )}
@@ -190,7 +186,6 @@ export default function Insights() {
       {/* Empty State */}
       {!loading && !error && filtered.length === 0 && (
         <div className="card p-12 text-center text-gray-500 space-y-3">
-          <span className="text-5xl">🔍</span>
           <p className="font-bold text-lg text-gray-800">No matching insights found</p>
           <p className="text-sm md:text-base text-gray-400">
             {activeFilter !== "ALL"
@@ -212,11 +207,11 @@ export default function Insights() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`badge border text-xs font-bold px-2.5 py-1 rounded-md ${meta.badge}`}>
-                      {meta.icon} {meta.label}
+                    <span className={`badge border text-xs font-bold py-0.5 px-2.5 rounded-md ${meta.badge}`}>
+                      {meta.label}
                     </span>
                     {item.priorityScore && (
-                      <span className="text-xs bg-white border border-gray-200 text-gray-700 px-2 py-0.5 rounded-md font-extrabold">
+                      <span className="text-xs font-extrabold text-gray-500 bg-white/80 px-2 py-0.5 rounded border border-gray-200/60">
                         Priority: {item.priorityScore}
                       </span>
                     )}
@@ -226,7 +221,7 @@ export default function Insights() {
                     title="Dismiss"
                     className="text-gray-400 hover:text-gray-600 text-sm px-2 py-0.5 rounded font-bold"
                   >
-                    ✕
+                    &times;
                   </button>
                 </div>
 
@@ -243,7 +238,7 @@ export default function Insights() {
                 {item.recommendation?.action && (
                   <div className="bg-blue-50/90 border border-blue-200/80 rounded-xl p-3.5 text-sm space-y-1.5">
                     <p className="text-blue-900 font-bold flex items-center gap-1.5">
-                      <span>💡 Recommended Action</span>
+                      <span>Recommended Action</span>
                     </p>
                     <p className="text-blue-950 font-medium leading-relaxed">
                       {item.recommendation.action}
@@ -265,7 +260,6 @@ export default function Insights() {
                     className="btn-primary text-sm font-bold py-2 px-4 flex items-center gap-1.5 shadow-sm"
                   >
                     <span>Take Action</span>
-                    <span>⚡</span>
                   </button>
                 </div>
               </div>
@@ -281,7 +275,7 @@ export default function Insights() {
             <div className="flex items-start justify-between border-b pb-3">
               <div>
                 <span className={`badge text-[10px] font-semibold ${categoryMeta[selectedInsight.category]?.badge}`}>
-                  {categoryMeta[selectedInsight.category]?.icon} {selectedInsight.category}
+                  {selectedInsight.category}
                 </span>
                 <h3 className="text-base font-bold text-gray-900 mt-1">{selectedInsight.title}</h3>
               </div>
@@ -289,7 +283,7 @@ export default function Insights() {
                 onClick={() => setSelectedInsight(null)}
                 className="text-gray-400 hover:text-gray-600 text-lg p-1"
               >
-                ✕
+                &times;
               </button>
             </div>
 
@@ -342,7 +336,6 @@ export default function Insights() {
                 className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm"
               >
                 <span>Take Action</span>
-                <span>⚡</span>
               </button>
             </div>
 

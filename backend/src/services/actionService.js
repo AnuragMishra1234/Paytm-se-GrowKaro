@@ -28,7 +28,7 @@ if (GROQ_API_KEY && GROQ_API_KEY.trim() !== '') {
 const generateCampaignCopy = async (merchant, insight, products = [], memoryFacts = [], externalContext = null) => {
   // Deterministic grounded fallback template
   const generateFallbackCopy = () => {
-    let headline = 'Exclusive Special Offer 🌟';
+    let headline = 'Exclusive Special Offer';
     let body = `Enjoy our special selection today at ${merchant.businessName}. Crafted fresh for our valued patrons.`;
     let cta = 'Show this message at counter or order online.';
     let offer = 'Special Bundle';
@@ -37,26 +37,26 @@ const generateCampaignCopy = async (merchant, insight, products = [], memoryFact
     let channel = 'WHATSAPP';
 
     if (insight.type === 'WEAK_HOURS') {
-      headline = 'Afternoon Coffee & Snack Break ☕';
+      headline = 'Afternoon Coffee & Snack Break';
       body = 'Beat the afternoon slump! Recharge with our exclusive ₹199 combo pairing your favorite brew with a freshly baked snack.';
       cta = 'Available today between 2:00 PM and 5:00 PM.';
       offer = '₹199 Combo';
       timing = '2:00 PM – 5:00 PM weekdays';
     } else if (insight.type === 'PRODUCT_DECLINE') {
       const prodName = insight.title.split(': ')[1] || 'Special Item';
-      headline = `Value Pack Special: ${prodName} 🛒`;
+      headline = `Value Pack Special: ${prodName}`;
       body = `Stock up on your essentials! Get a special bundle featuring ${prodName} alongside your daily favorites.`;
       cta = 'Valid while promotional stocks last this week.';
       offer = 'Special Bundle Savings';
       timing = 'This week';
     } else if (insight.type === 'EXTERNAL_CONTEXT') {
-      headline = 'Rainy Day Warm-Up Special 🌧️';
+      headline = 'Rainy Day Warm-Up Special';
       body = `Stay cozy during the rain! Enjoy our hot signature beverages and warm bites at ${merchant.businessName}.`;
       cta = 'Order takeaway or drop by for a hot drink!';
       offer = 'Warm Drink Combo';
       timing = 'Today 4:00 PM – 8:00 PM';
     } else if (insight.type === 'STRONG_HOURS') {
-      headline = 'Weekend Celebration Special 🎉';
+      headline = 'Weekend Celebration Special';
       body = `Make the most of your weekend at ${merchant.businessName}! Treat yourself and your family with our best-selling menu specials.`;
       cta = 'Reserve your spot or drop by early!';
       offer = 'Weekend Signature Special';

@@ -9,25 +9,21 @@ const categoryMeta = {
     label: "ACT NOW",
     badge: "bg-red-100 text-red-800 border-red-200",
     border: "border-red-300 bg-red-50/40",
-    icon: "🔴",
   },
   OPPORTUNITY: {
     label: "OPPORTUNITY",
     badge: "bg-amber-100 text-amber-800 border-amber-200",
     border: "border-amber-300 bg-amber-50/40",
-    icon: "🟡",
   },
   WARNING: {
     label: "WARNING",
     badge: "bg-orange-100 text-orange-800 border-orange-200",
     border: "border-orange-300 bg-orange-50/40",
-    icon: "🟠",
   },
   POSITIVE_TREND: {
     label: "POSITIVE TREND",
     badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
     border: "border-emerald-300 bg-emerald-50/40",
-    icon: "🟢",
   },
 };
 
@@ -116,7 +112,7 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
               onClick={onRefresh}
               className="text-xs md:text-sm text-blue-700 hover:text-blue-900 font-bold px-2.5 py-1 rounded-lg bg-blue-50"
             >
-              Analyze ⚡
+              Analyze
             </button>
           )}
           <Link to="/insights" className="text-xs md:text-sm text-gray-600 hover:text-gray-900 font-bold">
@@ -157,7 +153,7 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className={`badge border text-xs font-bold py-0.5 px-2.5 rounded-md ${meta.badge}`}>
-                      {meta.icon} {meta.label}
+                      {meta.label}
                     </span>
                     <span className="text-sm md:text-base font-bold text-gray-950 leading-snug">{item.title}</span>
                   </div>
@@ -179,7 +175,7 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                 {item.recommendation?.action && (
                   <div className="bg-white/90 border border-gray-200/90 rounded-xl p-3 text-xs md:text-sm space-y-1 mb-2.5">
                     <div className="flex items-center gap-1.5 text-blue-800 font-bold">
-                      <span>💡 AI Recommendation:</span>
+                      <span>AI Recommendation:</span>
                     </div>
                     <p className="text-gray-800 font-medium leading-relaxed">
                       {item.recommendation.action}
@@ -201,7 +197,6 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                     className="btn-primary text-xs md:text-sm font-bold py-2 px-3.5 flex items-center gap-1.5 shadow-sm"
                   >
                     <span>Take Action</span>
-                    <span>⚡</span>
                   </button>
                 </div>
               </div>
@@ -217,7 +212,7 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
             <div className="flex items-start justify-between border-b pb-3">
               <div>
                 <span className={`badge text-[10px] font-semibold ${categoryMeta[selectedInsight.category]?.badge}`}>
-                  {categoryMeta[selectedInsight.category]?.icon} {selectedInsight.category}
+                  {selectedInsight.category}
                 </span>
                 <h3 className="text-base font-bold text-gray-900 mt-1">{selectedInsight.title}</h3>
               </div>
@@ -225,7 +220,7 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                 onClick={() => setSelectedInsight(null)}
                 className="text-gray-400 hover:text-gray-600 text-lg p-1"
               >
-                ✕
+                &times;
               </button>
             </div>
 
@@ -278,7 +273,6 @@ export function AIPriorityFeed({ insights = [], loading = false, dailyBrief = nu
                 className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm"
               >
                 <span>Take Action</span>
-                <span>⚡</span>
               </button>
             </div>
 

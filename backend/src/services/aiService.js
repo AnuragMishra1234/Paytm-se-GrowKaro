@@ -367,7 +367,7 @@ const generateDailyBrief = async (merchant, kpis = {}, topInsights = [], externa
   const calendar = externalContext?.calendar;
 
   const summary = {
-    greeting: `Good morning, ${merchant.ownerName || merchant.businessName} 👋`,
+    greeting: `Good morning, ${merchant.ownerName || merchant.businessName}`,
     date: calendar?.formattedDate || new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' }),
     yesterdayPerformance: {
       revenue: yesterday.revenue || 0,
@@ -377,7 +377,7 @@ const generateDailyBrief = async (merchant, kpis = {}, topInsights = [], externa
     },
     whatMatters: topInsights.length > 0 ? topInsights[0].title : 'Business operating at baseline pace.',
     topOpportunity: topInsights.find((i) => i.category === 'OPPORTUNITY')?.title || 'Optimize midday operating capacity.',
-    externalContextNote: weather ? `${weather.icon} ${weather.condition} (${weather.temperature}°C) in ${weather.city}.` : 'Normal weather.',
+    externalContextNote: weather ? `${weather.condition} (${weather.temperature}°C) in ${weather.city}.` : 'Normal weather.',
     recommendedAction: topInsights.length > 0 && topInsights[0].recommendation?.action
       ? topInsights[0].recommendation.action
       : 'Review hourly footfall patterns and maintain consistent product availability.',

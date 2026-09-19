@@ -60,7 +60,6 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
         <div className="flex items-start justify-between border-b pb-3.5">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="text-2xl">⚡</span>
               <h2 className="text-xl md:text-2xl font-black text-gray-950">Merchant Action Review &amp; Approval</h2>
             </div>
             <p className="text-sm text-gray-600 mt-1 font-medium">
@@ -68,7 +67,7 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
             </p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl p-1 font-bold">
-            ✕
+            &times;
           </button>
         </div>
 
@@ -141,7 +140,7 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
               ))}
               {insight.externalContext?.summary && (
                 <li className="flex items-start gap-2 text-blue-950 font-semibold">
-                  <span className="text-blue-600 font-bold shrink-0">☁️</span>
+                  <span className="text-blue-600 font-bold shrink-0">•</span>
                   <span>External Context: {insight.externalContext.summary}</span>
                 </li>
               )}
@@ -174,7 +173,7 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
                 onClick={() => setIsEditing(!isEditing)}
                 className="text-sm font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1 hover:underline"
               >
-                {isEditing ? "✓ Done Editing" : "✏️ Edit Copy & Offer"}
+                {isEditing ? "Done Editing" : "Edit Copy & Offer"}
               </button>
             )}
           </div>
@@ -284,7 +283,6 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
               <div className="bg-[#e5ddd5]/35 border border-[#25d366]/40 rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-2xs">
                 <div className="flex items-center justify-between text-xs md:text-sm text-gray-600 border-b border-gray-200/60 pb-2">
                   <span className="font-bold text-emerald-800 flex items-center gap-1.5">
-                    <span>💬</span>
                     <span>WhatsApp Broadcast</span>
                   </span>
                   <span className="font-semibold text-gray-500">{timing}</span>
@@ -295,7 +293,7 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
                 <p className="text-sm md:text-base text-gray-800 leading-relaxed whitespace-pre-wrap font-normal">{body}</p>
                 <div className="flex items-center justify-between pt-2.5 border-t border-gray-200/60">
                   <span className="badge bg-emerald-100 text-emerald-950 border border-emerald-300 text-xs md:text-sm font-bold px-3 py-1 rounded-lg">
-                    🏷️ {offer || "Special Offer"}
+                    {offer || "Special Offer"}
                   </span>
                   <span className="text-sm font-extrabold text-blue-700">{cta}</span>
                 </div>
@@ -309,7 +307,7 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
           <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 text-emerald-950 space-y-2">
             <div className="flex items-center justify-between">
               <p className="font-black text-base flex items-center gap-2 text-emerald-950">
-                <span>✓ Campaign Dispatched via n8n Automation</span>
+                <span>Campaign Dispatched via n8n Automation</span>
               </p>
               <span className="text-xs font-bold px-2.5 py-1 rounded bg-emerald-200/80 text-emerald-900">
                 SUCCESS
@@ -373,7 +371,7 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
                 disabled={loading}
                 className="text-sm font-bold text-red-600 hover:text-red-800 px-2 py-1.5 transition-colors"
               >
-                Reject Proposal ✕
+                Reject Proposal
               </button>
             )}
           </div>
@@ -400,7 +398,6 @@ export function ActionReviewModal({ action, insight, onClose, onApprove, onRejec
                 ) : (
                   <>
                     <span>Approve &amp; Launch</span>
-                    <span className="text-lg">⚡</span>
                   </>
                 )}
               </button>

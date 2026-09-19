@@ -101,15 +101,15 @@ export const getMerchantLogo = (merchantOrType) => {
 export const getBusinessTypeInfo = (type, businessName = "") => {
   const logo = getMerchantLogo({ businessType: type, businessName });
   const map = {
-    cafe: { label: "Cafe", logo, icon: "☕" },
-    kirana: { label: "Kirana Store", logo, icon: "🛒" },
-    salon: { label: "Style Studio", logo, icon: "💇" },
-    restaurant: { label: "Restaurant", logo, icon: "🍽️" },
-    retail: { label: "Retail", logo, icon: "🏪" },
-    pharmacy: { label: "Pharmacy", logo, icon: "💊" },
-    other: { label: "Business", logo, icon: "🏢" },
+    cafe: { label: "Cafe", logo, icon: "" },
+    kirana: { label: "Kirana Store", logo, icon: "" },
+    salon: { label: "Style Studio", logo, icon: "" },
+    restaurant: { label: "Restaurant", logo, icon: "" },
+    retail: { label: "Retail", logo, icon: "" },
+    pharmacy: { label: "Pharmacy", logo, icon: "" },
+    other: { label: "Business", logo, icon: "" },
   };
-  return map[type] || { label: "Business", logo, icon: "🏢" };
+  return map[type] || { label: "Business", logo, icon: "" };
 };
 
 /**

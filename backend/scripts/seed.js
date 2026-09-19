@@ -328,8 +328,10 @@ const assignSegmentsAndStats = (customers, products, transactions) => {
 };
 
 // ─── MAIN SEED FUNCTION ───────────────────────────────────────────────────
-const seedDatabase = async () => {
-  await connectDB();
+const seedDatabase = async (disconnectAfter = false) => {
+  if (mongoose.connection.readyState !== 1) {
+    await connectDB();
+  }
 
   console.log('Clearing existing data...');
   await Promise.all([
@@ -432,11 +434,17 @@ const seedDatabase = async () => {
   console.log(`  🛒 Fresh Kirana    ID: ${kirana._id}`);
   console.log(`  💇 Style Studio    ID: ${salon._id}`);
 
-  await mongoose.disconnect();
-  process.exit(0);
+  if (disconnectAfter) {
+    await mongoose.disconnect();
+    process.exit(0);
+  }
 };
 
-seedDatabase().catch((err) => {
-  console.error('Seed failed:', err);
-  process.exit(1);
-});
+if (require.main === module) {
+  seedDatabase(true).catch((err) => {
+    console.error('Seed failed:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = seedDatabase;
